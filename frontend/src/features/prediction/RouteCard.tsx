@@ -61,7 +61,12 @@ export function RouteCard({
               <span>
                 {factor.value_minutes !== undefined && `${String(factor.value_minutes)}分钟`}
                 {factor.effective_weight !== undefined && ` · 权重${Math.round(Number(factor.effective_weight) * 100)}%`}
-                {factor.detail !== undefined && String(factor.detail)}
+                {factor.average_quality_score !== undefined && ` · 平均质量${String(factor.average_quality_score)}分`}
+                {factor.detail !== undefined && `${
+                  factor.value_minutes !== undefined || factor.effective_weight !== undefined
+                    ? " · "
+                    : ""
+                }${String(factor.detail)}`}
               </span>
             </li>
           ))}

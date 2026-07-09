@@ -33,6 +33,16 @@
               }
             }
           },
+          "409": {
+            "description": "请求与当前状态冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "领域规则或请求参数验证失败",
             "content": {
@@ -77,6 +87,16 @@
           },
           "404": {
             "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
             "content": {
               "application/json": {
                 "schema": {
@@ -137,6 +157,16 @@
               }
             }
           },
+          "409": {
+            "description": "请求与当前状态冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "领域规则或请求参数验证失败",
             "content": {
@@ -189,6 +219,16 @@
               }
             }
           },
+          "409": {
+            "description": "请求与当前状态冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "领域规则或请求参数验证失败",
             "content": {
@@ -232,6 +272,16 @@
           },
           "404": {
             "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
             "content": {
               "application/json": {
                 "schema": {
@@ -294,6 +344,16 @@
           },
           "404": {
             "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
             "content": {
               "application/json": {
                 "schema": {
@@ -367,6 +427,16 @@
               }
             }
           },
+          "409": {
+            "description": "请求与当前状态冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "领域规则或请求参数验证失败",
             "content": {
@@ -420,6 +490,16 @@
           },
           "404": {
             "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
             "content": {
               "application/json": {
                 "schema": {
@@ -491,6 +571,16 @@
               }
             }
           },
+          "409": {
+            "description": "请求与当前状态冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "领域规则或请求参数验证失败",
             "content": {
@@ -542,6 +632,16 @@
           },
           "404": {
             "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
             "content": {
               "application/json": {
                 "schema": {
@@ -603,6 +703,16 @@
           },
           "404": {
             "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
             "content": {
               "application/json": {
                 "schema": {
@@ -684,6 +794,16 @@
               }
             }
           },
+          "409": {
+            "description": "请求与当前状态冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
           "422": {
             "description": "领域规则或请求参数验证失败",
             "content": {
@@ -729,6 +849,16 @@
           },
           "404": {
             "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
             "content": {
               "application/json": {
                 "schema": {
@@ -790,6 +920,16 @@
           },
           "404": {
             "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
             "content": {
               "application/json": {
                 "schema": {
@@ -865,6 +1005,16 @@
           },
           "404": {
             "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
             "content": {
               "application/json": {
                 "schema": {
@@ -1226,6 +1376,24 @@
           "time_label": {
             "type": "string",
             "title": "Time Label"
+          },
+          "quality_score": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Quality Score"
+          },
+          "quality_level": {
+            "$ref": "#/components/schemas/ReportQualityLevel"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          },
+          "used_for_prediction": {
+            "type": "boolean",
+            "title": "Used For Prediction"
           }
         },
         "type": "object",
@@ -1235,7 +1403,11 @@
           "crowd_level",
           "id",
           "timestamp",
-          "time_label"
+          "time_label",
+          "quality_score",
+          "quality_level",
+          "expires_at",
+          "used_for_prediction"
         ],
         "title": "CrowdsourceRecord"
       },
@@ -1908,6 +2080,15 @@
           "alerts"
         ],
         "title": "RealtimeResponse"
+      },
+      "ReportQualityLevel": {
+        "type": "string",
+        "enum": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "title": "ReportQualityLevel"
       },
       "RiskLevel": {
         "type": "string",

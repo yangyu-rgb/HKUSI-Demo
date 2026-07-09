@@ -3,6 +3,7 @@ from .crowdsource import CrowdsourceService
 from .demo import DemoService
 from .prediction import PredictionService
 from .realtime import RealtimeService
+from .report_quality import evaluate_report, evaluate_reports
 from .subscription import SubscriptionService
 
 __all__ = [
@@ -11,5 +12,7 @@ __all__ = [
     "DemoService",
     "PredictionService",
     "RealtimeService",
+    "evaluate_report",
+    "evaluate_reports",
     "SubscriptionService",
 ]

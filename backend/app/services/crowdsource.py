@@ -1,6 +1,11 @@
-from ..exceptions import DomainValidationError, ErrorCode
+from datetime import datetime, timezone
+from math import ceil
+
+from ..config import REPORT_DUPLICATE_WINDOW_MINUTES
+from ..exceptions import ConflictError, DomainValidationError, ErrorCode
 from ..repositories import DemoRepository
 from ..schemas.crowdsource import CrowdsourceReport
+from .report_quality import evaluate_report, evaluate_reports, public_report
 
 
 class CrowdsourceService:
@@ -9,8 +14,19 @@ class CrowdsourceService:
 
     def get_feed(self, limit: int) -> dict:
         safe_limit = min(max(limit, 1), 30)
-        reports = self._repository.get_reports()
-        return {"reports": list(reversed(reports[-safe_limit:])), "total": len(reports)}
+        port_state = self._repository.get_port_state()
+        reports = [
+            report
+            for report in evaluate_reports(self._repository.get_reports(), port_state)
+            if report["_active"]
+        ]
+        return {
+            "reports": [
+                public_report(report)
+                for report in reversed(reports[-safe_limit:])
+            ],
+            "total": len(reports),
+        }
 
     def submit(self, report: CrowdsourceReport) -> dict:
         port_state = self._repository.get_port_state()
@@ -31,7 +47,37 @@ class CrowdsourceService:
                 details={"port": report.port},
             )
 
-        model_updated = abs(report.actual_wait_time - port["current_wait"]) > 5
+        scenario_time = datetime.fromisoformat(port_state["timestamp"])
+        existing_reports = evaluate_reports(
+            self._repository.get_reports(),
+            port_state,
+        )
+        duplicate_age = None
+        now = datetime.now(timezone.utc)
+        for item in reversed(existing_reports):
+            if item["user_id"] != report.user_id or item["port"] != port["name"]:
+                continue
+            created_at = datetime.fromisoformat(item["_created_at"])
+            if created_at.tzinfo is None:
+                created_at = created_at.replace(tzinfo=timezone.utc)
+            age = max(0.0, (now - created_at).total_seconds() / 60)
+            if age < REPORT_DUPLICATE_WINDOW_MINUTES:
+                duplicate_age = age
+                break
+        if duplicate_age is not None:
+            retry_after = max(
+                1,
+                ceil(
+                    REPORT_DUPLICATE_WINDOW_MINUTES
+                    - duplicate_age
+                ),
+            )
+            raise ConflictError(
+                ErrorCode.DUPLICATE_REPORT,
+                f"同一口岸反馈提交过于频繁，请在{retry_after}分钟后重试",
+                details={"retry_after_minutes": retry_after},
+            )
+
         record = {
             "user_id": report.user_id,
             "port": port["name"],
@@ -41,11 +87,26 @@ class CrowdsourceService:
             "time_label": "刚刚",
             "comment": report.comment or "现场通关反馈",
         }
-        record = self._repository.add_report(record)
+        stored = self._repository.add_report(record)
+        evaluated = evaluate_report(stored, port, scenario_time)
+        record = public_report(evaluated)
+        points = {
+            "high": 10,
+            "medium": 6,
+            "low": 2,
+        }[record["quality_level"]]
+        model_updated = (
+            record["used_for_prediction"]
+            and abs(report.actual_wait_time - port["current_wait"]) > 5
+        )
+        if record["used_for_prediction"]:
+            message = "感谢反馈！你的数据已加入本次演示的预测校准。"
+        else:
+            message = "反馈已保存，但质量分较低，本次不会用于预测校准。"
         return {
             "success": True,
-            "points_earned": 10,
+            "points_earned": points,
             "model_updated": model_updated,
             "report": record,
-            "message": "感谢反馈！你的数据已加入本次演示的预测校准。",
+            "message": message,
         }

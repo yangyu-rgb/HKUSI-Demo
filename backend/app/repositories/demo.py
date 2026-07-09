@@ -137,6 +137,7 @@ class DemoRepository:
             "timestamp": row["effective_at"],
             "time_label": row["time_label"],
             "comment": row["comment"],
+            "_created_at": row["created_at"],
         }
 
     @staticmethod
@@ -216,7 +217,7 @@ class DemoRepository:
         record = {
             **report,
             "id": report.get("id", f"report-{uuid4().hex[:12]}"),
-            "created_at": utc_now(),
+            "_created_at": utc_now(),
         }
         try:
             with self._connect() as connection:
@@ -236,7 +237,7 @@ class DemoRepository:
                         record["timestamp"],
                         record["time_label"],
                         record["comment"],
-                        record["created_at"],
+                        record["_created_at"],
                     ),
                 )
             return deepcopy(record)

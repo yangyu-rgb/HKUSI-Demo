@@ -32,6 +32,12 @@ def test_prediction_contract(client: TestClient) -> None:
     assert {"latest_departure", "estimated_arrival", "buffer_minutes", "on_time"} <= set(
         payload["ports"][0]
     )
+    crowd_factor = next(
+        factor
+        for factor in payload["ports"][0]["factors"]
+        if factor["code"] == "crowdsource"
+    )
+    assert crowd_factor["average_quality_score"] >= 50
 
 
 def test_invalid_location_returns_422(client: TestClient) -> None:

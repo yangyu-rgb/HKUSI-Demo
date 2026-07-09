@@ -31,6 +31,7 @@ def create_app(
         version="1.2.0",
         responses={
             404: {"model": ErrorResponse, "description": "请求的资源不存在"},
+            409: {"model": ErrorResponse, "description": "请求与当前状态冲突"},
             422: {"model": ErrorResponse, "description": "领域规则或请求参数验证失败"},
             500: {"model": ErrorResponse, "description": "内部服务或持久化错误"},
         },

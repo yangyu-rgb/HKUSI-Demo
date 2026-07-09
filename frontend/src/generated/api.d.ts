@@ -386,6 +386,16 @@ export interface components {
             timestamp: string;
             /** Time Label */
             time_label: string;
+            /** Quality Score */
+            quality_score: number;
+            quality_level: components["schemas"]["ReportQualityLevel"];
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** Used For Prediction */
+            used_for_prediction: boolean;
         };
         /** CrowdsourceReport */
         CrowdsourceReport: {
@@ -660,6 +670,11 @@ export interface components {
             alerts: components["schemas"]["ServiceAlert"][];
         };
         /**
+         * ReportQualityLevel
+         * @enum {string}
+         */
+        ReportQualityLevel: "low" | "medium" | "high";
+        /**
          * RiskLevel
          * @enum {string}
          */
@@ -771,6 +786,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description 领域规则或请求参数验证失败 */
             422: {
                 headers: {
@@ -811,6 +835,15 @@ export interface operations {
             };
             /** @description 请求的资源不存在 */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 请求与当前状态冲突 */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -865,6 +898,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description 领域规则或请求参数验证失败 */
             422: {
                 headers: {
@@ -912,6 +954,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description 领域规则或请求参数验证失败 */
             422: {
                 headers: {
@@ -952,6 +1003,15 @@ export interface operations {
             };
             /** @description 请求的资源不存在 */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 请求与当前状态冲突 */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1010,6 +1070,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description 领域规则或请求参数验证失败 */
             422: {
                 headers: {
@@ -1052,6 +1121,15 @@ export interface operations {
             };
             /** @description 请求的资源不存在 */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 请求与当前状态冲突 */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1110,6 +1188,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description 领域规则或请求参数验证失败 */
             422: {
                 headers: {
@@ -1152,6 +1239,15 @@ export interface operations {
             };
             /** @description 请求的资源不存在 */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 请求与当前状态冲突 */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1210,6 +1306,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description 领域规则或请求参数验证失败 */
             422: {
                 headers: {
@@ -1261,6 +1366,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description 领域规则或请求参数验证失败 */
             422: {
                 headers: {
@@ -1301,6 +1415,15 @@ export interface operations {
             };
             /** @description 请求的资源不存在 */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 请求与当前状态冲突 */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1361,6 +1484,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description 领域规则或请求参数验证失败 */
             422: {
                 headers: {
@@ -1412,6 +1544,15 @@ export interface operations {
                     "application/json": components["schemas"]["ErrorResponse"];
                 };
             };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
             /** @description 领域规则或请求参数验证失败 */
             422: {
                 headers: {
@@ -1455,6 +1596,15 @@ export interface operations {
             };
             /** @description 请求的资源不存在 */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 请求与当前状态冲突 */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };

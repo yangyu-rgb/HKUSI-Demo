@@ -53,3 +53,32 @@
   color: #425b55;
   font-size: 11px;
 }
+
+.details {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.quality {
+  padding: 3px 7px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.quality.high {
+  color: #167454;
+  background: #ddf4eb;
+}
+
+.quality.medium {
+  color: #9b6217;
+  background: #fff0d4;
+}
+
+.quality.low {
+  color: #a53e35;
+  background: #fde4e1;
+}

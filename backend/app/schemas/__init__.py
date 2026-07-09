@@ -1,5 +1,5 @@
 from .batch import BatchEmployee, BatchRequest
-from .common import CrowdLevel, Priority, RiskLevel
+from .common import CrowdLevel, Priority, ReportQualityLevel, RiskLevel
 from .crowdsource import CrowdsourceReport
 from .prediction import PredictionPreferences, PredictionRequest
 from .subscription import (
@@ -18,6 +18,7 @@ __all__ = [
     "Priority",
     "PredictionPreferences",
     "PredictionRequest",
+    "ReportQualityLevel",
     "RiskLevel",
     "Routine",
     "SubscriptionRequest",

@@ -22,6 +22,12 @@ class RiskLevel(str, Enum):
     HIGH = "high"
 
 
+class ReportQualityLevel(str, Enum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+
+
 class ErrorBody(BaseModel):
     code: str
     message: str

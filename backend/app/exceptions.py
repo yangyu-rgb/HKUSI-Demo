@@ -6,6 +6,7 @@ class ErrorCode(str, Enum):
     VALIDATION_ERROR = "VALIDATION_ERROR"
     LOCATION_NOT_FOUND = "LOCATION_NOT_FOUND"
     PORT_NOT_FOUND = "PORT_NOT_FOUND"
+    DUPLICATE_REPORT = "DUPLICATE_REPORT"
     SUBSCRIPTION_NOT_FOUND = "SUBSCRIPTION_NOT_FOUND"
     PLAN_NOT_FOUND = "PLAN_NOT_FOUND"
     TARGET_TIME_OUT_OF_RANGE = "TARGET_TIME_OUT_OF_RANGE"
@@ -44,6 +45,11 @@ class DomainValidationError(AppError):
 class ResourceNotFoundError(AppError):
     def __init__(self, code: ErrorCode, message: str, *, details: Any = None):
         super().__init__(code, message, status_code=404, details=details)
+
+
+class ConflictError(AppError):
+    def __init__(self, code: ErrorCode, message: str, *, details: Any = None):
+        super().__init__(code, message, status_code=409, details=details)
 
 
 class PersistenceError(AppError):

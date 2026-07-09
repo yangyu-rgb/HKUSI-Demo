@@ -54,7 +54,7 @@ export function CrowdsourcePage() {
       <div className="pageIntro">
         <span className="sectionKicker">Human-in-the-loop</span>
         <h1>现场反馈让预测持续校准</h1>
-        <p>每一条真实等待时间都会参与演示模型的加权计算。偏差超过5分钟时，系统标记一次模型更新。</p>
+        <p>反馈按新鲜度、等待偏差和人流一致性评分；有效数据按质量加权参与预测，同一口岸10分钟内不可重复提交。</p>
       </div>
       <section className={styles.grid}>
         <form className={styles.form} onSubmit={handleSubmit}>
@@ -67,10 +67,11 @@ export function CrowdsourcePage() {
                 ))}
               </select>
             </label>
-            <label>
+            <label htmlFor="crowdsource-wait">
               <span>实际等待</span>
               <div className={styles.unitInput}>
                 <input
+                  id="crowdsource-wait"
                   type="number"
                   min="0"
                   max="180"
@@ -110,7 +111,7 @@ export function CrowdsourcePage() {
             />
           </label>
           <button className="button buttonAccent" disabled={crowdsource.submitting}>
-            {crowdsource.submitting ? "正在提交…" : "提交反馈 · +10积分"}
+            {crowdsource.submitting ? "正在提交…" : "提交反馈"}
           </button>
           {crowdsource.message && <p className="formSuccess">{crowdsource.message}</p>}
           {crowdsource.error && <p className="formError">{crowdsource.error}</p>}

@@ -87,7 +87,6 @@ docs/
   project_plan.md           # 详细项目规划文档
   api_contract.md           # API接口设计
   demo_script.md            # Demo演示脚本
-  team_roles.md             # 团队分工
 frontend/
   src/
     pages/

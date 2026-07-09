@@ -21,6 +21,7 @@ from ..exceptions import DomainValidationError, ErrorCode
 from ..repositories import DemoRepository
 from ..schemas.common import Priority
 from ..schemas.prediction import PredictionPreferences, PredictionRequest
+from .report_quality import evaluate_reports, quality_weighted_wait
 
 
 class PredictionService:
@@ -167,10 +168,13 @@ class PredictionService:
             target_time,
         )
         port_reports = [
-            report for report in reports if report["port"] == port["name"]
+            report
+            for report in reports
+            if report["port"] == port["name"]
+            and report["used_for_prediction"]
         ][-3:]
         crowd_mean = (
-            fmean(report["actual_wait_time"] for report in port_reports)
+            quality_weighted_wait(port_reports)
             if port_reports
             else None
         )
@@ -221,6 +225,16 @@ class PredictionService:
                 },
             ]
         )
+        if port_reports:
+            crowd_factor = next(
+                factor for factor in factors if factor["code"] == "crowdsource"
+            )
+            crowd_factor["average_quality_score"] = round(
+                fmean(report["quality_score"] for report in port_reports)
+            )
+            crowd_factor["detail"] = (
+                f"{len(port_reports)}条有效反馈按质量分加权"
+            )
 
         return {
             "port_id": port["id"],
@@ -323,7 +337,10 @@ class PredictionService:
             )
 
         port_state = self._repository.get_port_state()
-        reports = self._repository.get_reports()
+        reports = evaluate_reports(
+            self._repository.get_reports(),
+            port_state,
+        )
         scenario_time = datetime.fromisoformat(port_state["timestamp"])
         target_time = self._normalize_target(request.target_time, scenario_time)
         minimum = scenario_time + timedelta(minutes=MIN_TARGET_LEAD_MINUTES)

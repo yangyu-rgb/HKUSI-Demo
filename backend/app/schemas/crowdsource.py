@@ -1,6 +1,8 @@
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 
-from .common import CrowdLevel
+from .common import CrowdLevel, ReportQualityLevel
 
 
 class CrowdsourceReport(BaseModel):
@@ -15,6 +17,10 @@ class CrowdsourceRecord(CrowdsourceReport):
     id: str
     timestamp: str
     time_label: str
+    quality_score: int = Field(ge=0, le=100)
+    quality_level: ReportQualityLevel
+    expires_at: datetime
+    used_for_prediction: bool
 
 
 class CrowdsourceFeedResponse(BaseModel):

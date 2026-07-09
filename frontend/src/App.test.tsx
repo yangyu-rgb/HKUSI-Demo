@@ -194,6 +194,74 @@ describe("application routes", () => {
     expect(screen.getByText("无法连接服务器，请检查后端是否已启动。")).toBeInTheDocument();
   });
 
+  it("shows report quality and explains duplicate crowdsource rejection", async () => {
+    const realtime = {
+      timestamp: "2026-07-09T07:45:00",
+      source: "test",
+      ports: [{
+        id: "futian",
+        name: "福田",
+        name_en: "Futian",
+        current_wait: 14,
+        status: "open",
+        crowd_level: "low",
+        special_channels: ["学生通道开放"],
+        passenger_flow: "畅通",
+        forecast: [
+          { offset_minutes: 0, wait: 14 },
+          { offset_minutes: 60, wait: 17 },
+        ],
+        anomalies: [],
+        crowdsource_count: 1,
+      }],
+      alerts: [],
+    };
+    const feed = {
+      reports: [{
+        id: "report-1",
+        user_id: "student",
+        port: "福田",
+        actual_wait_time: 13,
+        crowd_level: "low",
+        comment: "通关顺畅",
+        timestamp: "2026-07-09T07:40:00",
+        time_label: "5分钟前",
+        quality_score: 95,
+        quality_level: "high",
+        expires_at: "2026-07-09T09:10:00",
+        used_for_prediction: true,
+      }],
+      total: 1,
+    };
+    const fetchMock = vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input);
+      if (url.endsWith("/api/realtime")) return json(realtime);
+      if (url.endsWith("/api/crowdsource/feed")) return json(feed);
+      if (url.endsWith("/api/crowdsource/report") && init?.method === "POST") {
+        return json({
+          error: {
+            code: "DUPLICATE_REPORT",
+            message: "同一口岸反馈提交过于频繁，请在10分钟后重试",
+            details: { retry_after_minutes: 10 },
+            request_id: "req-duplicate",
+          },
+        }, 409);
+      }
+      throw new Error(`Unexpected request: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    renderRoute("/crowdsource");
+    expect(await screen.findByText("高可信 95分")).toBeInTheDocument();
+    expect(screen.getByText("有效至 09:10")).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText(/实际等待/), { target: { value: "14" } });
+    fireEvent.click(screen.getByRole("button", { name: "提交反馈" }));
+
+    expect(await screen.findByText("同一口岸反馈提交过于频繁，请在10分钟后重试"))
+      .toBeInTheDocument();
+  });
+
   it("edits and deletes a persisted alert subscription", async () => {
     let subscriptions = [{
       subscription_id: "sub-1",
