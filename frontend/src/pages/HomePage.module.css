@@ -1,0 +1,183 @@
+.hero {
+  max-width: 1240px;
+  min-height: 410px;
+  margin: 34px auto 20px;
+  padding: 66px 70px;
+  display: grid;
+  grid-template-columns: 1.45fr 0.75fr;
+  align-items: center;
+  gap: 80px;
+  overflow: hidden;
+  position: relative;
+  background: #103f39;
+  border-radius: 30px;
+  color: white;
+  box-shadow: var(--shadow);
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  right: -190px;
+  top: -250px;
+  border-radius: 50%;
+  border: 95px solid rgba(201, 243, 107, 0.12);
+}
+
+.heroCopy,
+.signal {
+  position: relative;
+  z-index: 1;
+}
+
+.heroCopy :global(.sectionKicker) {
+  color: var(--lime);
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: clamp(39px, 5vw, 60px);
+  line-height: 1.06;
+  letter-spacing: -0.045em;
+}
+
+.heroCopy > p {
+  max-width: 650px;
+  margin: 24px 0 30px;
+  color: #cfe0dc;
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+.heroActions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.heroActions span {
+  color: #acc7c1;
+  font-size: 12px;
+}
+
+.signal {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+}
+
+.signal div {
+  min-height: 112px;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.signal strong {
+  font-size: 29px;
+  color: var(--lime);
+}
+
+.signal span {
+  margin-top: 4px;
+  color: #c5d8d4;
+  font-size: 11px;
+}
+
+.alert {
+  max-width: 1240px;
+  margin: 0 auto 48px;
+  padding: 13px 18px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  color: #6b4d14;
+  background: #fff7dc;
+  border: 1px solid #f0dda4;
+  border-radius: 12px;
+}
+
+.alert span {
+  flex: 0 0 auto;
+  padding: 5px 9px;
+  color: white;
+  background: #c6812e;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.alert p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.portGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+@media (max-width: 1100px) {
+  .hero,
+  .alert {
+    margin-left: 24px;
+    margin-right: 24px;
+  }
+
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 35px;
+    padding: 50px;
+  }
+
+  .signal {
+    max-width: 520px;
+  }
+
+  .portGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .hero,
+  .alert {
+    margin-left: 14px;
+    margin-right: 14px;
+  }
+
+  .hero {
+    margin-top: 18px;
+    padding: 38px 25px;
+    border-radius: 22px;
+  }
+
+  .hero h1 {
+    font-size: 38px;
+  }
+
+  .heroCopy > p {
+    font-size: 14px;
+  }
+
+  .heroActions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .alert {
+    align-items: flex-start;
+  }
+
+  .portGrid {
+    grid-template-columns: 1fr;
+  }
+}

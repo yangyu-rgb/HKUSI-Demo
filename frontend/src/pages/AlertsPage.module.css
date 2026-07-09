@@ -1,0 +1,63 @@
+.card {
+  min-height: 360px;
+  padding: 48px;
+  color: white;
+  background: var(--teal-dark);
+  border-radius: 24px;
+}
+
+.card h2 {
+  margin: 0;
+  color: white;
+  font-size: 28px;
+}
+
+.card > div > p {
+  color: #bfdbd5;
+}
+
+.card form {
+  margin-top: 36px;
+  display: grid;
+  grid-template-columns: 170px 1fr auto;
+  align-items: end;
+  gap: 22px;
+}
+
+.card label > span {
+  color: #b7d0ca;
+}
+
+.checkList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  padding-bottom: 8px;
+  color: #cbe0db;
+  font-size: 11px;
+}
+
+.success,
+.error {
+  margin: 22px 0 0;
+  font-size: 12px;
+}
+
+.success {
+  color: #baf1e4;
+}
+
+.error {
+  color: #ffd0ca;
+}
+
+@media (max-width: 760px) {
+  .card {
+    min-height: auto;
+    padding: 28px 22px;
+  }
+
+  .card form {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,55 @@
+.item {
+  padding: 17px 22px;
+  display: grid;
+  grid-template-columns: 35px 1fr;
+  gap: 12px;
+  border-bottom: 1px solid #edf2ef;
+}
+
+.item:last-child {
+  border-bottom: 0;
+}
+
+.avatar {
+  width: 35px;
+  height: 35px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.avatar.low {
+  color: #167454;
+  background: #ddf4eb;
+}
+
+.avatar.medium {
+  color: #9b6217;
+  background: #fff0d4;
+}
+
+.avatar.high {
+  color: #a53e35;
+  background: #fde4e1;
+}
+
+.meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 11px;
+}
+
+.meta span,
+.item small {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.item p {
+  margin: 5px 0;
+  color: #425b55;
+  font-size: 11px;
+}

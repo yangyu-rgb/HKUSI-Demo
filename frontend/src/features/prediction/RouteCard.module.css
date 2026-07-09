@@ -1,0 +1,171 @@
+.card {
+  padding: 18px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+.recommended {
+  border: 2px solid var(--teal);
+  box-shadow: 0 10px 25px rgba(8, 127, 112, 0.1);
+}
+
+.header {
+  min-height: 59px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.header h3 {
+  margin: 3px 0 0;
+  font-size: 17px;
+}
+
+.header p {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.badge {
+  color: var(--teal);
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+}
+
+.risk {
+  padding: 5px 8px;
+  border-radius: 7px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.risk.low {
+  color: #137052;
+  background: #e2f5ed;
+}
+
+.risk.medium {
+  color: #9a6214;
+  background: #fff1d7;
+}
+
+.risk.high {
+  color: #a83d33;
+  background: #fde6e3;
+}
+
+.feasibility {
+  margin: 13px 0;
+  padding: 11px;
+  display: grid;
+  gap: 3px;
+  border-radius: 10px;
+}
+
+.feasibility strong {
+  font-size: 12px;
+}
+
+.feasibility span {
+  font-size: 9px;
+}
+
+.onTime {
+  color: #12624c;
+  background: #e5f5ee;
+}
+
+.late {
+  color: #a23f36;
+  background: #fde8e5;
+}
+
+.metrics {
+  margin: 13px 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.metrics div {
+  padding: 9px;
+  display: grid;
+  gap: 2px;
+  background: #f5f8f6;
+  border-radius: 8px;
+}
+
+.metrics span {
+  color: var(--muted);
+  font-size: 8px;
+}
+
+.metrics strong {
+  font-size: 11px;
+}
+
+.confidence {
+  min-height: 33px;
+  color: var(--teal-dark);
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+.steps {
+  margin-top: 12px;
+  display: grid;
+  gap: 10px;
+}
+
+.step {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  gap: 8px;
+  align-items: start;
+}
+
+.step > span {
+  width: 19px;
+  height: 19px;
+  display: grid;
+  place-items: center;
+  color: white;
+  background: var(--teal);
+  border-radius: 50%;
+  font-size: 8px;
+}
+
+.step > div {
+  display: grid;
+  gap: 2px;
+}
+
+.step strong {
+  font-size: 9px;
+}
+
+.step small {
+  color: var(--muted);
+  font-size: 8px;
+}
+
+.routeAlert,
+.budgetAlert {
+  margin: 12px 0 0;
+  padding: 8px;
+  color: #9a6214;
+  background: #fff4dd;
+  border-radius: 7px;
+  font-size: 8px;
+}
+
+.budgetAlert {
+  margin: 0 0 10px;
+  color: #a23f36;
+  background: #fde8e5;
+}

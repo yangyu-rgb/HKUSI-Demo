@@ -1,47 +1,52 @@
 # CrossBorder AI API Contract
 
-The local FastAPI backend exposes deterministic CrossBorder AI demo endpoints.
-
 Base URL:
 
 ```text
 http://127.0.0.1:8000
 ```
 
+The API uses deterministic local data. Domain validation errors return HTTP `422` with a JSON `detail` field.
+
 ## GET `/api/health`
 
 Returns service and demo-mode status.
-
-```json
-{
-  "status": "ok",
-  "service": "crossborder-ai-api",
-  "mode": "deterministic-demo"
-}
-```
 
 ## GET `/api/realtime`
 
 Returns the scenario timestamp, service alerts, and current status for 罗湖、福田、皇岗、深圳湾.
 
-Each port includes:
+Each port includes its current wait, crowd level, open state, special channels, forecast points, and crowdsource sample count.
 
-- Current wait and crowd level
-- Open status and special channels
-- Zero-, one-, and two-hour forecast points
-- Access and onward transport assumptions
-- Number of crowdsource samples
+## GET `/api/locations`
+
+Returns the locations supported by the deterministic transit matrix.
+
+```json
+{
+  "origins": [
+    {"id": "hku", "name": "香港大学", "city": "香港"},
+    {"id": "central", "name": "中环", "city": "香港"},
+    {"id": "kowloon-tong", "name": "九龙塘", "city": "香港"}
+  ],
+  "destinations": [
+    {"id": "nanshan-tech", "name": "深圳南山科技园", "city": "深圳"},
+    {"id": "futian-cbd", "name": "深圳福田 CBD", "city": "深圳"},
+    {"id": "shenzhen-north", "name": "深圳北站", "city": "深圳"}
+  ]
+}
+```
 
 ## POST `/api/predict`
 
-Compares all four ports for one cross-border trip.
+Compares all four ports for one supported origin/destination pair.
 
 Request:
 
 ```json
 {
-  "departure": "香港大学",
-  "destination": "深圳南山科技园",
+  "origin_id": "hku",
+  "destination_id": "nanshan-tech",
   "target_time": "2026-07-09T09:30:00",
   "preferences": {
     "priority": "balanced",
@@ -50,135 +55,78 @@ Request:
 }
 ```
 
-Valid priorities are `balanced`, `fastest`, and `cheapest`.
+Valid priorities are `balanced`, `fastest`, and `cheapest`. Set `max_budget` to `null` to disable budget filtering.
 
-Response:
+Each port result includes:
+
+- Predicted border wait and confidence interval
+- End-to-end time and cost from the location matrix
+- Estimated arrival if leaving at the scenario time
+- Latest departure including a ten-minute safety buffer
+- Positive or negative arrival buffer
+- `on_time` and `within_budget` decision flags
+- Route steps, crowdsource sample count, risk, and anomalies
+
+Response excerpt:
 
 ```json
 {
   "query": {
-    "departure": "香港大学",
-    "destination": "深圳南山科技园",
+    "origin_id": "hku",
+    "origin_name": "香港大学",
+    "destination_id": "nanshan-tech",
+    "destination_name": "深圳南山科技园",
     "target_time": "2026-07-09T09:30:00",
-    "priority": "balanced"
+    "priority": "balanced",
+    "max_budget": 100
   },
   "ports": [
     {
       "port_id": "futian",
       "name": "福田",
-      "predicted_wait_time": 16,
-      "confidence_interval": [12, 20],
-      "risk_level": "low",
-      "late_risk_percent": 13,
-      "total_time": 82,
+      "total_time": 84,
       "total_cost": 49,
-      "crowdsource_enhanced": true,
-      "route": {
-        "steps": []
-      }
+      "estimated_arrival": "2026-07-09T09:09:00",
+      "latest_departure": "2026-07-09T07:56:00",
+      "buffer_minutes": 21,
+      "on_time": true,
+      "within_budget": true
     }
   ],
   "recommended": "福田",
-  "reason": "福田在当前偏好下综合最优。",
-  "demo_notice": "结果由本地确定性规则与众包样本生成，不代表真实口岸状态。"
+  "recommended_port_id": "futian",
+  "warnings": []
 }
 ```
 
-The demo predictor blends the closest time-horizon forecast with recent crowdsource waits at a 70/30 weighting. Confidence and late-risk values are deterministic heuristics.
+Recommendation behavior:
+
+1. Prefer routes that are both on time and within budget.
+2. Apply the selected fastest, cheapest, or balanced scoring within that set.
+3. If all budget-eligible routes are late, recommend the least-late route.
+4. If all routes exceed budget, recommend the lowest-cost route and return a warning.
+
+The predictor blends the nearest forecast horizon with the last three crowdsource waits for that port at a 70/30 weighting.
 
 ## GET `/api/crowdsource/feed`
 
-Query parameter:
-
-- `limit`: 1–30, default 8
-
-Response:
-
-```json
-{
-  "reports": [],
-  "total": 4
-}
-```
+Returns the most recent in-memory reports. `limit` accepts values from 1 to 30.
 
 ## POST `/api/crowdsource/report`
 
-Adds one in-memory report. A difference greater than five minutes from the current port wait marks `model_updated` as true.
-
-Request:
-
-```json
-{
-  "user_id": "demo-user",
-  "port": "福田",
-  "actual_wait_time": 12,
-  "crowd_level": "low",
-  "comment": "排队很短，通关顺畅。"
-}
-```
-
-Response:
-
-```json
-{
-  "success": true,
-  "points_earned": 10,
-  "model_updated": false,
-  "report": {},
-  "message": "感谢反馈！你的数据已加入本次演示的预测校准。"
-}
-```
+Adds an in-memory report and awards ten demo points. A wait difference greater than five minutes marks `model_updated` as true.
 
 ## POST `/api/subscription`
 
-Creates an in-memory smart-alert configuration.
-
-Request:
-
-```json
-{
-  "user_id": "demo-user",
-  "routine": {
-    "departure": "香港大学",
-    "destination": "深圳南山科技园",
-    "days": ["monday", "wednesday", "friday"],
-    "arrival_deadline": "09:30",
-    "priority": "balanced"
-  },
-  "alerts": {
-    "advance_reminder": true,
-    "anomaly_alert": true,
-    "better_route_alert": true
-  }
-}
-```
+Creates an in-memory smart-alert configuration and returns the next demo alert time.
 
 ## POST `/api/batch`
 
-Generates a deterministic employee dispatch plan for the B2B demo.
-
-Request:
-
-```json
-{
-  "company": "大湾区跨境服务有限公司",
-  "date": "2026-07-09",
-  "employees": [
-    {
-      "id": "E-101",
-      "departure": "香港大学",
-      "destination": "深圳南山",
-      "arrival_deadline": "09:30"
-    }
-  ]
-}
-```
-
-The response contains one recommended port and departure time per employee plus summary risk metrics.
+Generates deterministic port and departure recommendations for up to 100 employees.
 
 ## Demo Boundaries
 
-- No live i口岸, transport, weather, notification, or map integrations.
-- No production machine-learning model.
+- No live border, map, transport, weather, notification, or AI services.
+- No production machine-learning model or persistent database.
 - Submitted reports and subscriptions reset on backend restart.
-- API outputs are decision-support examples, not operational border guidance.
+- Outputs are decision-support examples, not operational border guidance.

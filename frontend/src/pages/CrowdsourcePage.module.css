@@ -1,0 +1,103 @@
+.grid {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 48px;
+  align-items: start;
+}
+
+.form {
+  padding: 22px;
+  display: grid;
+  gap: 15px;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 17px;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.unitInput {
+  position: relative;
+}
+
+.unitInput input {
+  padding-right: 42px;
+}
+
+.unitInput b {
+  position: absolute;
+  right: 11px;
+  top: 15px;
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 3px;
+  background: #edf3ef;
+  border-radius: 9px;
+}
+
+.segmented button {
+  height: 34px;
+  border: 0;
+  color: var(--muted);
+  background: transparent;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 10px;
+}
+
+.segmented .active {
+  color: var(--teal-dark);
+  background: white;
+  box-shadow: 0 3px 10px rgba(20, 66, 58, 0.08);
+  font-weight: 700;
+}
+
+.feedPanel {
+  overflow: hidden;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+}
+
+.feedHeader {
+  padding: 20px 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+}
+
+.feedHeader h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.feedHeader span {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.feedList {
+  max-height: 520px;
+  overflow: auto;
+}
+
+@media (max-width: 760px) {
+  .grid,
+  .formRow {
+    grid-template-columns: 1fr;
+  }
+
+  .grid {
+    gap: 22px;
+  }
+}

@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-07-09T08:45:00",
+  "timestamp": "2026-07-09T07:45:00",
   "source": "CrossBorder AI deterministic demo dataset",
   "ports": [
     {
@@ -16,8 +16,6 @@
         {"offset_minutes": 60, "wait": 31},
         {"offset_minutes": 120, "wait": 38}
       ],
-      "access": {"mode": "mtr", "label": "香港大学 → 罗湖", "duration": 48, "cost": 31},
-      "onward": {"mode": "metro", "label": "罗湖 → 深圳南山", "duration": 42, "cost": 8},
       "anomalies": ["09:30后客流预计上升"]
     },
     {
@@ -34,8 +32,6 @@
         {"offset_minutes": 60, "wait": 17},
         {"offset_minutes": 120, "wait": 21}
       ],
-      "access": {"mode": "mtr", "label": "香港大学 → 福田", "duration": 39, "cost": 43},
-      "onward": {"mode": "metro", "label": "福田 → 深圳南山", "duration": 27, "cost": 6},
       "anomalies": []
     },
     {
@@ -52,8 +48,6 @@
         {"offset_minutes": 60, "wait": 48},
         {"offset_minutes": 120, "wait": 44}
       ],
-      "access": {"mode": "bus", "label": "香港大学 → 皇岗", "duration": 44, "cost": 38},
-      "onward": {"mode": "metro", "label": "皇岗 → 深圳南山", "duration": 34, "cost": 7},
       "anomalies": ["跨境巴士到站集中，短时拥堵"]
     },
     {
@@ -70,8 +64,6 @@
         {"offset_minutes": 60, "wait": 20},
         {"offset_minutes": 120, "wait": 24}
       ],
-      "access": {"mode": "bus", "label": "香港大学 → 深圳湾", "duration": 37, "cost": 34},
-      "onward": {"mode": "bus", "label": "深圳湾 → 深圳南山", "duration": 21, "cost": 12},
       "anomalies": []
     }
   ],

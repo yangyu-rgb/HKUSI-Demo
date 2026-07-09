@@ -1,0 +1,147 @@
+.card {
+  padding: 20px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 8px 28px rgba(20, 66, 58, 0.035);
+}
+
+.top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.title {
+  display: grid;
+  grid-template-columns: 9px auto;
+  column-gap: 8px;
+  align-items: center;
+}
+
+.title strong {
+  font-size: 18px;
+}
+
+.title small {
+  grid-column: 2;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dot.low {
+  background: #27ae7a;
+  box-shadow: 0 0 0 4px #e1f5ed;
+}
+
+.dot.medium {
+  background: #e5a733;
+  box-shadow: 0 0 0 4px #fff1d8;
+}
+
+.dot.high {
+  background: #e5685a;
+  box-shadow: 0 0 0 4px #fde5e2;
+}
+
+.crowd {
+  padding: 5px 8px;
+  border-radius: 7px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.crowd.low {
+  color: #137052;
+  background: #e2f5ed;
+}
+
+.crowd.medium {
+  color: #9a6214;
+  background: #fff1d7;
+}
+
+.crowd.high {
+  color: #a83d33;
+  background: #fde6e3;
+}
+
+.wait {
+  margin: 24px 0 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.wait > span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.wait > strong {
+  font-size: 27px;
+  letter-spacing: -0.03em;
+}
+
+.wait strong small {
+  margin-left: 4px;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.forecast {
+  height: 82px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 18px;
+}
+
+.forecastItem {
+  width: 31px;
+  display: grid;
+  justify-items: center;
+  grid-template-rows: 47px 14px 13px;
+  font-size: 9px;
+  color: var(--muted);
+}
+
+.track {
+  width: 9px;
+  height: 45px;
+  display: flex;
+  align-items: flex-end;
+  background: #edf2ef;
+  border-radius: 9px;
+  overflow: hidden;
+}
+
+.track span {
+  width: 100%;
+  display: block;
+  background: #54b7a5;
+  border-radius: 9px;
+}
+
+.forecastItem b {
+  color: var(--ink);
+  font-size: 10px;
+}
+
+.meta {
+  margin-top: 16px;
+  padding-top: 13px;
+  display: grid;
+  gap: 5px;
+  border-top: 1px solid #edf2ef;
+  color: var(--muted);
+  font-size: 9px;
+}

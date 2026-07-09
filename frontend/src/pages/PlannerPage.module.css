@@ -1,0 +1,99 @@
+.planner {
+  overflow: hidden;
+  background: #e7f2ed;
+  border: 1px solid #d3e7de;
+  border-radius: 26px;
+}
+
+.panel {
+  padding: 34px 38px 30px;
+}
+
+.results {
+  padding: 0 17px 17px;
+}
+
+.summary {
+  margin-bottom: 14px;
+  padding: 22px 24px;
+  display: grid;
+  grid-template-columns: 90px 160px 1fr;
+  align-items: center;
+  background: var(--teal-dark);
+  border-radius: 16px;
+  color: white;
+}
+
+.summary > span {
+  color: #b8d6d0;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.summary h2 {
+  margin: 0;
+  color: var(--lime);
+  font-size: 22px;
+}
+
+.summary p {
+  margin: 0;
+  color: #d8e8e4;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.summary small {
+  grid-column: 3;
+  margin-top: 6px;
+  color: #91b7af;
+  font-size: 9px;
+}
+
+.warning {
+  margin: 0 0 12px;
+  padding: 10px 13px;
+  color: #8f5615;
+  background: #fff1d7;
+  border-radius: 9px;
+  font-size: 11px;
+}
+
+.routeGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 1100px) {
+  .routeGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .summary {
+    grid-template-columns: 80px 140px 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .planner {
+    border-radius: 18px;
+  }
+
+  .panel {
+    padding: 28px 20px;
+  }
+
+  .summary {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+
+  .summary small {
+    grid-column: 1;
+  }
+
+  .routeGrid {
+    grid-template-columns: 1fr;
+  }
+}

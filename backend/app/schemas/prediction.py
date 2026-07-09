@@ -1,0 +1,79 @@
+from datetime import datetime
+from typing import Literal
+
+from pydantic import BaseModel, Field
+
+
+Priority = Literal["fastest", "cheapest", "balanced"]
+
+
+class PredictionPreferences(BaseModel):
+    priority: Priority = "balanced"
+    max_budget: int | None = Field(default=None, ge=0)
+
+
+class PredictionRequest(BaseModel):
+    origin_id: str = Field(min_length=1)
+    destination_id: str = Field(min_length=1)
+    target_time: datetime
+    preferences: PredictionPreferences = Field(default_factory=PredictionPreferences)
+
+
+class LocationOption(BaseModel):
+    id: str
+    name: str
+    city: str
+
+
+class LocationsResponse(BaseModel):
+    origins: list[LocationOption]
+    destinations: list[LocationOption]
+
+
+class RouteStep(BaseModel):
+    mode: str
+    label: str
+    duration: int
+    cost: int
+
+
+class PortPrediction(BaseModel):
+    port_id: str
+    name: str
+    name_en: str
+    predicted_wait_time: int
+    confidence_interval: tuple[int, int]
+    risk_level: Literal["low", "medium", "high"]
+    late_risk_percent: int
+    total_time: int
+    total_cost: int
+    estimated_arrival: datetime
+    latest_departure: datetime
+    buffer_minutes: int
+    on_time: bool
+    within_budget: bool
+    crowdsource_enhanced: bool
+    crowdsource_count: int
+    route: dict[str, list[RouteStep]]
+    anomalies: list[str]
+
+
+class PredictionQuery(BaseModel):
+    origin_id: str
+    origin_name: str
+    destination_id: str
+    destination_name: str
+    target_time: datetime
+    priority: Priority
+    max_budget: int | None
+
+
+class PredictionResponse(BaseModel):
+    query: PredictionQuery
+    ports: list[PortPrediction]
+    recommended: str
+    recommended_port_id: str
+    reason: str
+    warnings: list[str]
+    generated_at: datetime
+    demo_notice: str

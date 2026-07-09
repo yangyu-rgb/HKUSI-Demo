@@ -1,15 +1,19 @@
 # CrossBorder AI Backend
 
-FastAPI service for the deterministic CrossBorder AI demo. It models the core product workflow without live border systems or external AI services.
+FastAPI service for the deterministic CrossBorder AI demo.
 
-## Capabilities
+## Architecture
 
-- Four-port real-time status
-- One-to-three-hour wait prediction with confidence intervals
-- Route comparison by time, cost, and late-arrival risk
-- In-memory crowdsource calibration
-- Smart-alert subscription setup
-- B2B batch commute planning
+```text
+app/
+  api/           # HTTP routers and dependency providers
+  schemas/       # Pydantic request and response contracts
+  services/      # Prediction and workflow business logic
+  repositories/ # JSON reads and reset-on-restart memory state
+  main.py        # Application assembly only
+```
+
+The route predictor combines four-port forecasts, crowdsource reports, and a deterministic origin/port/destination matrix.
 
 ## Run
 
@@ -20,16 +24,17 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --port 8000
 ```
 
-Health check:
-
-```bash
-curl http://127.0.0.1:8000/api/health
-```
-
 Interactive API documentation:
 
 ```text
 http://127.0.0.1:8000/docs
 ```
 
-Crowdsource reports and subscriptions created through the API are stored in memory and reset when the backend restarts. The source JSON files remain deterministic.
+## Test
+
+```bash
+pip install -r requirements-dev.txt
+pytest -q
+```
+
+Crowdsource reports and subscriptions created through the API are stored in memory and reset when the backend restarts.

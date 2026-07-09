@@ -8,14 +8,15 @@
 
 ## Frontend Owner
 
-- Maintain the four-port status board and route-comparison experience.
-- Own crowdsource, subscription, and enterprise interactions.
+- Maintain the five route-level pages and shared application layout.
+- Keep each feature's types, API calls, hooks, components, and styles isolated.
+- Own the four-port, prediction, crowdsource, subscription, and enterprise interactions.
 - Verify responsive layouts and presentation-screen readability.
 
 ## Backend Owner
 
-- Maintain FastAPI request/response contracts.
-- Keep deterministic predictions, risk scoring, and route selection reproducible.
+- Maintain Router, Schema, Service, and Repository boundaries.
+- Keep deterministic location matrices, predictions, risk scoring, and route selection reproducible.
 - Preserve clear demo boundaries and input validation.
 
 ## AI and Data Owner

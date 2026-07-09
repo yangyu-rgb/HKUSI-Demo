@@ -1,0 +1,104 @@
+.card {
+  padding: 38px;
+  background: #e9efbd;
+  border-radius: 24px;
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.heading h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.heading p {
+  margin: 7px 0 0;
+  color: #61704d;
+  font-size: 12px;
+}
+
+.result {
+  margin-top: 28px;
+}
+
+.stats {
+  max-width: 540px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.stats div {
+  padding: 15px;
+  display: grid;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+}
+
+.stats strong {
+  font-size: 24px;
+}
+
+.stats span {
+  color: #61704d;
+  font-size: 9px;
+}
+
+.table {
+  margin-top: 22px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.62);
+  border-radius: 14px;
+}
+
+.tableHeader,
+.tableRow {
+  padding: 13px 17px;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 0.7fr;
+  gap: 10px;
+  font-size: 11px;
+}
+
+.tableHeader {
+  color: #61704d;
+  background: rgba(255, 255, 255, 0.45);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.tableRow {
+  border-top: 1px solid rgba(79, 98, 62, 0.1);
+}
+
+.recommendation {
+  margin: 18px 0 0;
+  color: #536244;
+  font-size: 12px;
+}
+
+@media (max-width: 760px) {
+  .card {
+    padding: 28px 20px;
+  }
+
+  .heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .table {
+    overflow-x: auto;
+  }
+
+  .tableHeader,
+  .tableRow {
+    min-width: 620px;
+  }
+}

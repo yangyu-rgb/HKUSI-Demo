@@ -1,0 +1,44 @@
+{
+  "access": {
+    "hku": {
+      "luohu": {"mode": "mtr", "label": "香港大学 → 罗湖", "duration": 48, "cost": 31},
+      "futian": {"mode": "mtr", "label": "香港大学 → 福田", "duration": 39, "cost": 43},
+      "huanggang": {"mode": "bus", "label": "香港大学 → 皇岗", "duration": 44, "cost": 38},
+      "shenzhen-bay": {"mode": "bus", "label": "香港大学 → 深圳湾", "duration": 37, "cost": 34}
+    },
+    "central": {
+      "luohu": {"mode": "mtr", "label": "中环 → 罗湖", "duration": 52, "cost": 35},
+      "futian": {"mode": "mtr", "label": "中环 → 福田", "duration": 45, "cost": 48},
+      "huanggang": {"mode": "bus", "label": "中环 → 皇岗", "duration": 36, "cost": 42},
+      "shenzhen-bay": {"mode": "bus", "label": "中环 → 深圳湾", "duration": 40, "cost": 38}
+    },
+    "kowloon-tong": {
+      "luohu": {"mode": "mtr", "label": "九龙塘 → 罗湖", "duration": 32, "cost": 26},
+      "futian": {"mode": "mtr", "label": "九龙塘 → 福田", "duration": 30, "cost": 34},
+      "huanggang": {"mode": "bus", "label": "九龙塘 → 皇岗", "duration": 35, "cost": 32},
+      "shenzhen-bay": {"mode": "bus", "label": "九龙塘 → 深圳湾", "duration": 46, "cost": 40}
+    }
+  },
+  "onward": {
+    "luohu": {
+      "nanshan-tech": {"mode": "metro", "label": "罗湖 → 深圳南山科技园", "duration": 42, "cost": 8},
+      "futian-cbd": {"mode": "metro", "label": "罗湖 → 深圳福田 CBD", "duration": 18, "cost": 4},
+      "shenzhen-north": {"mode": "metro", "label": "罗湖 → 深圳北站", "duration": 33, "cost": 6}
+    },
+    "futian": {
+      "nanshan-tech": {"mode": "metro", "label": "福田 → 深圳南山科技园", "duration": 27, "cost": 6},
+      "futian-cbd": {"mode": "metro", "label": "福田 → 深圳福田 CBD", "duration": 12, "cost": 3},
+      "shenzhen-north": {"mode": "metro", "label": "福田 → 深圳北站", "duration": 22, "cost": 5}
+    },
+    "huanggang": {
+      "nanshan-tech": {"mode": "metro", "label": "皇岗 → 深圳南山科技园", "duration": 34, "cost": 7},
+      "futian-cbd": {"mode": "metro", "label": "皇岗 → 深圳福田 CBD", "duration": 10, "cost": 3},
+      "shenzhen-north": {"mode": "metro", "label": "皇岗 → 深圳北站", "duration": 25, "cost": 5}
+    },
+    "shenzhen-bay": {
+      "nanshan-tech": {"mode": "bus", "label": "深圳湾 → 深圳南山科技园", "duration": 21, "cost": 12},
+      "futian-cbd": {"mode": "bus", "label": "深圳湾 → 深圳福田 CBD", "duration": 35, "cost": 15},
+      "shenzhen-north": {"mode": "bus", "label": "深圳湾 → 深圳北站", "duration": 48, "cost": 18}
+    }
+  }
+}
