@@ -1,4 +1,4 @@
-from ..exceptions import DomainValidationError
+from ..exceptions import DomainValidationError, ErrorCode
 from ..repositories import DemoRepository
 from ..schemas.crowdsource import CrowdsourceReport
 
@@ -25,12 +25,14 @@ class CrowdsourceService:
             None,
         )
         if port is None:
-            raise DomainValidationError(f"Unsupported port: {report.port}")
+            raise DomainValidationError(
+                "不支持该口岸",
+                code=ErrorCode.PORT_NOT_FOUND,
+                details={"port": report.port},
+            )
 
-        reports = self._repository.get_reports()
         model_updated = abs(report.actual_wait_time - port["current_wait"]) > 5
         record = {
-            "id": f"report-{len(reports) + 1:03d}",
             "user_id": report.user_id,
             "port": port["name"],
             "actual_wait_time": report.actual_wait_time,
@@ -39,7 +41,7 @@ class CrowdsourceService:
             "time_label": "刚刚",
             "comment": report.comment or "现场通关反馈",
         }
-        self._repository.add_report(record)
+        record = self._repository.add_report(record)
         return {
             "success": True,
             "points_earned": 10,

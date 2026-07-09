@@ -1,10 +1,23 @@
 const API_BASE = import.meta.env.VITE_API_BASE ?? "http://127.0.0.1:8000";
 
 
+type ErrorEnvelope = {
+  error?: {
+    code?: string;
+    message?: string;
+    details?: unknown;
+    request_id?: string;
+  };
+};
+
+
 export class ApiError extends Error {
   constructor(
     message: string,
     readonly status: number,
+    readonly code: string,
+    readonly details: unknown = {},
+    readonly requestId: string | null = null,
   ) {
     super(message);
     this.name = "ApiError";
@@ -13,23 +26,56 @@ export class ApiError extends Error {
 
 
 export async function request<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE}${path}`, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...init?.headers,
-    },
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE}${path}`, {
+      ...init,
+      headers: {
+        "Content-Type": "application/json",
+        ...init?.headers,
+      },
+    });
+  } catch (error) {
+    throw new ApiError(
+      error instanceof Error ? error.message : "无法连接服务器",
+      0,
+      "NETWORK_ERROR",
+    );
+  }
 
   if (!response.ok) {
-    let detail = `请求失败（${response.status}）`;
+    let payload: ErrorEnvelope = {};
     try {
-      const payload = (await response.json()) as { detail?: string };
-      detail = payload.detail ?? detail;
+      payload = await response.json() as ErrorEnvelope;
     } catch {
-      // Preserve the generic HTTP message when the response is not JSON.
+      // Non-JSON upstream errors use the status-based fallback below.
     }
-    throw new ApiError(detail, response.status);
+    const requestId = payload.error?.request_id
+      ?? response.headers.get("X-Request-ID");
+    throw new ApiError(
+      payload.error?.message ?? `请求失败（${response.status}）`,
+      response.status,
+      payload.error?.code ?? "HTTP_ERROR",
+      payload.error?.details ?? {},
+      requestId,
+    );
+  }
+  if (response.status === 204) {
+    return undefined as T;
   }
   return response.json() as Promise<T>;
+}
+
+
+export function userFacingError(error: unknown): string {
+  if (!(error instanceof ApiError)) {
+    return error instanceof Error ? error.message : "发生未知错误";
+  }
+  if (error.code === "NETWORK_ERROR") {
+    return "无法连接服务器，请检查后端是否已启动。";
+  }
+  if (error.status >= 500) {
+    return `服务暂时不可用${error.requestId ? `（请求 ${error.requestId}）` : ""}`;
+  }
+  return error.message;
 }

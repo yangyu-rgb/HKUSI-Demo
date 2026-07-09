@@ -251,7 +251,6 @@ npm run dev
 - [详细项目规划](docs/project_plan.md) - 完整技术架构、API设计、AI实现方案
 - [API接口文档](docs/api_contract.md) - 后端API详细规范
 - [Demo演示脚本](docs/demo_script.md) - Pitch演示流程
-- [团队分工](docs/team_roles.md) - 职责划分
 
 ---
 

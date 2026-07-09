@@ -1,47 +1,53 @@
-import { useCallback, useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { userFacingError } from "../../shared/api/client";
+import { queryKeys } from "../../shared/queryKeys";
 import { fetchCrowdsourceFeed, submitCrowdsourceReport } from "./api";
-import type { CrowdsourceReport, ReportInput } from "./types";
+import type { ReportInput } from "./types";
 
 
 export function useCrowdsource() {
-  const [reports, setReports] = useState<CrowdsourceReport[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState("");
+  const queryClient = useQueryClient();
   const [message, setMessage] = useState("");
+  const feed = useQuery({
+    queryKey: queryKeys.crowdsource,
+    queryFn: fetchCrowdsourceFeed,
+    refetchInterval: 60_000,
+    refetchIntervalInBackground: false,
+  });
+  const mutation = useMutation({
+    mutationFn: submitCrowdsourceReport,
+    onSuccess: async (result) => {
+      setMessage(`+${result.points_earned} 积分 · ${result.message}`);
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.crowdsource }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.realtime }),
+        queryClient.invalidateQueries({ queryKey: ["prediction"] }),
+      ]);
+    },
+  });
 
-  const refresh = useCallback(async () => {
-    setError("");
-    try {
-      const result = await fetchCrowdsourceFeed();
-      setReports(result.reports);
-    } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "无法载入现场反馈");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
-
-  const submit = useCallback(async (input: ReportInput) => {
-    setSubmitting(true);
-    setError("");
+  async function submit(input: ReportInput) {
     setMessage("");
     try {
-      const result = await submitCrowdsourceReport(input);
-      await refresh();
-      setMessage(`+${result.points_earned} 积分 · ${result.message}`);
+      await mutation.mutateAsync(input);
       return true;
-    } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "反馈提交失败");
+    } catch {
       return false;
-    } finally {
-      setSubmitting(false);
     }
-  }, [refresh]);
+  }
 
-  return { reports, loading, submitting, error, message, submit };
+  return {
+    reports: feed.data?.reports ?? [],
+    loading: feed.isPending,
+    refreshing: feed.isFetching && !feed.isPending,
+    submitting: mutation.isPending,
+    error: feed.error
+      ? userFacingError(feed.error)
+      : mutation.error
+        ? userFacingError(mutation.error)
+        : "",
+    message,
+    submit,
+  };
 }

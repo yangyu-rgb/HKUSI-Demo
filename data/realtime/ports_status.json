@@ -14,7 +14,8 @@
       "forecast": [
         {"offset_minutes": 0, "wait": 22},
         {"offset_minutes": 60, "wait": 31},
-        {"offset_minutes": 120, "wait": 38}
+        {"offset_minutes": 120, "wait": 38},
+        {"offset_minutes": 180, "wait": 34}
       ],
       "anomalies": ["09:30后客流预计上升"]
     },
@@ -30,7 +31,8 @@
       "forecast": [
         {"offset_minutes": 0, "wait": 14},
         {"offset_minutes": 60, "wait": 17},
-        {"offset_minutes": 120, "wait": 21}
+        {"offset_minutes": 120, "wait": 21},
+        {"offset_minutes": 180, "wait": 19}
       ],
       "anomalies": []
     },
@@ -46,7 +48,8 @@
       "forecast": [
         {"offset_minutes": 0, "wait": 41},
         {"offset_minutes": 60, "wait": 48},
-        {"offset_minutes": 120, "wait": 44}
+        {"offset_minutes": 120, "wait": 44},
+        {"offset_minutes": 180, "wait": 39}
       ],
       "anomalies": ["跨境巴士到站集中，短时拥堵"]
     },
@@ -62,7 +65,8 @@
       "forecast": [
         {"offset_minutes": 0, "wait": 18},
         {"offset_minutes": 60, "wait": 20},
-        {"offset_minutes": 120, "wait": 24}
+        {"offset_minutes": 120, "wait": 24},
+        {"offset_minutes": 180, "wait": 22}
       ],
       "anomalies": []
     }

@@ -1,4 +1,6 @@
 import { NavLink, Outlet } from "react-router-dom";
+import { useDemoReset } from "../features/demo/useDemo";
+import { userFacingError } from "../shared/api/client";
 import styles from "./AppLayout.module.css";
 
 
@@ -12,6 +14,14 @@ const navigation = [
 
 
 export function AppLayout() {
+  const reset = useDemoReset();
+
+  function handleReset() {
+    if (window.confirm("确定恢复Demo初始数据？所有新增反馈、订阅和企业方案都会删除。")) {
+      reset.mutate();
+    }
+  }
+
   return (
     <>
       <header className={styles.header}>
@@ -34,8 +44,14 @@ export function AppLayout() {
             </NavLink>
           ))}
         </nav>
-        <span className={styles.demoChip}>Deterministic Demo</span>
+        <div className={styles.demoControls}>
+          <span className={styles.demoChip}>Deterministic Demo</span>
+          <button onClick={handleReset} disabled={reset.isPending}>重置</button>
+        </div>
       </header>
+      {reset.isError && (
+        <div className={styles.resetError}>{userFacingError(reset.error)}</div>
+      )}
       <Outlet />
       <footer className={styles.footer}>
         <strong>CrossBorder AI</strong>

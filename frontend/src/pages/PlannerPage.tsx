@@ -1,13 +1,16 @@
 import { PlannerForm } from "../features/prediction/PlannerForm";
 import { RouteCard } from "../features/prediction/RouteCard";
+import { RouteSchematic } from "../features/prediction/RouteSchematic";
 import { usePrediction } from "../features/prediction/usePrediction";
-import { ErrorState, LoadingState } from "../shared/components/PageState";
+import { ErrorState } from "../shared/components/PageState";
+import { PageSkeleton } from "../shared/components/PageSkeleton";
 import styles from "./PlannerPage.module.css";
 
 
 export function PlannerPage() {
   const {
     locations,
+    context,
     prediction,
     query,
     setQuery,
@@ -18,11 +21,14 @@ export function PlannerPage() {
   } = usePrediction();
 
   if (loading) {
-    return <LoadingState label="正在载入地点与预测矩阵…" />;
+    return <PageSkeleton cards={2} />;
   }
-  if (!locations) {
+  if (!locations || !context) {
     return <ErrorState title="无法载入路线规划" detail={error || "地点数据不可用"} />;
   }
+  const recommendedRoute = prediction?.ports.find(
+    (route) => route.port_id === prediction.recommended_port_id,
+  );
 
   return (
     <main className="page">
@@ -37,6 +43,8 @@ export function PlannerPage() {
             query={query}
             setQuery={setQuery}
             predicting={predicting}
+            minTargetTime={context.min_target_time}
+            maxTargetTime={context.max_target_time}
             onSubmit={runPrediction}
           />
           {error && <p className="formError">{error}</p>}
@@ -48,11 +56,18 @@ export function PlannerPage() {
               <span>本次推荐</span>
               <h2>{prediction.recommended}口岸</h2>
               <p>{prediction.reason}</p>
-              <small>{prediction.demo_notice}</small>
+              <small>{prediction.model_version} · {Math.round(prediction.confidence_level * 100)}%置信水平 · {prediction.demo_notice}</small>
             </div>
             {prediction.warnings.map((warning) => (
               <p className={styles.warning} key={warning}>{warning}</p>
             ))}
+            {recommendedRoute && (
+              <RouteSchematic
+                origin={prediction.query.origin_name}
+                destination={prediction.query.destination_name}
+                route={recommendedRoute}
+              />
+            )}
             <div className={styles.routeGrid}>
               {prediction.ports.map((route) => (
                 <RouteCard

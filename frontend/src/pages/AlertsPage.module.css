@@ -1,63 +1,159 @@
-.card {
-  min-height: 360px;
-  padding: 48px;
+.grid {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 18px;
+}
+
+.form {
+  padding: 28px;
+  display: grid;
+  gap: 15px;
   color: white;
   background: var(--teal-dark);
-  border-radius: 24px;
+  border-radius: 22px;
 }
 
-.card h2 {
+.form h2,
+.list h2 {
   margin: 0;
-  color: white;
-  font-size: 28px;
+  font-size: 20px;
 }
 
-.card > div > p {
-  color: #bfdbd5;
-}
-
-.card form {
-  margin-top: 36px;
-  display: grid;
-  grid-template-columns: 170px 1fr auto;
-  align-items: end;
-  gap: 22px;
-}
-
-.card label > span {
+.form label > span,
+.days legend {
   color: #b7d0ca;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.days {
+  padding: 0;
+  display: flex;
+  gap: 16px;
+  border: 0;
+}
+
+.days legend {
+  margin-bottom: 8px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.days label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.days input {
+  width: 16px;
+  height: 16px;
+}
+
+.days span {
+  color: white;
 }
 
 .checkList {
   display: flex;
   flex-wrap: wrap;
   gap: 8px 14px;
-  padding-bottom: 8px;
   color: #cbe0db;
-  font-size: 11px;
+  font-size: 10px;
+}
+
+.actions,
+.itemActions {
+  display: flex;
+  gap: 8px;
+}
+
+.cancel,
+.itemActions button {
+  padding: 8px 11px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.cancel {
+  color: white;
+  background: transparent;
 }
 
 .success,
 .error {
-  margin: 22px 0 0;
-  font-size: 12px;
+  margin: 0;
+  font-size: 11px;
 }
 
-.success {
-  color: #baf1e4;
+.success { color: #baf1e4; }
+.error { color: #ffd0ca; }
+
+.list {
+  overflow: hidden;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 22px;
 }
 
-.error {
-  color: #ffd0ca;
+.listHeading {
+  padding: 22px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
 }
 
-@media (max-width: 760px) {
-  .card {
-    min-height: auto;
-    padding: 28px 22px;
+.listHeading span {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.subscription {
+  padding: 19px 24px;
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 18px;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+}
+
+.subscription > div:first-child {
+  display: grid;
+  gap: 5px;
+}
+
+.subscription span,
+.subscription b {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.itemActions button {
+  color: var(--teal-dark);
+  background: var(--mint);
+  border-color: #bce4d8;
+  font-size: 9px;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .formRow {
+    grid-template-columns: 1fr;
   }
 
-  .card form {
+  .subscription {
     grid-template-columns: 1fr;
   }
 }

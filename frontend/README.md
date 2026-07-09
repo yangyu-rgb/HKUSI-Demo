@@ -1,43 +1,49 @@
-# CrossBorder AI Frontend
+# CrossBorder AI 前端
 
-React + TypeScript + Vite interface for the CrossBorder AI local demo.
+用于 CrossBorder AI 本地 Demo 的 React、TypeScript 和 Vite 界面。
 
-## Architecture
+## 架构
 
 ```text
 src/
-  layout/   # Shared navigation and page shell
-  pages/    # Route-level pages
-  features/ # Domain types, API calls, hooks, and components
-  shared/   # API client, formatters, and common UI states
+  layout/     # 共享导航、重置控制和页面外壳
+  pages/      # 懒加载的路由级页面
+  features/   # 功能 API、查询 Hook、组件和局部类型
+  generated/  # 从后端 OpenAPI 契约生成的类型
+  shared/     # API 错误、查询键、格式化、Skeleton 和页面状态
 ```
 
-Routes:
+TanStack Query 负责服务端状态、缓存失效、Mutation 和 60 秒实时轮询。表单和编辑器状态保留在各自功能页面中。
 
-- `/` four-port status
-- `/planner` location-based route prediction
-- `/crowdsource` report form and live feed
-- `/alerts` smart-alert setup
-- `/business` enterprise batch planning
+路由：
 
-## Run
+- `/`：四口岸状态、手动刷新和 Recharts 趋势对比。
+- `/planner`：带验证的预测表单、可解释结果和 SVG 路线。
+- `/crowdsource`：持久化反馈表单和动态列表。
+- `/alerts`：持久化订阅的创建、编辑和删除。
+- `/business`：员工编辑、重复生成和已保存方案历史。
 
-Start the backend on port `8000`, then:
+## 运行
+
+先在 `8000` 端口启动后端，然后执行：
 
 ```bash
 npm install
 npm run dev
 ```
 
-Override the API base if required:
+需要修改 API 地址时：
 
 ```bash
 VITE_API_BASE=http://127.0.0.1:8000 npm run dev
 ```
 
-## Validate
+## 验证和重新生成契约
 
 ```bash
 npm test
 npm run build
+npm run generate:api
 ```
+
+`npm run check:api` 会重新生成 OpenAPI 文件；如果已提交的契约文件不是最新版本，命令会失败。

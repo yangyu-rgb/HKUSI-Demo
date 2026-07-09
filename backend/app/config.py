@@ -3,4 +3,23 @@ from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parents[2]
 DATA_DIR = ROOT_DIR / "data"
+RUNTIME_DIR = DATA_DIR / "runtime"
+DATABASE_PATH = RUNTIME_DIR / "crossborder.db"
 DEFAULT_SAFETY_BUFFER_MINUTES = 10
+MIN_TARGET_LEAD_MINUTES = 15
+MAX_TARGET_HORIZON_HOURS = 24
+REALTIME_POLL_INTERVAL_SECONDS = 60
+
+# Interpretable statistical demo configuration. These named weights are
+# deliberately visible and are renormalized when a component is unavailable.
+FORECAST_WEIGHT = 0.55
+HISTORY_WEIGHT = 0.30
+CROWDSOURCE_WEIGHT = 0.15
+CONFIDENCE_LEVEL = 0.90
+MIN_STANDARD_DEVIATION_MINUTES = 3.0
+TREND_UNCERTAINTY_FACTOR = 0.35
+RISK_MEDIUM_THRESHOLD_PERCENT = 15
+RISK_HIGH_THRESHOLD_PERCENT = 35
+MODEL_VERSION = "interpretable-statistical-demo-v1"
+BALANCED_RISK_WEIGHT = 1.5
+BALANCED_COST_WEIGHT = 0.12

@@ -27,7 +27,7 @@ export function PortCard({ port }: { port: PortStatus }) {
         <span>当前等待</span>
         <strong>{port.current_wait}<small>分钟</small></strong>
       </div>
-      <div className={styles.forecast} aria-label={`${port.name}未来两小时预测`}>
+      <div className={styles.forecast} aria-label={`${port.name}未来三小时预测`}>
         {port.forecast.map((point) => (
           <div className={styles.forecastItem} key={point.offset_minutes}>
             <div className={styles.track}>

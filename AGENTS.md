@@ -1,60 +1,59 @@
-# Agent Collaboration Instructions
+# Agent 协作说明
 
-These instructions apply to the whole repository.
+本说明适用于整个仓库。
 
-## Required Startup Checks
+## 开始工作前的必做检查
 
-Before changing files, every agent must:
+任何 Agent 修改文件前都必须：
 
-1. Read `README.md`.
-2. Read `docs/project_memory.md`.
-3. Read any task-relevant files under `docs/`, `backend/`, `frontend/`, or `data/`.
-4. Check the current branch and working tree:
+1. 阅读 `README.md`。
+2. 阅读根目录的 `project_memory.md`。
+3. 阅读 `docs/`、`backend/`、`frontend/` 或 `data/` 中与任务有关的文件。
+4. 检查当前分支和工作区：
 
 ```bash
 git status --short --branch
 ```
 
-5. Attempt to refresh remote refs:
+5. 尝试刷新远端引用：
 
 ```bash
 git fetch
 ```
 
-If `git fetch` succeeds, compare the current branch with its upstream before editing. If the local branch is behind the remote branch, integrate the remote changes first using the team's normal Git workflow.
+如果 `git fetch` 成功，编辑前必须比较当前分支与上游分支。如果本地分支落后，应先按照团队约定的 Git 流程整合远端改动。
 
-If `git fetch` fails because the network or permissions are unavailable, continue only if the task can be completed safely from local context, and record that limitation in `docs/project_memory.md`.
+如果 `git fetch` 因网络或权限问题失败，仅在能根据本地上下文安全完成任务时继续，并在根目录的 `project_memory.md` 中记录该限制。
 
-## Project Memory Requirement
+## 项目记忆要求
 
-Every completed partial task must update `docs/project_memory.md` in the same change set.
+每个已完成的阶段性任务都必须在同一变更集中更新根目录的 `project_memory.md`。
 
-The update must include:
+更新内容必须包括：
 
-- Date.
-- Owner or agent.
-- Completed task summary.
-- Files or areas changed.
-- Validation performed.
-- Any remote sync limitation, conflict, or follow-up.
+- 日期。
+- 已完成任务摘要。
+- 修改的文件或区域。
+- 已执行的验证。
+- 远端同步限制、冲突或后续事项。
 
-If a remote teammate changes the repository, the next agent who pulls or merges those changes must also update `docs/project_memory.md` so the memory reflects the latest completed work.
+如果远端成员修改了仓库，下一位拉取或合并这些改动的 Agent 也必须更新 `project_memory.md`，确保项目记忆反映最新成果。
 
-## Conflict and Remote Change Rules
+## 冲突与远端改动规则
 
-- Preserve valid teammate changes.
-- Do not overwrite remote work just to make a local plan fit.
-- When Markdown memory conflicts happen, merge entries chronologically and keep both sides unless one is clearly obsolete.
-- If behavior, API shape, or demo flow changes, update the relevant docs and record the decision in `docs/project_memory.md`.
-- Keep repo-specific instructions in this file and task history in `docs/project_memory.md`.
+- 保留团队成员的有效改动。
+- 不得为了适配本地计划而覆盖远端工作。
+- 项目记忆发生 Markdown 冲突时，应按时间顺序合并并保留双方内容，除非某一项已经明确失效。
+- 如果行为、API 结构或演示流程发生变化，应同步更新相关文档，并在 `project_memory.md` 中记录决策。
+- 仓库规则保存在本文件中；任务历史、验证和后续事项保存在 `project_memory.md` 中。
 
-## Current Repo Shape
+## 当前仓库结构
 
-This is a local demo scaffold for SIUS2612 Topic 2 with:
+这是 SIUS2612 Topic 2 的本地 Demo 项目，包含：
 
-- FastAPI mock backend in `backend/`.
-- React + TypeScript + Vite frontend in `frontend/`.
-- Deterministic sample data in `data/`.
-- Demo and collaboration docs in `docs/`.
+- `backend/`：FastAPI 模拟后端。
+- `frontend/`：React、TypeScript 和 Vite 前端。
+- `data/`：确定性的本地样例数据。
+- `docs/`：API、演示和项目协作文档。
 
-The project is demo-only. Do not add real API keys, live production integrations, or deployment assumptions unless the team explicitly decides to expand scope.
+本项目仅用于 Demo。除非团队明确决定扩大范围，否则不得加入真实 API 密钥、生产环境集成或部署假设。

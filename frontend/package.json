@@ -6,14 +6,18 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "generate:api": "../backend/.venv/bin/python ../backend/scripts/export_openapi.py && openapi-typescript ../docs/openapi.json -o src/generated/api.d.ts",
+    "check:api": "npm run generate:api && git diff --exit-code -- ../docs/openapi.json src/generated/api.d.ts",
     "test": "vitest run",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.101.2",
     "@vitejs/plugin-react": "^4.3.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.18.1",
+    "recharts": "^3.9.2",
     "typescript": "^5.7.2",
     "vite": "^6.0.7"
   },
@@ -24,6 +28,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "jsdom": "^29.1.1",
+    "openapi-typescript": "^7.13.0",
     "vitest": "^4.1.9"
   }
 }

@@ -6,23 +6,9 @@ from ..schemas.prediction import PredictionPreferences, PredictionRequest
 from .prediction import PredictionService
 
 
-ORIGIN_IDS = {
-    "香港大学": "hku",
-    "中环": "central",
-    "九龙塘": "kowloon-tong",
-}
-
-
-def destination_id_for(label: str) -> str:
-    if "北站" in label:
-        return "shenzhen-north"
-    if "福田" in label:
-        return "futian-cbd"
-    return "nanshan-tech"
-
-
 class BatchService:
     def __init__(self, repository: DemoRepository):
+        self._repository = repository
         self._prediction_service = PredictionService(repository)
 
     def create_plan(self, request: BatchRequest) -> dict:
@@ -34,8 +20,8 @@ class BatchService:
             priority = "cheapest" if index % 3 == 0 else "balanced"
             result = self._prediction_service.predict(
                 PredictionRequest(
-                    origin_id=ORIGIN_IDS.get(employee.departure, "hku"),
-                    destination_id=destination_id_for(employee.destination),
+                    origin_id=employee.origin_id,
+                    destination_id=employee.destination_id,
                     target_time=deadline,
                     preferences=PredictionPreferences(priority=priority),
                 )
@@ -53,7 +39,7 @@ class BatchService:
             )
 
         high_risk_count = sum(item["late_risk_percent"] >= 20 for item in plan)
-        return {
+        result = {
             "company": request.company,
             "date": request.date,
             "plan": plan,
@@ -66,3 +52,14 @@ class BatchService:
                 "recommendation": "高风险员工建议提前20分钟出发，并订阅异常拥堵提醒。",
             },
         }
+        plan_id = self._repository.save_batch_plan(
+            request.company,
+            request.date,
+            request.model_dump(mode="json"),
+            result,
+        )
+        return {"plan_id": plan_id, **result}
+
+    def list_plans(self, company: str, limit: int) -> dict:
+        plans = self._repository.list_batch_plans(company, limit)
+        return {"plans": plans, "total": len(plans)}

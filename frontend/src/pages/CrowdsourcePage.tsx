@@ -3,7 +3,8 @@ import { FeedItem } from "../features/crowdsource/FeedItem";
 import { useCrowdsource } from "../features/crowdsource/useCrowdsource";
 import type { CrowdLevel } from "../features/realtime/types";
 import { useRealtime } from "../features/realtime/useRealtime";
-import { ErrorState, LoadingState } from "../shared/components/PageState";
+import { ErrorState } from "../shared/components/PageState";
+import { PageSkeleton } from "../shared/components/PageSkeleton";
 import styles from "./CrowdsourcePage.module.css";
 
 
@@ -18,12 +19,15 @@ export function CrowdsourcePage() {
   const realtime = useRealtime();
   const crowdsource = useCrowdsource();
   const [port, setPort] = useState("福田");
-  const [wait, setWait] = useState(12);
+  const [wait, setWait] = useState<number | "">("");
   const [crowd, setCrowd] = useState<CrowdLevel>("low");
-  const [comment, setComment] = useState("排队很短，通关顺畅。");
+  const [comment, setComment] = useState("");
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
+    if (wait === "") {
+      return;
+    }
     const submitted = await crowdsource.submit({
       user_id: "demo-user",
       port,
@@ -33,11 +37,13 @@ export function CrowdsourcePage() {
     });
     if (submitted) {
       await realtime.refresh();
+      setWait("");
+      setComment("");
     }
   }
 
   if (realtime.loading || crowdsource.loading) {
-    return <LoadingState label="正在载入现场反馈…" />;
+    return <PageSkeleton cards={2} />;
   }
   if (!realtime.data) {
     return <ErrorState title="无法载入众包页面" detail={realtime.error || "口岸数据不可用"} />;
@@ -68,8 +74,12 @@ export function CrowdsourcePage() {
                   type="number"
                   min="0"
                   max="180"
+                  required
                   value={wait}
-                  onChange={(event) => setWait(Number(event.target.value))}
+                  placeholder="请输入实际等待"
+                  onChange={(event) => setWait(
+                    event.target.value === "" ? "" : Number(event.target.value),
+                  )}
                 />
                 <b>分钟</b>
               </div>
@@ -92,7 +102,12 @@ export function CrowdsourcePage() {
           </label>
           <label>
             <span>补充说明</span>
-            <input value={comment} onChange={(event) => setComment(event.target.value)} maxLength={160} />
+            <input
+              value={comment}
+              placeholder="选填：描述现场排队情况"
+              onChange={(event) => setComment(event.target.value)}
+              maxLength={160}
+            />
           </label>
           <button className="button buttonAccent" disabled={crowdsource.submitting}>
             {crowdsource.submitting ? "正在提交…" : "提交反馈 · +10积分"}

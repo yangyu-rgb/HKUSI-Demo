@@ -37,11 +37,15 @@ def test_location_matrix_changes_route_time(prediction_service: PredictionServic
 
 
 def test_preferences_change_recommendation(prediction_service: PredictionService) -> None:
-    fastest = prediction_service.predict(request(priority="fastest"))
-    balanced = prediction_service.predict(request(priority="balanced"))
+    fastest = prediction_service.predict(
+        request(priority="fastest", target_time="2026-07-09T10:30:00")
+    )
+    cheapest = prediction_service.predict(
+        request(priority="cheapest", target_time="2026-07-09T10:30:00")
+    )
 
     assert fastest["recommended"] == "深圳湾"
-    assert balanced["recommended"] == "福田"
+    assert cheapest["recommended"] == "罗湖"
 
 
 def test_departure_and_feasibility_are_calculated(
@@ -82,5 +86,27 @@ def test_no_route_in_budget_returns_cheapest_warning(
 
 
 def test_unknown_location_is_rejected(prediction_service: PredictionService) -> None:
-    with pytest.raises(DomainValidationError, match="Unsupported origin_id"):
+    with pytest.raises(DomainValidationError, match="不支持该出发地点"):
         prediction_service.predict(request(origin_id="unknown"))
+
+
+def test_forecast_is_interpolated_and_interval_uses_history(
+    prediction_service: PredictionService,
+) -> None:
+    result = prediction_service.predict(
+        request(target_time="2026-07-09T08:15:00", max_budget=None)
+    )
+    luohu = next(item for item in result["ports"] if item["port_id"] == "luohu")
+    forecast_factor = next(
+        factor for factor in luohu["factors"] if factor["code"] == "forecast_trend"
+    )
+
+    assert forecast_factor["value_minutes"] == 26.5
+    assert luohu["historical_sample_count"] >= 6
+    assert luohu["confidence_interval"][1] > luohu["confidence_interval"][0]
+    assert luohu["uncertainty_minutes"] >= 3
+
+
+def test_target_window_is_enforced(prediction_service: PredictionService) -> None:
+    with pytest.raises(DomainValidationError, match="目标时间超出"):
+        prediction_service.predict(request(target_time="2026-07-10T12:00:00"))

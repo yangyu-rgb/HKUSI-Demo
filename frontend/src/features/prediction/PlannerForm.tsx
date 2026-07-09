@@ -12,6 +12,8 @@ type Props = {
   query: PredictionQueryInput;
   setQuery: Dispatch<SetStateAction<PredictionQueryInput>>;
   predicting: boolean;
+  minTargetTime: string;
+  maxTargetTime: string;
   onSubmit: () => Promise<void>;
 };
 
@@ -21,6 +23,8 @@ export function PlannerForm({
   query,
   setQuery,
   predicting,
+  minTargetTime,
+  maxTargetTime,
   onSubmit,
 }: Props) {
   function handleSubmit(event: FormEvent) {
@@ -33,6 +37,7 @@ export function PlannerForm({
       <label>
         <span>出发地</span>
         <select
+          required
           value={query.origin_id}
           onChange={(event) => setQuery({ ...query, origin_id: event.target.value })}
         >
@@ -44,6 +49,7 @@ export function PlannerForm({
       <label>
         <span>目的地</span>
         <select
+          required
           value={query.destination_id}
           onChange={(event) => setQuery({ ...query, destination_id: event.target.value })}
         >
@@ -56,6 +62,9 @@ export function PlannerForm({
         <span>最迟到达</span>
         <input
           type="datetime-local"
+          required
+          min={minTargetTime.slice(0, 16)}
+          max={maxTargetTime.slice(0, 16)}
           value={query.target_time}
           onChange={(event) => setQuery({ ...query, target_time: event.target.value })}
         />

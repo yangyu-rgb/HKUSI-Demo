@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useDemoContext } from "../demo/useDemo";
+import { userFacingError } from "../../shared/api/client";
+import { queryKeys } from "../../shared/queryKeys";
 import { fetchLocations, fetchPrediction } from "./api";
-import type {
-  LocationsResponse,
-  PredictionQueryInput,
-  PredictionResponse,
-} from "./types";
+import type { PredictionQueryInput } from "./types";
 
 
 export const DEFAULT_QUERY: PredictionQueryInput = {
@@ -17,45 +17,37 @@ export const DEFAULT_QUERY: PredictionQueryInput = {
 
 
 export function usePrediction() {
-  const [locations, setLocations] = useState<LocationsResponse | null>(null);
-  const [prediction, setPrediction] = useState<PredictionResponse | null>(null);
   const [query, setQuery] = useState<PredictionQueryInput>(DEFAULT_QUERY);
-  const [loading, setLoading] = useState(true);
-  const [predicting, setPredicting] = useState(false);
-  const [error, setError] = useState("");
+  const [submittedQuery, setSubmittedQuery] = useState<PredictionQueryInput>(DEFAULT_QUERY);
+  const locations = useQuery({
+    queryKey: queryKeys.locations,
+    queryFn: fetchLocations,
+    staleTime: Infinity,
+  });
+  const context = useDemoContext();
+  const prediction = useQuery({
+    queryKey: queryKeys.prediction(submittedQuery),
+    queryFn: () => fetchPrediction(submittedQuery),
+  });
 
-  useEffect(() => {
-    Promise.all([fetchLocations(), fetchPrediction(DEFAULT_QUERY)])
-      .then(([locationData, predictionData]) => {
-        setLocations(locationData);
-        setPrediction(predictionData);
-      })
-      .catch((requestError) => {
-        setError(requestError instanceof Error ? requestError.message : "无法载入路线预测");
-      })
-      .finally(() => setLoading(false));
-  }, []);
-
-  const runPrediction = useCallback(async () => {
-    setPredicting(true);
-    setError("");
-    try {
-      setPrediction(await fetchPrediction(query));
-    } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "路线预测失败");
-    } finally {
-      setPredicting(false);
+  async function runPrediction() {
+    if (JSON.stringify(query) === JSON.stringify(submittedQuery)) {
+      await prediction.refetch();
+    } else {
+      setSubmittedQuery({ ...query });
     }
-  }, [query]);
+  }
 
+  const requestError = locations.error ?? context.error ?? prediction.error;
   return {
-    locations,
-    prediction,
+    locations: locations.data ?? null,
+    context: context.data ?? null,
+    prediction: prediction.data ?? null,
     query,
     setQuery,
-    loading,
-    predicting,
-    error,
+    loading: locations.isPending || context.isPending || prediction.isPending,
+    predicting: prediction.isFetching && !prediction.isPending,
+    error: requestError ? userFacingError(requestError) : "",
     runPrediction,
   };
 }

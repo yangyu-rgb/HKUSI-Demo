@@ -1,26 +1,7 @@
-import type { CrowdLevel } from "../realtime/types";
+import type { components } from "../../generated/api";
 
 
-export type CrowdsourceReport = {
-  id: string;
-  user_id: string;
-  port: string;
-  actual_wait_time: number;
-  crowd_level: CrowdLevel;
-  timestamp: string;
-  time_label: string;
-  comment: string;
-};
-
-export type CrowdsourceFeedResponse = {
-  reports: CrowdsourceReport[];
-  total: number;
-};
-
-export type ReportInput = {
-  user_id: string;
-  port: string;
-  actual_wait_time: number;
-  crowd_level: CrowdLevel;
-  comment: string;
-};
+export type CrowdsourceReport = components["schemas"]["CrowdsourceRecord"];
+export type CrowdsourceFeedResponse = components["schemas"]["CrowdsourceFeedResponse"];
+export type ReportInput = components["schemas"]["CrowdsourceReport"];
+export type CrowdsourceSubmitResponse = components["schemas"]["CrowdsourceSubmitResponse"];

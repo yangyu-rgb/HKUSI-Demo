@@ -1,29 +1,79 @@
-.card {
-  padding: 38px;
-  background: #e9efbd;
-  border-radius: 24px;
+.editor,
+.result,
+.history {
+  padding: 30px;
+  border-radius: 22px;
 }
 
-.heading {
+.editor {
+  background: #e9efbd;
+}
+
+.editorHeading,
+.editorActions,
+.history > div:first-child {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
+  gap: 20px;
 }
 
-.heading h2 {
+.editorHeading h2,
+.history h2 {
   margin: 0;
-  font-size: 24px;
+  font-size: 21px;
 }
 
-.heading p {
-  margin: 7px 0 0;
+.editorHeading p {
+  margin: 5px 0 0;
   color: #61704d;
-  font-size: 12px;
+  font-size: 10px;
+}
+
+.editorHeading label {
+  width: 170px;
+}
+
+.employeeTable {
+  margin-top: 20px;
+  display: grid;
+  gap: 8px;
+}
+
+.employeeRow {
+  display: grid;
+  grid-template-columns: 0.8fr 1fr 1.15fr 0.65fr auto;
+  gap: 8px;
+}
+
+.remove,
+.add,
+.history button {
+  padding: 0 12px;
+  color: #6a4420;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(91, 111, 71, 0.2);
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.remove:disabled {
+  opacity: 0.35;
+}
+
+.editorActions {
+  margin-top: 17px;
+}
+
+.add {
+  min-height: 42px;
+  color: #536244;
 }
 
 .result {
-  margin-top: 28px;
+  margin-top: 18px;
+  background: white;
+  border: 1px solid var(--line);
 }
 
 .stats {
@@ -37,23 +87,17 @@
   padding: 15px;
   display: grid;
   text-align: center;
-  background: rgba(255, 255, 255, 0.6);
+  background: var(--mint);
   border-radius: 12px;
 }
 
-.stats strong {
-  font-size: 24px;
-}
-
-.stats span {
-  color: #61704d;
-  font-size: 9px;
-}
+.stats strong { font-size: 24px; }
+.stats span { color: var(--muted); font-size: 9px; }
 
 .table {
   margin-top: 22px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.62);
+  background: #f7faf8;
   border-radius: 14px;
 }
 
@@ -67,30 +111,89 @@
 }
 
 .tableHeader {
-  color: #61704d;
-  background: rgba(255, 255, 255, 0.45);
+  color: var(--muted);
+  background: #edf4f0;
   font-size: 9px;
   font-weight: 700;
 }
 
 .tableRow {
-  border-top: 1px solid rgba(79, 98, 62, 0.1);
+  border-top: 1px solid var(--line);
 }
 
 .recommendation {
   margin: 18px 0 0;
-  color: #536244;
+  color: var(--muted);
   font-size: 12px;
 }
 
-@media (max-width: 760px) {
-  .card {
-    padding: 28px 20px;
+.history {
+  margin-top: 18px;
+  background: white;
+  border: 1px solid var(--line);
+}
+
+.history > div:first-child span,
+.history > p {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.history article {
+  padding: 15px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--line);
+}
+
+.history article > div {
+  display: grid;
+  gap: 4px;
+}
+
+.history article span {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.history button {
+  min-height: 32px;
+  color: var(--teal-dark);
+  background: var(--mint);
+}
+
+@media (max-width: 900px) {
+  .employeeRow {
+    grid-template-columns: 1fr 1fr;
   }
 
-  .heading {
-    align-items: flex-start;
+  .remove {
+    min-height: 40px;
+  }
+}
+
+@media (max-width: 600px) {
+  .editor,
+  .result,
+  .history {
+    padding: 20px;
+  }
+
+  .editorHeading,
+  .editorActions {
+    align-items: stretch;
     flex-direction: column;
+  }
+
+  .editorHeading label {
+    width: 100%;
+  }
+
+  .employeeRow {
+    grid-template-columns: 1fr;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(91, 111, 71, 0.18);
   }
 
   .table {

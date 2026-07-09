@@ -1,16 +1,18 @@
 import { Link } from "react-router-dom";
+import { ForecastChart } from "../features/realtime/ForecastChart";
 import { PortCard } from "../features/realtime/PortCard";
 import { useRealtime } from "../features/realtime/useRealtime";
-import { ErrorState, LoadingState } from "../shared/components/PageState";
+import { ErrorState } from "../shared/components/PageState";
+import { PageSkeleton } from "../shared/components/PageSkeleton";
 import { formatDemoDateTime } from "../shared/formatters";
 import styles from "./HomePage.module.css";
 
 
 export function HomePage() {
-  const { data, loading, error } = useRealtime();
+  const { data, loading, refreshing, error, refresh, dataUpdatedAt } = useRealtime();
 
   if (loading) {
-    return <LoadingState label="正在载入跨境态势…" />;
+    return <PageSkeleton />;
   }
   if (error || !data) {
     return <ErrorState title="无法连接 CrossBorder AI 后端" detail={error || "请启动 FastAPI 服务"} />;
@@ -23,7 +25,7 @@ export function HomePage() {
         <div className={styles.heroCopy}>
           <span className="sectionKicker">预测驱动的跨境决策</span>
           <h1>提前看见口岸等待，<br />选择更稳的跨境路线。</h1>
-          <p>融合实时口岸状态、未来两小时预测与现场众包反馈，为深港通勤者提供带置信区间和迟到风险的路线建议。</p>
+          <p>融合实时口岸状态、未来三小时预测与现场众包反馈，为深港通勤者提供带置信区间和迟到风险的路线建议。</p>
           <div className={styles.heroActions}>
             <Link className="button buttonPrimary" to="/planner">立即规划路线</Link>
             <span>场景时间：{formatDemoDateTime(data.timestamp)}</span>
@@ -31,7 +33,7 @@ export function HomePage() {
         </div>
         <div className={styles.signal} aria-label="平台能力摘要">
           <div><strong>4</strong><span>核心口岸</span></div>
-          <div><strong>2h</strong><span>等待预测</span></div>
+          <div><strong>3h</strong><span>等待预测</span></div>
           <div><strong>{reportCount}</strong><span>现场样本</span></div>
           <div><strong>±</strong><span>风险区间</span></div>
         </div>
@@ -47,11 +49,17 @@ export function HomePage() {
       <section className="pageSection">
         <div className="sectionHeading">
           <div><span className="sectionKicker">Live border pulse</span><h2>四口岸实时态势</h2></div>
-          <p>本地 Mock 数据 · 预测会融合演示中的新众包报告</p>
+          <div className={styles.refresh}>
+            <span>更新于 {new Date(dataUpdatedAt).toLocaleTimeString("zh-HK")}</span>
+            <button onClick={() => void refresh()} disabled={refreshing}>
+              {refreshing ? "刷新中…" : "手动刷新"}
+            </button>
+          </div>
         </div>
         <div className={styles.portGrid}>
           {data.ports.map((port) => <PortCard port={port} key={port.id} />)}
         </div>
+        <ForecastChart data={data} />
       </section>
     </main>
   );

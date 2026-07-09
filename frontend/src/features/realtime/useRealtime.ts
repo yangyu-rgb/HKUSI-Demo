@@ -1,28 +1,24 @@
-import { useCallback, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { userFacingError } from "../../shared/api/client";
+import { queryKeys } from "../../shared/queryKeys";
 import { fetchRealtime } from "./api";
-import type { RealtimeResponse } from "./types";
 
 
 export function useRealtime() {
-  const [data, setData] = useState<RealtimeResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  const refresh = useCallback(async () => {
-    setLoading(true);
-    setError("");
-    try {
-      setData(await fetchRealtime());
-    } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "无法载入口岸状态");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void refresh();
-  }, [refresh]);
-
-  return { data, loading, error, refresh };
+  const query = useQuery({
+    queryKey: queryKeys.realtime,
+    queryFn: fetchRealtime,
+    refetchInterval: 60_000,
+    refetchIntervalInBackground: false,
+  });
+  return {
+    data: query.data ?? null,
+    loading: query.isPending,
+    refreshing: query.isFetching && !query.isPending,
+    error: query.error ? userFacingError(query.error) : "",
+    refresh: async () => {
+      await query.refetch();
+    },
+    dataUpdatedAt: query.dataUpdatedAt,
+  };
 }

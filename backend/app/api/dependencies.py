@@ -4,6 +4,7 @@ from ..repositories import DemoRepository
 from ..services import (
     BatchService,
     CrowdsourceService,
+    DemoService,
     PredictionService,
     RealtimeService,
     SubscriptionService,
@@ -30,6 +31,12 @@ def get_crowdsource_service(
     repository: DemoRepository = Depends(get_repository),
 ) -> CrowdsourceService:
     return CrowdsourceService(repository)
+
+
+def get_demo_service(
+    repository: DemoRepository = Depends(get_repository),
+) -> DemoService:
+    return DemoService(repository)
 
 
 def get_subscription_service(

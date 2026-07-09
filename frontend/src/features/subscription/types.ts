@@ -1,24 +1,7 @@
-import type { Priority } from "../prediction/types";
+import type { components } from "../../generated/api";
 
 
-export type SubscriptionInput = {
-  user_id: string;
-  routine: {
-    departure: string;
-    destination: string;
-    days: string[];
-    arrival_deadline: string;
-    priority: Priority;
-  };
-  alerts: {
-    advance_reminder: boolean;
-    anomaly_alert: boolean;
-    better_route_alert: boolean;
-  };
-};
-
-export type SubscriptionResponse = {
-  subscription_id: string;
-  next_alert: string;
-  message: string;
-};
+export type SubscriptionInput = components["schemas"]["SubscriptionRequest"];
+export type SubscriptionUpdate = components["schemas"]["SubscriptionUpdate"];
+export type SubscriptionRecord = components["schemas"]["SubscriptionRecord"];
+export type SubscriptionListResponse = components["schemas"]["SubscriptionListResponse"];

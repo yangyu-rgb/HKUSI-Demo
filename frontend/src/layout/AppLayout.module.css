@@ -88,6 +88,30 @@
   text-transform: uppercase;
 }
 
+.demoControls {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.demoControls button {
+  padding: 7px 9px;
+  color: var(--muted);
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 10px;
+}
+
+.resetError {
+  padding: 8px 20px;
+  color: #a23f36;
+  background: #fde8e5;
+  text-align: center;
+  font-size: 11px;
+}
+
 .footer {
   max-width: 1240px;
   margin: 0 auto;
@@ -125,7 +149,7 @@
     gap: 12px;
   }
 
-  .demoChip {
+  .demoControls {
     display: none;
   }
 

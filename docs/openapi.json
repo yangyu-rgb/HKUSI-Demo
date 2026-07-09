@@ -1,0 +1,2127 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "CrossBorder AI Demo API",
+    "version": "1.2.0"
+  },
+  "paths": {
+    "/api/health": {
+      "get": {
+        "tags": [
+          "健康检查"
+        ],
+        "summary": "检查 API 服务状态",
+        "operationId": "health_api_health_get",
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/demo/context": {
+      "get": {
+        "tags": [
+          "Demo 控制"
+        ],
+        "summary": "获取确定性 Demo 时间信息",
+        "description": "返回场景时间、有效预测范围和轮询间隔。",
+        "operationId": "get_demo_context_api_demo_context_get",
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoContextResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/demo/reset": {
+      "post": {
+        "tags": [
+          "Demo 控制"
+        ],
+        "summary": "重置 Demo 动态数据",
+        "description": "删除已保存的反馈、订阅和企业方案，然后重新加载 JSON 种子。",
+        "operationId": "reset_demo_api_demo_reset_post",
+        "responses": {
+          "200": {
+            "description": "重置成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoResetResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/realtime": {
+      "get": {
+        "tags": [
+          "实时状态"
+        ],
+        "summary": "获取四口岸 Demo 状态",
+        "description": "返回缓存的确定性口岸等待数据和持久化众包数量。",
+        "operationId": "realtime_api_realtime_get",
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RealtimeResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/locations": {
+      "get": {
+        "tags": [
+          "路线预测"
+        ],
+        "summary": "获取支持的出发地和目的地",
+        "operationId": "locations_api_locations_get",
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LocationsResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/predict": {
+      "post": {
+        "tags": [
+          "路线预测"
+        ],
+        "summary": "比较四个口岸的路线方案",
+        "description": "使用可解释统计 Demo 模型和确定性交通矩阵。",
+        "operationId": "predict_api_predict_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PredictionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "预测成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PredictionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/crowdsource/feed": {
+      "get": {
+        "tags": [
+          "众包反馈"
+        ],
+        "summary": "获取近期持久化众包反馈",
+        "operationId": "crowdsource_feed_api_crowdsource_feed_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 30,
+              "minimum": 1,
+              "default": 8,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CrowdsourceFeedResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/crowdsource/report": {
+      "post": {
+        "tags": [
+          "众包反馈"
+        ],
+        "summary": "提交并持久化众包反馈",
+        "operationId": "submit_crowdsource_report_api_crowdsource_report_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrowdsourceReport"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "提交成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CrowdsourceSubmitResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/subscriptions": {
+      "get": {
+        "tags": [
+          "提醒订阅"
+        ],
+        "summary": "获取用户订阅列表",
+        "operationId": "list_subscriptions_api_subscriptions_get",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionListResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "提醒订阅"
+        ],
+        "summary": "创建智能提醒订阅",
+        "operationId": "create_subscription_api_subscriptions_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscriptionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "创建成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionRecord"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/subscription": {
+      "post": {
+        "tags": [
+          "提醒订阅"
+        ],
+        "summary": "通过已弃用的单数路径创建订阅",
+        "operationId": "create_subscription_legacy_api_subscription_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscriptionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "创建成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionRecord"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        },
+        "deprecated": true
+      }
+    },
+    "/api/subscriptions/{subscription_id}": {
+      "patch": {
+        "tags": [
+          "提醒订阅"
+        ],
+        "summary": "更新订阅",
+        "operationId": "update_subscription_api_subscriptions__subscription_id__patch",
+        "parameters": [
+          {
+            "name": "subscription_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Subscription Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubscriptionUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "更新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionRecord"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "提醒订阅"
+        ],
+        "summary": "删除订阅",
+        "operationId": "delete_subscription_api_subscriptions__subscription_id__delete",
+        "parameters": [
+          {
+            "name": "subscription_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Subscription Id"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "删除成功"
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/batch": {
+      "post": {
+        "tags": [
+          "企业方案"
+        ],
+        "summary": "生成并保存企业批量方案",
+        "operationId": "create_batch_plan_api_batch_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "生成成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/batch/plans": {
+      "get": {
+        "tags": [
+          "企业方案"
+        ],
+        "summary": "获取近期企业批量方案",
+        "operationId": "list_batch_plans_api_batch_plans_get",
+        "parameters": [
+          {
+            "name": "company",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "title": "Company"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 10,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchHistoryResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AlertPreferences": {
+        "properties": {
+          "advance_reminder": {
+            "type": "boolean",
+            "title": "Advance Reminder",
+            "default": true
+          },
+          "anomaly_alert": {
+            "type": "boolean",
+            "title": "Anomaly Alert",
+            "default": true
+          },
+          "better_route_alert": {
+            "type": "boolean",
+            "title": "Better Route Alert",
+            "default": true
+          }
+        },
+        "type": "object",
+        "title": "AlertPreferences"
+      },
+      "BatchEmployee": {
+        "properties": {
+          "id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 60,
+            "title": "Name",
+            "default": ""
+          },
+          "origin_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Origin Id"
+          },
+          "destination_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Destination Id"
+          },
+          "arrival_deadline": {
+            "type": "string",
+            "pattern": "^\\d{2}:\\d{2}$",
+            "title": "Arrival Deadline"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "origin_id",
+          "destination_id",
+          "arrival_deadline"
+        ],
+        "title": "BatchEmployee"
+      },
+      "BatchHistoryRecord": {
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "title": "Plan Id"
+          },
+          "company": {
+            "type": "string",
+            "title": "Company"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "request": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Request"
+          },
+          "result": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Result"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "plan_id",
+          "company",
+          "date",
+          "request",
+          "result",
+          "created_at"
+        ],
+        "title": "BatchHistoryRecord"
+      },
+      "BatchHistoryResponse": {
+        "properties": {
+          "plans": {
+            "items": {
+              "$ref": "#/components/schemas/BatchHistoryRecord"
+            },
+            "type": "array",
+            "title": "Plans"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "plans",
+          "total"
+        ],
+        "title": "BatchHistoryResponse"
+      },
+      "BatchPlanItem": {
+        "properties": {
+          "employee_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Employee Id"
+          },
+          "recommended_port": {
+            "type": "string",
+            "title": "Recommended Port"
+          },
+          "departure_time": {
+            "type": "string",
+            "title": "Departure Time"
+          },
+          "total_time": {
+            "type": "integer",
+            "title": "Total Time"
+          },
+          "late_risk_percent": {
+            "type": "integer",
+            "title": "Late Risk Percent"
+          }
+        },
+        "type": "object",
+        "required": [
+          "employee_id",
+          "recommended_port",
+          "departure_time",
+          "total_time",
+          "late_risk_percent"
+        ],
+        "title": "BatchPlanItem"
+      },
+      "BatchRequest": {
+        "properties": {
+          "company": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Company"
+          },
+          "employees": {
+            "items": {
+              "$ref": "#/components/schemas/BatchEmployee"
+            },
+            "type": "array",
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Employees"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          }
+        },
+        "type": "object",
+        "required": [
+          "company",
+          "employees",
+          "date"
+        ],
+        "title": "BatchRequest"
+      },
+      "BatchResponse": {
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "title": "Plan Id"
+          },
+          "company": {
+            "type": "string",
+            "title": "Company"
+          },
+          "date": {
+            "type": "string",
+            "title": "Date"
+          },
+          "plan": {
+            "items": {
+              "$ref": "#/components/schemas/BatchPlanItem"
+            },
+            "type": "array",
+            "title": "Plan"
+          },
+          "summary": {
+            "$ref": "#/components/schemas/BatchSummary"
+          }
+        },
+        "type": "object",
+        "required": [
+          "plan_id",
+          "company",
+          "date",
+          "plan",
+          "summary"
+        ],
+        "title": "BatchResponse"
+      },
+      "BatchSummary": {
+        "properties": {
+          "employee_count": {
+            "type": "integer",
+            "title": "Employee Count"
+          },
+          "avg_commute_time": {
+            "type": "integer",
+            "title": "Avg Commute Time"
+          },
+          "high_risk_count": {
+            "type": "integer",
+            "title": "High Risk Count"
+          },
+          "recommendation": {
+            "type": "string",
+            "title": "Recommendation"
+          }
+        },
+        "type": "object",
+        "required": [
+          "employee_count",
+          "avg_commute_time",
+          "high_risk_count",
+          "recommendation"
+        ],
+        "title": "BatchSummary"
+      },
+      "CrowdLevel": {
+        "type": "string",
+        "enum": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "title": "CrowdLevel"
+      },
+      "CrowdsourceFeedResponse": {
+        "properties": {
+          "reports": {
+            "items": {
+              "$ref": "#/components/schemas/CrowdsourceRecord"
+            },
+            "type": "array",
+            "title": "Reports"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "reports",
+          "total"
+        ],
+        "title": "CrowdsourceFeedResponse"
+      },
+      "CrowdsourceRecord": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "User Id",
+            "default": "demo-user"
+          },
+          "port": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Port"
+          },
+          "actual_wait_time": {
+            "type": "integer",
+            "maximum": 180.0,
+            "minimum": 0.0,
+            "title": "Actual Wait Time"
+          },
+          "crowd_level": {
+            "$ref": "#/components/schemas/CrowdLevel"
+          },
+          "comment": {
+            "type": "string",
+            "maxLength": 160,
+            "title": "Comment",
+            "default": ""
+          },
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp"
+          },
+          "time_label": {
+            "type": "string",
+            "title": "Time Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "port",
+          "actual_wait_time",
+          "crowd_level",
+          "id",
+          "timestamp",
+          "time_label"
+        ],
+        "title": "CrowdsourceRecord"
+      },
+      "CrowdsourceReport": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "User Id",
+            "default": "demo-user"
+          },
+          "port": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Port"
+          },
+          "actual_wait_time": {
+            "type": "integer",
+            "maximum": 180.0,
+            "minimum": 0.0,
+            "title": "Actual Wait Time"
+          },
+          "crowd_level": {
+            "$ref": "#/components/schemas/CrowdLevel"
+          },
+          "comment": {
+            "type": "string",
+            "maxLength": 160,
+            "title": "Comment",
+            "default": ""
+          }
+        },
+        "type": "object",
+        "required": [
+          "port",
+          "actual_wait_time",
+          "crowd_level"
+        ],
+        "title": "CrowdsourceReport"
+      },
+      "CrowdsourceSubmitResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success"
+          },
+          "points_earned": {
+            "type": "integer",
+            "title": "Points Earned"
+          },
+          "model_updated": {
+            "type": "boolean",
+            "title": "Model Updated"
+          },
+          "report": {
+            "$ref": "#/components/schemas/CrowdsourceRecord"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "success",
+          "points_earned",
+          "model_updated",
+          "report",
+          "message"
+        ],
+        "title": "CrowdsourceSubmitResponse"
+      },
+      "DemoContextResponse": {
+        "properties": {
+          "scenario_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Scenario Time"
+          },
+          "min_target_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Min Target Time"
+          },
+          "max_target_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Max Target Time"
+          },
+          "poll_interval_seconds": {
+            "type": "integer",
+            "title": "Poll Interval Seconds"
+          }
+        },
+        "type": "object",
+        "required": [
+          "scenario_time",
+          "min_target_time",
+          "max_target_time",
+          "poll_interval_seconds"
+        ],
+        "title": "DemoContextResponse"
+      },
+      "DemoResetResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success"
+          },
+          "seeded": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "type": "object",
+            "title": "Seeded"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "success",
+          "seeded",
+          "message"
+        ],
+        "title": "DemoResetResponse"
+      },
+      "ErrorBody": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "details": {
+            "title": "Details"
+          },
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "details",
+          "request_id"
+        ],
+        "title": "ErrorBody"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorBody"
+          }
+        },
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "title": "ErrorResponse"
+      },
+      "ForecastPoint": {
+        "properties": {
+          "offset_minutes": {
+            "type": "integer",
+            "title": "Offset Minutes"
+          },
+          "wait": {
+            "type": "integer",
+            "title": "Wait"
+          }
+        },
+        "type": "object",
+        "required": [
+          "offset_minutes",
+          "wait"
+        ],
+        "title": "ForecastPoint"
+      },
+      "HealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "service": {
+            "type": "string",
+            "title": "Service"
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "service",
+          "mode"
+        ],
+        "title": "HealthResponse"
+      },
+      "LocationOption": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "city": {
+            "type": "string",
+            "title": "City"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "city"
+        ],
+        "title": "LocationOption"
+      },
+      "LocationsResponse": {
+        "properties": {
+          "origins": {
+            "items": {
+              "$ref": "#/components/schemas/LocationOption"
+            },
+            "type": "array",
+            "title": "Origins"
+          },
+          "destinations": {
+            "items": {
+              "$ref": "#/components/schemas/LocationOption"
+            },
+            "type": "array",
+            "title": "Destinations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "origins",
+          "destinations"
+        ],
+        "title": "LocationsResponse"
+      },
+      "PortPrediction": {
+        "properties": {
+          "port_id": {
+            "type": "string",
+            "title": "Port Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "name_en": {
+            "type": "string",
+            "title": "Name En"
+          },
+          "predicted_wait_time": {
+            "type": "integer",
+            "title": "Predicted Wait Time"
+          },
+          "confidence_interval": {
+            "prefixItems": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "integer"
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Confidence Interval"
+          },
+          "risk_level": {
+            "$ref": "#/components/schemas/RiskLevel"
+          },
+          "late_risk_percent": {
+            "type": "integer",
+            "title": "Late Risk Percent"
+          },
+          "total_time": {
+            "type": "integer",
+            "title": "Total Time"
+          },
+          "total_cost": {
+            "type": "integer",
+            "title": "Total Cost"
+          },
+          "estimated_arrival": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Estimated Arrival"
+          },
+          "latest_departure": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Latest Departure"
+          },
+          "buffer_minutes": {
+            "type": "integer",
+            "title": "Buffer Minutes"
+          },
+          "on_time": {
+            "type": "boolean",
+            "title": "On Time"
+          },
+          "within_budget": {
+            "type": "boolean",
+            "title": "Within Budget"
+          },
+          "crowdsource_enhanced": {
+            "type": "boolean",
+            "title": "Crowdsource Enhanced"
+          },
+          "crowdsource_count": {
+            "type": "integer",
+            "title": "Crowdsource Count"
+          },
+          "route": {
+            "additionalProperties": {
+              "items": {
+                "$ref": "#/components/schemas/RouteStep"
+              },
+              "type": "array"
+            },
+            "type": "object",
+            "title": "Route"
+          },
+          "anomalies": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Anomalies"
+          },
+          "factors": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Factors"
+          },
+          "historical_sample_count": {
+            "type": "integer",
+            "title": "Historical Sample Count"
+          },
+          "uncertainty_minutes": {
+            "type": "number",
+            "title": "Uncertainty Minutes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "port_id",
+          "name",
+          "name_en",
+          "predicted_wait_time",
+          "confidence_interval",
+          "risk_level",
+          "late_risk_percent",
+          "total_time",
+          "total_cost",
+          "estimated_arrival",
+          "latest_departure",
+          "buffer_minutes",
+          "on_time",
+          "within_budget",
+          "crowdsource_enhanced",
+          "crowdsource_count",
+          "route",
+          "anomalies",
+          "factors",
+          "historical_sample_count",
+          "uncertainty_minutes"
+        ],
+        "title": "PortPrediction"
+      },
+      "PortStatus": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "name_en": {
+            "type": "string",
+            "title": "Name En"
+          },
+          "current_wait": {
+            "type": "integer",
+            "title": "Current Wait"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "crowd_level": {
+            "$ref": "#/components/schemas/CrowdLevel"
+          },
+          "special_channels": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Special Channels"
+          },
+          "passenger_flow": {
+            "type": "string",
+            "title": "Passenger Flow"
+          },
+          "forecast": {
+            "items": {
+              "$ref": "#/components/schemas/ForecastPoint"
+            },
+            "type": "array",
+            "title": "Forecast"
+          },
+          "anomalies": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Anomalies"
+          },
+          "crowdsource_count": {
+            "type": "integer",
+            "title": "Crowdsource Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "name_en",
+          "current_wait",
+          "status",
+          "crowd_level",
+          "special_channels",
+          "passenger_flow",
+          "forecast",
+          "anomalies",
+          "crowdsource_count"
+        ],
+        "title": "PortStatus"
+      },
+      "PredictionPreferences": {
+        "properties": {
+          "priority": {
+            "$ref": "#/components/schemas/Priority",
+            "default": "balanced"
+          },
+          "max_budget": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Budget"
+          }
+        },
+        "type": "object",
+        "title": "PredictionPreferences"
+      },
+      "PredictionQuery": {
+        "properties": {
+          "origin_id": {
+            "type": "string",
+            "title": "Origin Id"
+          },
+          "origin_name": {
+            "type": "string",
+            "title": "Origin Name"
+          },
+          "destination_id": {
+            "type": "string",
+            "title": "Destination Id"
+          },
+          "destination_name": {
+            "type": "string",
+            "title": "Destination Name"
+          },
+          "target_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Target Time"
+          },
+          "priority": {
+            "$ref": "#/components/schemas/Priority"
+          },
+          "max_budget": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Budget"
+          }
+        },
+        "type": "object",
+        "required": [
+          "origin_id",
+          "origin_name",
+          "destination_id",
+          "destination_name",
+          "target_time",
+          "priority",
+          "max_budget"
+        ],
+        "title": "PredictionQuery"
+      },
+      "PredictionRequest": {
+        "properties": {
+          "origin_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Origin Id"
+          },
+          "destination_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Destination Id"
+          },
+          "target_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Target Time"
+          },
+          "preferences": {
+            "$ref": "#/components/schemas/PredictionPreferences"
+          }
+        },
+        "type": "object",
+        "required": [
+          "origin_id",
+          "destination_id",
+          "target_time"
+        ],
+        "title": "PredictionRequest"
+      },
+      "PredictionResponse": {
+        "properties": {
+          "query": {
+            "$ref": "#/components/schemas/PredictionQuery"
+          },
+          "ports": {
+            "items": {
+              "$ref": "#/components/schemas/PortPrediction"
+            },
+            "type": "array",
+            "title": "Ports"
+          },
+          "recommended": {
+            "type": "string",
+            "title": "Recommended"
+          },
+          "recommended_port_id": {
+            "type": "string",
+            "title": "Recommended Port Id"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At"
+          },
+          "model_version": {
+            "type": "string",
+            "title": "Model Version"
+          },
+          "confidence_level": {
+            "type": "number",
+            "title": "Confidence Level"
+          },
+          "demo_notice": {
+            "type": "string",
+            "title": "Demo Notice"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query",
+          "ports",
+          "recommended",
+          "recommended_port_id",
+          "reason",
+          "warnings",
+          "generated_at",
+          "model_version",
+          "confidence_level",
+          "demo_notice"
+        ],
+        "title": "PredictionResponse"
+      },
+      "Priority": {
+        "type": "string",
+        "enum": [
+          "fastest",
+          "cheapest",
+          "balanced"
+        ],
+        "title": "Priority"
+      },
+      "RealtimeResponse": {
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Timestamp"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "ports": {
+            "items": {
+              "$ref": "#/components/schemas/PortStatus"
+            },
+            "type": "array",
+            "title": "Ports"
+          },
+          "alerts": {
+            "items": {
+              "$ref": "#/components/schemas/ServiceAlert"
+            },
+            "type": "array",
+            "title": "Alerts"
+          }
+        },
+        "type": "object",
+        "required": [
+          "timestamp",
+          "source",
+          "ports",
+          "alerts"
+        ],
+        "title": "RealtimeResponse"
+      },
+      "RiskLevel": {
+        "type": "string",
+        "enum": [
+          "low",
+          "medium",
+          "high"
+        ],
+        "title": "RiskLevel"
+      },
+      "RouteStep": {
+        "properties": {
+          "mode": {
+            "type": "string",
+            "title": "Mode"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "duration": {
+            "type": "integer",
+            "title": "Duration"
+          },
+          "cost": {
+            "type": "integer",
+            "title": "Cost"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mode",
+          "label",
+          "duration",
+          "cost"
+        ],
+        "title": "RouteStep"
+      },
+      "Routine": {
+        "properties": {
+          "origin_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Origin Id"
+          },
+          "destination_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Destination Id"
+          },
+          "days": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Days"
+          },
+          "arrival_deadline": {
+            "type": "string",
+            "pattern": "^\\d{2}:\\d{2}$",
+            "title": "Arrival Deadline"
+          },
+          "priority": {
+            "$ref": "#/components/schemas/Priority",
+            "default": "balanced"
+          }
+        },
+        "type": "object",
+        "required": [
+          "origin_id",
+          "destination_id",
+          "days",
+          "arrival_deadline"
+        ],
+        "title": "Routine"
+      },
+      "ServiceAlert": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "severity": {
+            "$ref": "#/components/schemas/RiskLevel"
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "message",
+          "severity"
+        ],
+        "title": "ServiceAlert"
+      },
+      "SubscriptionListResponse": {
+        "properties": {
+          "subscriptions": {
+            "items": {
+              "$ref": "#/components/schemas/SubscriptionRecord"
+            },
+            "type": "array",
+            "title": "Subscriptions"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subscriptions",
+          "total"
+        ],
+        "title": "SubscriptionListResponse"
+      },
+      "SubscriptionRecord": {
+        "properties": {
+          "subscription_id": {
+            "type": "string",
+            "title": "Subscription Id"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "routine": {
+            "$ref": "#/components/schemas/Routine"
+          },
+          "alerts": {
+            "$ref": "#/components/schemas/AlertPreferences"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "title": "Updated At"
+          },
+          "next_alert": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Alert"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subscription_id",
+          "user_id",
+          "routine",
+          "alerts",
+          "created_at",
+          "updated_at"
+        ],
+        "title": "SubscriptionRecord"
+      },
+      "SubscriptionRequest": {
+        "properties": {
+          "user_id": {
+            "type": "string",
+            "minLength": 1,
+            "title": "User Id",
+            "default": "demo-user"
+          },
+          "routine": {
+            "$ref": "#/components/schemas/Routine"
+          },
+          "alerts": {
+            "$ref": "#/components/schemas/AlertPreferences"
+          }
+        },
+        "type": "object",
+        "required": [
+          "routine"
+        ],
+        "title": "SubscriptionRequest"
+      },
+      "SubscriptionUpdate": {
+        "properties": {
+          "routine": {
+            "$ref": "#/components/schemas/Routine"
+          },
+          "alerts": {
+            "$ref": "#/components/schemas/AlertPreferences"
+          }
+        },
+        "type": "object",
+        "required": [
+          "routine"
+        ],
+        "title": "SubscriptionUpdate"
+      }
+    }
+  }
+}

@@ -3,8 +3,8 @@
     "subscription_id": "sub-demo-001",
     "user_id": "demo-user",
     "routine": {
-      "departure": "香港大学",
-      "destination": "深圳南山科技园",
+      "origin_id": "hku",
+      "destination_id": "nanshan-tech",
       "days": ["monday", "wednesday", "friday"],
       "arrival_deadline": "09:30",
       "priority": "balanced"

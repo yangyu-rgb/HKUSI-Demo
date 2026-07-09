@@ -1,33 +1,9 @@
-export type CrowdLevel = "low" | "medium" | "high";
-export type RiskLevel = "low" | "medium" | "high";
+import type { components } from "../../generated/api";
 
-export type ForecastPoint = {
-  offset_minutes: number;
-  wait: number;
-};
 
-export type PortStatus = {
-  id: string;
-  name: string;
-  name_en: string;
-  current_wait: number;
-  status: "open" | "closed";
-  crowd_level: CrowdLevel;
-  special_channels: string[];
-  passenger_flow: string;
-  forecast: ForecastPoint[];
-  crowdsource_count: number;
-};
-
-export type ServiceAlert = {
-  type: string;
-  message: string;
-  severity: RiskLevel;
-};
-
-export type RealtimeResponse = {
-  timestamp: string;
-  source: string;
-  ports: PortStatus[];
-  alerts: ServiceAlert[];
-};
+export type CrowdLevel = components["schemas"]["CrowdLevel"];
+export type RiskLevel = components["schemas"]["RiskLevel"];
+export type ForecastPoint = components["schemas"]["ForecastPoint"];
+export type PortStatus = components["schemas"]["PortStatus"];
+export type ServiceAlert = components["schemas"]["ServiceAlert"];
+export type RealtimeResponse = components["schemas"]["RealtimeResponse"];

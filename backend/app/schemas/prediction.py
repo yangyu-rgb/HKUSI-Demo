@@ -1,10 +1,8 @@
 from datetime import datetime
-from typing import Literal
 
 from pydantic import BaseModel, Field
 
-
-Priority = Literal["fastest", "cheapest", "balanced"]
+from .common import Priority, RiskLevel
 
 
 class PredictionPreferences(BaseModel):
@@ -43,7 +41,7 @@ class PortPrediction(BaseModel):
     name_en: str
     predicted_wait_time: int
     confidence_interval: tuple[int, int]
-    risk_level: Literal["low", "medium", "high"]
+    risk_level: RiskLevel
     late_risk_percent: int
     total_time: int
     total_cost: int
@@ -56,6 +54,9 @@ class PortPrediction(BaseModel):
     crowdsource_count: int
     route: dict[str, list[RouteStep]]
     anomalies: list[str]
+    factors: list[dict]
+    historical_sample_count: int
+    uncertainty_minutes: float
 
 
 class PredictionQuery(BaseModel):
@@ -76,4 +77,6 @@ class PredictionResponse(BaseModel):
     reason: str
     warnings: list[str]
     generated_at: datetime
+    model_version: str
+    confidence_level: float
     demo_notice: str

@@ -125,6 +125,24 @@
   gap: 15px;
 }
 
+.refresh {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.refresh button {
+  padding: 7px 10px;
+  color: var(--teal-dark);
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 10px;
+}
+
 @media (max-width: 1100px) {
   .hero,
   .alert {

@@ -1,59 +1,69 @@
-# CrossBorder AI Demo Script
+# CrossBorder AI Demo 演示脚本
 
-Target duration: 3–4 minutes.
+目标时长：4 分钟。
 
-## Opening — 20 seconds
+## 开场——20 秒
 
 “普通地图能规划交通，却看不到未来口岸排队的不确定性。CrossBorder AI 将口岸等待预测、众包校准和主动提醒放进同一个跨境决策流程。”
 
-State clearly that the prototype uses deterministic local data and does not represent live border conditions.
+明确说明：原型使用确定性本地数据和本地 SQLite，不代表真实口岸情况。
 
-## Scene 1: Border Pulse — 30 seconds
+## 场景一：口岸态势——35 秒
 
-1. Open `/`.
-2. Compare the four port cards and their two-hour wait forecasts.
-3. Point out the 07:45 scenario time and weather/transport buffer alert.
+1. 打开 `/`。
+2. 比较当前等待卡片和四条折线组成的未来三小时趋势图。
+3. 指出 60 秒自动刷新、手动刷新、场景时间以及天气和交通提示。
 
-Key message: the product shows where congestion is heading, not only where it is now.
+核心信息：产品不仅显示现在是否拥堵，也展示拥堵趋势。
 
-## Scene 2: Route Decision — 80 seconds
+## 场景二：可解释路线决策——85 秒
 
-1. Open `/planner`.
-2. Select 香港大学 → 深圳南山科技园, arrival by 09:30, HK$100 budget.
-3. Keep “稳妥均衡” and generate the recommendation.
-4. Show the recommended port, latest departure, estimated arrival, buffer, cost, confidence interval, and risk.
-5. Change the origin to 九龙塘 or destination to 深圳福田 CBD and rerun.
-6. Explain that the route times and recommendation change because the locations use a real deterministic matrix rather than decorative text.
-7. Optionally reduce the budget to show the budget warning.
+1. 打开 `/planner`。
+2. 选择香港大学 → 深圳南山科技园，09:30 前到达，预算 HK$100。
+3. 使用“稳妥均衡”生成建议。
+4. 展示推荐 SVG 路线、最晚出发、预计到达、缓冲、动态 90% 区间、风险和费用。
+5. 展开“查看预测依据”，展示预测、历史、众包权重和相似历史分组。
+6. 修改出发地、目的地、偏好或预算并重新生成。
 
-Key message: the system answers “when must I leave, can I still arrive on time, and which uncertainty is acceptable?”
+核心信息：系统回答“何时出发”和“为什么这条路线更稳”，依据来自可审查的 Demo 统计计算，而不是黑箱结论。
 
-## Scene 3: Crowdsource Calibration — 40 seconds
+## 场景三：持久化众包闭环——40 秒
 
-1. Open `/crowdsource`.
-2. Submit a 12-minute 福田 report with “畅通”.
-3. Show the +10 points message and new feed item.
-4. Return to `/planner` and rerun the same prediction.
-5. Show the increased crowdsource count.
+1. 打开 `/crowdsource`。
+2. 输入实际等待时间和可选说明；表单不预填虚假输入。
+3. 提交并展示 +10 积分结果和新的动态条目。
+4. 返回 `/planner` 重新生成，展示众包数量增加。
+5. 说明刷新或重启后反馈仍会保留，直到执行 Demo 重置。
 
-Key message: user feedback closes the prediction loop.
+核心信息：用户现场反馈闭合预测校准循环。
 
-## Scene 4: Proactive and B2B Value — 40 seconds
+## 场景四：订阅 CRUD——35 秒
 
-1. Open `/alerts` and create the 09:30 reminder.
-2. Explain the planned departure, anomaly, and better-route triggers.
-3. Open `/business` and generate the four-person dispatch example.
-4. Point out employee count, average commute, risk count, and individual departure times.
+1. 打开 `/alerts`。
+2. 创建提醒并在已保存列表中查看。
+3. 修改路线或时间，也可以删除订阅。
+4. 说明出发提醒、异常拥堵和更优路线三类设置。
 
-Key message: the same prediction service supports individuals and enterprise scheduling.
+核心信息：主动服务包含可管理、可持久化的订阅，而不只是一次成功提示。
 
-## Closing — 20 seconds
+## 场景五：可编辑企业方案——40 秒
+
+1. 打开 `/business`。
+2. 编辑员工、增加一名员工并生成方案。
+3. 展示汇总风险和员工级出发建议。
+4. 再次生成，然后从近期方案历史中载入一次输入。
+
+核心信息：同一预测能力可以支撑可重复的企业调度流程。
+
+## 结束与重置——25 秒
 
 “CrossBorder AI 的商业重点不是向个人用户收导航费，而是把跨境等待风险转化为巴士、物流和企业 HR 可执行的调度服务。”
 
-## Backup
+下一次演示前使用页头重置按钮，恢复反馈、订阅和企业历史的确定性种子状态。
 
-- 60–90 second screen recording
-- One screenshot per route page
-- One architecture slide: JSON repositories → services → API routers → feature pages
-- Static API responses in case a local server fails
+## 备用材料
+
+- 60–90 秒屏幕录制。
+- 每个路由页面一张截图。
+- 一张架构图：缓存 JSON + SQLite → Service → API → 查询 Hook。
+- 本地服务失败时使用 `docs/openapi.json` 和静态种子数据。

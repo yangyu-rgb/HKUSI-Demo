@@ -17,6 +17,7 @@ export function RouteCard({
   route: PortPrediction;
   recommended: boolean;
 }) {
+  const factors = route.factors as Array<Record<string, unknown>>;
   return (
     <article className={`${styles.card} ${recommended ? styles.recommended : ""}`}>
       <div className={styles.header}>
@@ -48,9 +49,24 @@ export function RouteCard({
 
       {!route.within_budget && <p className={styles.budgetAlert}>超出当前预算上限</p>}
       <div className={styles.confidence}>
-        预测区间 {route.confidence_interval[0]}–{route.confidence_interval[1]} 分钟
+        90%预测区间 {route.confidence_interval[0]}–{route.confidence_interval[1]} 分钟
         {route.crowdsource_enhanced && ` · 已融合 ${route.crowdsource_count} 条众包数据`}
       </div>
+      <details className={styles.factors}>
+        <summary>查看预测依据</summary>
+        <ul>
+          {factors.map((factor, index) => (
+            <li key={`${String(factor.code)}-${index}`}>
+              <strong>{String(factor.label ?? factor.code)}</strong>
+              <span>
+                {factor.value_minutes !== undefined && `${String(factor.value_minutes)}分钟`}
+                {factor.effective_weight !== undefined && ` · 权重${Math.round(Number(factor.effective_weight) * 100)}%`}
+                {factor.detail !== undefined && String(factor.detail)}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </details>
       <div className={styles.steps}>
         {route.route.steps.map((step, index) => (
           <div className={styles.step} key={`${step.mode}-${step.label}`}>

@@ -12,8 +12,8 @@ DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 
 
 @pytest.fixture
-def repository() -> DemoRepository:
-    return DemoRepository(DATA_DIR)
+def repository(tmp_path: Path) -> DemoRepository:
+    return DemoRepository(DATA_DIR, tmp_path / "test.db")
 
 
 @pytest.fixture
@@ -22,6 +22,6 @@ def prediction_service(repository: DemoRepository) -> PredictionService:
 
 
 @pytest.fixture
-def client() -> TestClient:
-    with TestClient(create_app(DATA_DIR)) as test_client:
+def client(tmp_path: Path) -> TestClient:
+    with TestClient(create_app(DATA_DIR, tmp_path / "api.db")) as test_client:
         yield test_client

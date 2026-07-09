@@ -1,0 +1,96 @@
+.panel {
+  margin-bottom: 14px;
+  padding: 22px 24px 8px;
+  overflow-x: auto;
+  background: white;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+.heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.heading h2 {
+  margin: 0;
+  font-size: 19px;
+}
+
+.heading p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.map {
+  width: 100%;
+  min-width: 620px;
+}
+
+.accessLine,
+.onwardLine {
+  fill: none;
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+.accessLine { stroke: #54b7a5; }
+.onwardLine { stroke: #4d7cfe; }
+
+.originNode,
+.destinationNode {
+  fill: white;
+  stroke: var(--teal);
+  stroke-width: 4;
+}
+
+.portNode {
+  fill: var(--teal-dark);
+  stroke: var(--lime);
+  stroke-width: 6;
+}
+
+.nodeCode,
+.portCode,
+.label,
+.mode,
+.wait {
+  font-family: inherit;
+}
+
+.nodeCode {
+  fill: var(--teal-dark);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.portCode {
+  fill: white;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.label {
+  fill: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.mode {
+  fill: var(--muted);
+  font-size: 10px;
+}
+
+.wait {
+  fill: var(--teal-dark);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+@media (max-width: 760px) {
+  .heading {
+    min-width: 620px;
+  }
+}

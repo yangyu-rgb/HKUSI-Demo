@@ -116,6 +116,34 @@
   line-height: 1.5;
 }
 
+.factors {
+  margin: 8px 0 12px;
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.factors summary {
+  cursor: pointer;
+  color: var(--teal-dark);
+  font-weight: 700;
+}
+
+.factors ul {
+  margin: 8px 0 0;
+  padding: 9px 12px 9px 24px;
+  background: #f5f8f6;
+  border-radius: 8px;
+}
+
+.factors li {
+  margin: 5px 0;
+}
+
+.factors li span {
+  display: block;
+  margin-top: 2px;
+}
+
 .steps {
   margin-top: 12px;
   display: grid;

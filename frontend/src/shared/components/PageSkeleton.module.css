@@ -1,0 +1,120 @@
+.page {
+  max-width: 1240px;
+  margin: 34px auto 78px;
+}
+
+.hero,
+.card {
+  overflow: hidden;
+  position: relative;
+  background: #e7efeb;
+  border-radius: 20px;
+}
+
+.hero::after,
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.62), transparent);
+  animation: shimmer 1.35s infinite;
+}
+
+.hero {
+  height: 270px;
+  padding: 48px;
+}
+
+.hero span,
+.hero strong,
+.hero p,
+.card span,
+.card strong,
+.card p {
+  display: block;
+  background: #d5e2dc;
+  border-radius: 7px;
+}
+
+.hero span {
+  width: 120px;
+  height: 12px;
+}
+
+.hero strong {
+  width: 52%;
+  height: 42px;
+  margin-top: 20px;
+}
+
+.hero p {
+  width: 65%;
+  height: 13px;
+  margin: 13px 0 0;
+}
+
+.grid {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 15px;
+}
+
+.card {
+  height: 210px;
+  padding: 22px;
+}
+
+.card span {
+  width: 42%;
+  height: 11px;
+}
+
+.card strong {
+  width: 65%;
+  height: 28px;
+  margin-top: 23px;
+}
+
+.card p {
+  width: 90%;
+  height: 10px;
+  margin-top: 20px;
+}
+
+@keyframes shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@media (max-width: 1100px) {
+  .page {
+    margin-inline: 24px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 760px) {
+  .page {
+    margin-inline: 14px;
+  }
+
+  .hero {
+    height: 240px;
+    padding: 30px 22px;
+  }
+
+  .hero strong,
+  .hero p {
+    width: 90%;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
