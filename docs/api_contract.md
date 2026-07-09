@@ -1,8 +1,8 @@
-# API Contract
+# CrossBorder AI API Contract
 
-The backend exposes a small topic-agnostic API for the demo dashboard.
+The local FastAPI backend exposes deterministic CrossBorder AI demo endpoints.
 
-Base URL for local development:
+Base URL:
 
 ```text
 http://127.0.0.1:8000
@@ -10,110 +10,175 @@ http://127.0.0.1:8000
 
 ## GET `/api/health`
 
-Returns service status.
-
-Response:
+Returns service and demo-mode status.
 
 ```json
 {
   "status": "ok",
-  "service": "topic2-demo-api"
+  "service": "crossborder-ai-api",
+  "mode": "deterministic-demo"
 }
 ```
 
-## GET `/api/demo-state?topic=wastewise`
+## GET `/api/realtime`
 
-Returns one complete prebuilt demo state.
+Returns the scenario timestamp, service alerts, and current status for 罗湖、福田、皇岗、深圳湾.
 
-Supported topics:
+Each port includes:
 
-- `wastewise`
-- `clinicflow`
-- `hireready`
+- Current wait and crowd level
+- Open status and special channels
+- Zero-, one-, and two-hour forecast points
+- Access and onward transport assumptions
+- Number of crowdsource samples
 
-Response shape:
+## POST `/api/predict`
+
+Compares all four ports for one cross-border trip.
+
+Request:
 
 ```json
 {
-  "topic": "wastewise",
-  "title": "WasteWise AI",
-  "subtitle": "AI food-waste operations dashboard",
-  "scenario": "Rainy exam-week lunch",
-  "metrics": [],
-  "analysis": [],
-  "recommendations": [],
+  "departure": "香港大学",
+  "destination": "深圳南山科技园",
+  "target_time": "2026-07-09T09:30:00",
+  "preferences": {
+    "priority": "balanced",
+    "max_budget": 100
+  }
+}
+```
+
+Valid priorities are `balanced`, `fastest`, and `cheapest`.
+
+Response:
+
+```json
+{
+  "query": {
+    "departure": "香港大学",
+    "destination": "深圳南山科技园",
+    "target_time": "2026-07-09T09:30:00",
+    "priority": "balanced"
+  },
+  "ports": [
+    {
+      "port_id": "futian",
+      "name": "福田",
+      "predicted_wait_time": 16,
+      "confidence_interval": [12, 20],
+      "risk_level": "low",
+      "late_risk_percent": 13,
+      "total_time": 82,
+      "total_cost": 49,
+      "crowdsource_enhanced": true,
+      "route": {
+        "steps": []
+      }
+    }
+  ],
+  "recommended": "福田",
+  "reason": "福田在当前偏好下综合最优。",
+  "demo_notice": "结果由本地确定性规则与众包样本生成，不代表真实口岸状态。"
+}
+```
+
+The demo predictor blends the closest time-horizon forecast with recent crowdsource waits at a 70/30 weighting. Confidence and late-risk values are deterministic heuristics.
+
+## GET `/api/crowdsource/feed`
+
+Query parameter:
+
+- `limit`: 1–30, default 8
+
+Response:
+
+```json
+{
+  "reports": [],
+  "total": 4
+}
+```
+
+## POST `/api/crowdsource/report`
+
+Adds one in-memory report. A difference greater than five minutes from the current port wait marks `model_updated` as true.
+
+Request:
+
+```json
+{
+  "user_id": "demo-user",
+  "port": "福田",
+  "actual_wait_time": 12,
+  "crowd_level": "low",
+  "comment": "排队很短，通关顺畅。"
+}
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "points_earned": 10,
+  "model_updated": false,
   "report": {},
-  "table": []
+  "message": "感谢反馈！你的数据已加入本次演示的预测校准。"
 }
 ```
 
-## POST `/api/analyze`
+## POST `/api/subscription`
 
-Runs deterministic mock AI analysis for the selected topic and scenario.
+Creates an in-memory smart-alert configuration.
 
 Request:
 
 ```json
 {
-  "topic": "wastewise",
-  "scenario": "Rainy exam-week lunch",
-  "records": []
+  "user_id": "demo-user",
+  "routine": {
+    "departure": "香港大学",
+    "destination": "深圳南山科技园",
+    "days": ["monday", "wednesday", "friday"],
+    "arrival_deadline": "09:30",
+    "priority": "balanced"
+  },
+  "alerts": {
+    "advance_reminder": true,
+    "anomaly_alert": true,
+    "better_route_alert": true
+  }
 }
 ```
 
-Response:
+## POST `/api/batch`
 
-```json
-{
-  "topic": "wastewise",
-  "scenario": "Rainy exam-week lunch",
-  "analysis": [],
-  "metrics": [],
-  "table": []
-}
-```
-
-## POST `/api/recommendations`
-
-Returns operational recommendations for the selected topic.
+Generates a deterministic employee dispatch plan for the B2B demo.
 
 Request:
 
 ```json
 {
-  "topic": "wastewise",
-  "scenario": "Rainy exam-week lunch"
+  "company": "大湾区跨境服务有限公司",
+  "date": "2026-07-09",
+  "employees": [
+    {
+      "id": "E-101",
+      "departure": "香港大学",
+      "destination": "深圳南山",
+      "arrival_deadline": "09:30"
+    }
+  ]
 }
 ```
 
-Response:
+The response contains one recommended port and departure time per employee plus summary risk metrics.
 
-```json
-{
-  "topic": "wastewise",
-  "recommendations": []
-}
-```
+## Demo Boundaries
 
-## POST `/api/report`
-
-Returns a presentation-ready impact report.
-
-Request:
-
-```json
-{
-  "topic": "wastewise",
-  "scenario": "Rainy exam-week lunch"
-}
-```
-
-Response:
-
-```json
-{
-  "topic": "wastewise",
-  "report": {}
-}
-```
-
+- No live i口岸, transport, weather, notification, or map integrations.
+- No production machine-learning model.
+- Submitted reports and subscriptions reset on backend restart.
+- API outputs are decision-support examples, not operational border guidance.

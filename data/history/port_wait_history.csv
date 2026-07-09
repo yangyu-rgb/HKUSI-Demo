@@ -1,0 +1,13 @@
+timestamp,port,wait_minutes,weather,is_holiday,crowd_level
+2026-07-07T08:00:00,罗湖,18,clear,false,medium
+2026-07-07T09:00:00,罗湖,29,clear,false,high
+2026-07-08T08:00:00,罗湖,21,rain,false,medium
+2026-07-07T08:00:00,福田,13,clear,false,low
+2026-07-07T09:00:00,福田,18,clear,false,medium
+2026-07-08T08:00:00,福田,15,rain,false,low
+2026-07-07T08:00:00,皇岗,37,clear,false,high
+2026-07-07T09:00:00,皇岗,45,clear,false,high
+2026-07-08T08:00:00,皇岗,42,rain,false,high
+2026-07-07T08:00:00,深圳湾,16,clear,false,medium
+2026-07-07T09:00:00,深圳湾,21,clear,false,medium
+2026-07-08T08:00:00,深圳湾,19,rain,false,medium
