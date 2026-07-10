@@ -1808,6 +1808,15 @@
         ],
         "title": "BatchSummary"
       },
+      "CrossingChannel": {
+        "type": "string",
+        "enum": [
+          "traveller",
+          "vehicle",
+          "cargo"
+        ],
+        "title": "CrossingChannel"
+      },
       "CrowdLevel": {
         "type": "string",
         "enum": [
@@ -1888,6 +1897,24 @@
             ],
             "title": "Forecast Port Id"
           },
+          "direction": {
+            "$ref": "#/components/schemas/TravelDirection",
+            "default": "hong_kong_to_shenzhen"
+          },
+          "channel": {
+            "$ref": "#/components/schemas/CrossingChannel",
+            "default": "traveller"
+          },
+          "is_real_observation": {
+            "type": "boolean",
+            "title": "Is Real Observation",
+            "default": false
+          },
+          "training_consent": {
+            "type": "boolean",
+            "title": "Training Consent",
+            "default": false
+          },
           "id": {
             "type": "string",
             "title": "Id"
@@ -1918,6 +1945,37 @@
           "used_for_prediction": {
             "type": "boolean",
             "title": "Used For Prediction"
+          },
+          "source_type": {
+            "$ref": "#/components/schemas/ObservationSource"
+          },
+          "wait_started_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wait Started At"
+          },
+          "wait_ended_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Wait Ended At"
+          },
+          "eligible_for_v2_label": {
+            "type": "boolean",
+            "title": "Eligible For V2 Label"
           }
         },
         "type": "object",
@@ -1931,7 +1989,9 @@
           "quality_score",
           "quality_level",
           "expires_at",
-          "used_for_prediction"
+          "used_for_prediction",
+          "source_type",
+          "eligible_for_v2_label"
         ],
         "title": "CrowdsourceRecord"
       },
@@ -1984,6 +2044,24 @@
               }
             ],
             "title": "Forecast Port Id"
+          },
+          "direction": {
+            "$ref": "#/components/schemas/TravelDirection",
+            "default": "hong_kong_to_shenzhen"
+          },
+          "channel": {
+            "$ref": "#/components/schemas/CrossingChannel",
+            "default": "traveller"
+          },
+          "is_real_observation": {
+            "type": "boolean",
+            "title": "Is Real Observation",
+            "default": false
+          },
+          "training_consent": {
+            "type": "boolean",
+            "title": "Training Consent",
+            "default": false
           }
         },
         "type": "object",
@@ -2319,6 +2397,17 @@
           "destinations"
         ],
         "title": "LocationsResponse"
+      },
+      "ObservationSource": {
+        "type": "string",
+        "enum": [
+          "demo_seed",
+          "demo_entry",
+          "crowdsource_observation",
+          "partner",
+          "official"
+        ],
+        "title": "ObservationSource"
       },
       "PortPrediction": {
         "properties": {
@@ -3318,6 +3407,14 @@
         ],
         "title": "SubscriptionUpdate"
       },
+      "TravelDirection": {
+        "type": "string",
+        "enum": [
+          "hong_kong_to_shenzhen",
+          "shenzhen_to_hong_kong"
+        ],
+        "title": "TravelDirection"
+      },
       "V2ReadinessCheck": {
         "properties": {
           "name": {
@@ -3345,6 +3442,24 @@
           "passed"
         ],
         "title": "V2ReadinessCheck"
+      },
+      "V2ReadinessLabelSource": {
+        "properties": {
+          "source_type": {
+            "type": "string",
+            "title": "Source Type"
+          },
+          "label_count": {
+            "type": "integer",
+            "title": "Label Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "source_type",
+          "label_count"
+        ],
+        "title": "V2ReadinessLabelSource"
       },
       "V2ReadinessPort": {
         "properties": {
@@ -3377,6 +3492,21 @@
           "label_count": {
             "type": "integer",
             "title": "Label Count"
+          },
+          "linked_feedback_count": {
+            "type": "integer",
+            "title": "Linked Feedback Count"
+          },
+          "excluded_feedback_count": {
+            "type": "integer",
+            "title": "Excluded Feedback Count"
+          },
+          "label_sources": {
+            "items": {
+              "$ref": "#/components/schemas/V2ReadinessLabelSource"
+            },
+            "type": "array",
+            "title": "Label Sources"
           },
           "ports": {
             "items": {
@@ -3445,6 +3575,13 @@
             "type": "array",
             "title": "Data Sources"
           },
+          "coverage_warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Coverage Warnings"
+          },
           "production_blockers": {
             "items": {
               "type": "string"
@@ -3458,6 +3595,9 @@
           "experiment_ready",
           "production_promotion_ready",
           "label_count",
+          "linked_feedback_count",
+          "excluded_feedback_count",
+          "label_sources",
           "ports",
           "distinct_dates",
           "hour_slices",
@@ -3466,6 +3606,7 @@
           "time_split",
           "checks",
           "data_sources",
+          "coverage_warnings",
           "production_blockers"
         ],
         "title": "V2ReadinessResponse"

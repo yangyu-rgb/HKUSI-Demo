@@ -1,6 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 import json
+import sqlite3
 
 from conftest import FROZEN_NOW, FrozenClock
 from app.repositories import DemoRepository
@@ -120,6 +121,23 @@ def test_labeled_snapshot_contains_feedback_and_auditable_metadata(
             }
         ],
     )
+    repository.add_report(
+        {
+            "id": "report-snapshot-test",
+            "user_id": "snapshot-user",
+            "port": "罗湖",
+            "actual_wait_time": 18,
+            "crowd_level": "medium",
+            "timestamp": FROZEN_NOW.isoformat(),
+            "time_label": "刚刚",
+            "comment": "真实快照测试",
+            "direction": "hong_kong_to_shenzhen",
+            "channel": "traveller",
+            "is_real_observation": True,
+            "training_consent": True,
+            "source_type": "crowdsource_observation",
+        }
+    )
     linked = repository.link_feedback_to_forecast(
         report_id="report-snapshot-test",
         forecast_run_id="forecast-snapshot-test",
@@ -135,5 +153,51 @@ def test_labeled_snapshot_contains_feedback_and_auditable_metadata(
     assert linked == {"linked": True, "labeled": True, "reason": None}
     assert result["sample_count"] == 1
     assert "actual_wait_minutes" in Path(result["csv_path"]).read_text(encoding="utf-8")
+    assert "crowdsource_observation" in Path(result["csv_path"]).read_text(encoding="utf-8")
     assert metadata["sha256"] == result["sha256"]
     assert metadata["readiness"]["label_count"] == 1
+    assert metadata["schema_version"] == 2
+
+
+def test_existing_database_adds_provenance_columns_conservatively(
+    tmp_path: Path,
+) -> None:
+    database = tmp_path / "legacy.db"
+    with sqlite3.connect(database) as connection:
+        connection.executescript(
+            """
+            CREATE TABLE schema_version (
+                version INTEGER PRIMARY KEY,
+                applied_at TEXT NOT NULL
+            );
+            INSERT INTO schema_version(version, applied_at)
+            VALUES (5, '2026-07-10T00:00:00+00:00');
+            CREATE TABLE crowdsource_reports (
+                id TEXT PRIMARY KEY,
+                user_id TEXT NOT NULL,
+                port TEXT NOT NULL,
+                actual_wait_time INTEGER NOT NULL,
+                crowd_level TEXT NOT NULL,
+                effective_at TEXT NOT NULL,
+                time_label TEXT NOT NULL,
+                comment TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            );
+            INSERT INTO crowdsource_reports VALUES (
+                'legacy-report', 'legacy-user', '福田', 12, 'low',
+                '2026-07-10T07:30:00+08:00', '', '旧版本反馈',
+                '2026-07-09T23:30:00+00:00'
+            );
+            """
+        )
+
+    repository = DemoRepository(DATA_DIR, database, FrozenClock())
+    legacy = next(item for item in repository.get_reports() if item["id"] == "legacy-report")
+
+    assert legacy["is_real_observation"] is False
+    assert legacy["training_consent"] is False
+    assert legacy["source_type"] == "demo_seed"
+    with sqlite3.connect(database) as connection:
+        assert connection.execute(
+            "SELECT COUNT(*) FROM schema_version WHERE version = 6"
+        ).fetchone()[0] == 1

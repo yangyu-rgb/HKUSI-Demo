@@ -259,11 +259,26 @@ describe("application routes", () => {
     expect(await screen.findByText("高可信 95分")).toBeInTheDocument();
     expect(screen.getByText("有效至 09:10")).toBeInTheDocument();
 
+    const realObservation = screen.getByLabelText("这是我刚完成通关后的真实现场反馈");
+    const trainingConsent = screen.getByLabelText("同意将去标识化记录用于后续模型训练与评估");
+    expect(trainingConsent).toBeDisabled();
+    fireEvent.click(realObservation);
+    expect(trainingConsent).not.toBeDisabled();
+    fireEvent.click(trainingConsent);
+
     fireEvent.change(screen.getByLabelText(/实际等待/), { target: { value: "14" } });
     fireEvent.click(screen.getByRole("button", { name: "提交反馈" }));
 
     expect(await screen.findByText("同一口岸反馈提交过于频繁，请在10分钟后重试"))
       .toBeInTheDocument();
+    const reportCall = fetchMock.mock.calls.find(
+      ([input, init]) => String(input).endsWith("/api/crowdsource/report") && init?.method === "POST",
+    );
+    const reportBody = JSON.parse(String(reportCall?.[1]?.body));
+    expect(reportBody.is_real_observation).toBe(true);
+    expect(reportBody.training_consent).toBe(true);
+    expect(reportBody.direction).toBe("hong_kong_to_shenzhen");
+    expect(reportBody.channel).toBe("traveller");
   });
 
   it("edits and deletes a persisted alert subscription", async () => {

@@ -23,7 +23,7 @@ from ..providers import (
 )
 
 
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 
 
 def load_json(path: Path) -> dict | list:
@@ -120,6 +120,7 @@ class DemoRepository:
             schema = (Path(__file__).with_name("schema.sql")).read_text(encoding="utf-8")
             with self._connect() as connection:
                 connection.executescript(schema)
+                self._migrate_database(connection)
                 is_new_database = connection.execute(
                     "SELECT COUNT(*) FROM schema_version"
                 ).fetchone()[0] == 0
@@ -148,6 +149,62 @@ class DemoRepository:
         except (OSError, sqlite3.Error) as error:
             raise PersistenceError() from error
 
+    def _migrate_database(self, connection: sqlite3.Connection) -> None:
+        """Apply additive, idempotent migrations to existing local Demo databases."""
+        report_columns = {
+            row["name"]
+            for row in connection.execute("PRAGMA table_info(crowdsource_reports)")
+        }
+        additions = {
+            "direction": (
+                "TEXT NOT NULL DEFAULT 'hong_kong_to_shenzhen' "
+                "CHECK(direction IN ('hong_kong_to_shenzhen', 'shenzhen_to_hong_kong'))"
+            ),
+            "channel": (
+                "TEXT NOT NULL DEFAULT 'traveller' "
+                "CHECK(channel IN ('traveller', 'vehicle', 'cargo'))"
+            ),
+            "is_real_observation": (
+                "INTEGER NOT NULL DEFAULT 0 CHECK(is_real_observation IN (0, 1))"
+            ),
+            "training_consent": (
+                "INTEGER NOT NULL DEFAULT 0 CHECK(training_consent IN (0, 1))"
+            ),
+            "source_type": (
+                "TEXT NOT NULL DEFAULT 'demo_seed' "
+                "CHECK(source_type IN ('demo_seed', 'demo_entry', "
+                "'crowdsource_observation', 'partner', 'official'))"
+            ),
+            "wait_started_at": "TEXT",
+            "wait_ended_at": "TEXT",
+        }
+        for name, declaration in additions.items():
+            if name not in report_columns:
+                connection.execute(
+                    f"ALTER TABLE crowdsource_reports ADD COLUMN {name} {declaration}"
+                )
+
+        # Labels created before provenance was introduced are retained for audit but
+        # cannot silently remain eligible for V2 training.
+        connection.execute(
+            """
+            UPDATE forecast_run_ports
+            SET label_status = 'excluded'
+            WHERE label_status = 'labeled'
+              AND EXISTS (
+                  SELECT 1 FROM crowdsource_reports AS reports
+                  WHERE reports.id = forecast_run_ports.observed_report_id
+                    AND (
+                        reports.is_real_observation = 0
+                        OR reports.training_consent = 0
+                        OR reports.source_type NOT IN (
+                            'crowdsource_observation', 'partner', 'official'
+                        )
+                    )
+              )
+            """
+        )
+
     def _seed_reports(self, connection: sqlite3.Connection) -> None:
         reports = self._crowdsource_seed
         now = self._clock.now().replace(microsecond=0)
@@ -157,8 +214,10 @@ class DemoRepository:
                 """
                 INSERT INTO crowdsource_reports(
                     id, user_id, port, actual_wait_time, crowd_level,
-                    effective_at, time_label, comment, created_at
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    effective_at, time_label, comment, direction, channel,
+                    is_real_observation, training_consent, source_type,
+                    wait_started_at, wait_ended_at, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     report["id"],
@@ -169,6 +228,15 @@ class DemoRepository:
                     effective_at.isoformat(),
                     "",
                     report["comment"],
+                    "hong_kong_to_shenzhen",
+                    "traveller",
+                    0,
+                    0,
+                    "demo_seed",
+                    (
+                        effective_at - timedelta(minutes=report["actual_wait_time"])
+                    ).isoformat(),
+                    effective_at.isoformat(),
                     effective_at.astimezone(timezone.utc).isoformat(),
                 ),
             )
@@ -216,6 +284,13 @@ class DemoRepository:
             "timestamp": row["effective_at"],
             "time_label": row["time_label"],
             "comment": row["comment"],
+            "direction": row["direction"],
+            "channel": row["channel"],
+            "is_real_observation": bool(row["is_real_observation"]),
+            "training_consent": bool(row["training_consent"]),
+            "source_type": row["source_type"],
+            "wait_started_at": row["wait_started_at"],
+            "wait_ended_at": row["wait_ended_at"],
             "_created_at": row["created_at"],
         }
         if "forecast_run_id" in row.keys():
@@ -357,18 +432,31 @@ class DemoRepository:
 
     def add_report(self, report: dict) -> dict:
         record = {
+            "direction": "hong_kong_to_shenzhen",
+            "channel": "traveller",
+            "is_real_observation": False,
+            "training_consent": False,
+            "source_type": "demo_entry",
             **report,
             "id": report.get("id", f"report-{uuid4().hex[:12]}"),
             "_created_at": self._utc_now(),
         }
+        observed_at = datetime.fromisoformat(record["timestamp"])
+        record.setdefault("wait_ended_at", observed_at.isoformat())
+        record.setdefault(
+            "wait_started_at",
+            (observed_at - timedelta(minutes=record["actual_wait_time"])).isoformat(),
+        )
         try:
             with self._connect() as connection:
                 connection.execute(
                     """
                     INSERT INTO crowdsource_reports(
                         id, user_id, port, actual_wait_time, crowd_level,
-                        effective_at, time_label, comment, created_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        effective_at, time_label, comment, direction, channel,
+                        is_real_observation, training_consent, source_type,
+                        wait_started_at, wait_ended_at, created_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         record["id"],
@@ -379,6 +467,13 @@ class DemoRepository:
                         record["timestamp"],
                         record["time_label"],
                         record["comment"],
+                        record["direction"],
+                        record["channel"],
+                        int(record["is_real_observation"]),
+                        int(record["training_consent"]),
+                        record["source_type"],
+                        record["wait_started_at"],
+                        record["wait_ended_at"],
                         record["_created_at"],
                     ),
                 )
@@ -748,6 +843,7 @@ class DemoRepository:
         actual_wait_minutes: int,
         quality_score: int,
         eligible_for_label: bool,
+        ineligibility_reason: str | None = None,
     ) -> dict | None:
         """Link feedback to a forecast, and label it only when quality is high."""
         try:
@@ -761,6 +857,19 @@ class DemoRepository:
                 ).fetchone()
                 if run_port is None:
                     return None
+                report_row = connection.execute(
+                    """
+                    SELECT is_real_observation, training_consent, source_type
+                    FROM crowdsource_reports WHERE id = ?
+                    """,
+                    (report_id,),
+                ).fetchone()
+                if report_row is None:
+                    return {
+                        "linked": False,
+                        "labeled": False,
+                        "reason": "反馈记录不存在",
+                    }
                 existing_link = connection.execute(
                     """
                     SELECT report_id FROM forecast_feedback_links
@@ -778,11 +887,23 @@ class DemoRepository:
                     """,
                     (report_id, forecast_run_id, port_id, self._utc_now()),
                 )
+                provenance_eligible = (
+                    bool(report_row["is_real_observation"])
+                    and bool(report_row["training_consent"])
+                    and report_row["source_type"]
+                    in {"crowdsource_observation", "partner", "official"}
+                )
+                eligible_for_label = eligible_for_label and provenance_eligible
+                if not provenance_eligible and ineligibility_reason is None:
+                    ineligibility_reason = (
+                        "反馈来源或建模同意不符合要求，已保留关联但不作为训练标签"
+                    )
                 if not eligible_for_label:
                     return {
                         "linked": True,
                         "labeled": False,
-                        "reason": "反馈质量不足，已保留关联但不作为训练标签",
+                        "reason": ineligibility_reason
+                        or "反馈不符合训练条件，已保留关联但不作为训练标签",
                     }
                 if run_port["observed_report_id"] is not None:
                     return {
@@ -822,10 +943,21 @@ class DemoRepository:
                            ports.statistical_wait_minutes, ports.shadow_wait_minutes,
                            ports.shadow_status, ports.features_json,
                            ports.observed_wait_minutes, ports.observed_report_id,
-                           ports.observed_at, ports.observed_quality_score
+                           ports.observed_at, ports.observed_quality_score,
+                           reports.direction, reports.channel,
+                           reports.is_real_observation, reports.training_consent,
+                           reports.source_type, reports.wait_started_at,
+                           reports.wait_ended_at
                     FROM forecast_run_ports AS ports
                     JOIN forecast_runs AS runs ON runs.id = ports.forecast_run_id
+                    JOIN crowdsource_reports AS reports
+                      ON reports.id = ports.observed_report_id
                     WHERE ports.label_status = 'labeled'
+                      AND reports.is_real_observation = 1
+                      AND reports.training_consent = 1
+                      AND reports.source_type IN (
+                          'crowdsource_observation', 'partner', 'official'
+                      )
                     ORDER BY ports.observed_at ASC, runs.id ASC, ports.port_id ASC
                     """
                 ).fetchall()
@@ -838,6 +970,48 @@ class DemoRepository:
             ]
         except sqlite3.Error as error:
             raise PersistenceError() from error
+
+    def get_training_label_audit(self) -> dict:
+        """Summarize linked feedback without treating Demo data as training truth."""
+        try:
+            with self._connect() as connection:
+                rows = connection.execute(
+                    """
+                    SELECT links.report_id, reports.source_type,
+                           reports.is_real_observation, reports.training_consent,
+                           ports.label_status, ports.observed_report_id
+                    FROM forecast_feedback_links AS links
+                    JOIN crowdsource_reports AS reports ON reports.id = links.report_id
+                    JOIN forecast_run_ports AS ports
+                      ON ports.forecast_run_id = links.forecast_run_id
+                     AND ports.port_id = links.port_id
+                    """
+                ).fetchall()
+        except sqlite3.Error as error:
+            raise PersistenceError() from error
+
+        included = sum(
+            1
+            for row in rows
+            if row["label_status"] == "labeled"
+            and row["observed_report_id"] == row["report_id"]
+            and row["is_real_observation"]
+            and row["training_consent"]
+            and row["source_type"] in {
+                "crowdsource_observation",
+                "partner",
+                "official",
+            }
+        )
+        source_counts: dict[str, int] = {}
+        for row in rows:
+            source_counts[row["source_type"]] = source_counts.get(row["source_type"], 0) + 1
+        return {
+            "linked_count": len(rows),
+            "included_count": included,
+            "excluded_count": len(rows) - included,
+            "linked_source_counts": source_counts,
+        }
 
     def list_shadow_observations(self, limit: int = 100) -> list[dict]:
         try:

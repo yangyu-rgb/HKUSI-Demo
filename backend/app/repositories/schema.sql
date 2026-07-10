@@ -12,6 +12,21 @@ CREATE TABLE IF NOT EXISTS crowdsource_reports (
     effective_at TEXT NOT NULL,
     time_label TEXT NOT NULL,
     comment TEXT NOT NULL,
+    direction TEXT NOT NULL DEFAULT 'hong_kong_to_shenzhen'
+        CHECK(direction IN ('hong_kong_to_shenzhen', 'shenzhen_to_hong_kong')),
+    channel TEXT NOT NULL DEFAULT 'traveller'
+        CHECK(channel IN ('traveller', 'vehicle', 'cargo')),
+    is_real_observation INTEGER NOT NULL DEFAULT 0
+        CHECK(is_real_observation IN (0, 1)),
+    training_consent INTEGER NOT NULL DEFAULT 0
+        CHECK(training_consent IN (0, 1)),
+    source_type TEXT NOT NULL DEFAULT 'demo_seed'
+        CHECK(source_type IN (
+            'demo_seed', 'demo_entry', 'crowdsource_observation',
+            'partner', 'official'
+        )),
+    wait_started_at TEXT,
+    wait_ended_at TEXT,
     created_at TEXT NOT NULL
 );
 

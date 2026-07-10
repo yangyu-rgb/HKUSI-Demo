@@ -307,6 +307,17 @@ export function BusinessPage() {
               <div><strong>{v2Readiness.data.ports.length}/4</strong><span>口岸覆盖</span></div>
               <div><strong>{v2Readiness.data.distinct_dates}</strong><span>独立日期</span></div>
             </div>
+            <p>
+              已关联 {v2Readiness.data.linked_feedback_count} 条；其中
+              {v2Readiness.data.excluded_feedback_count} 条因演示来源、未授权或质量条件被隔离。
+            </p>
+            <p>
+              训练来源：{v2Readiness.data.label_sources.length === 0
+                ? "尚无"
+                : v2Readiness.data.label_sources
+                  .map((source) => `${source.source_type} ${source.label_count} 条`)
+                  .join("、")}
+            </p>
             <div className={styles.readinessChecks}>
               {v2Readiness.data.checks.map((check) => (
                 <span className={check.passed ? styles.checkPassed : styles.checkPending} key={check.name}>
@@ -314,6 +325,9 @@ export function BusinessPage() {
                 </span>
               ))}
             </div>
+            {v2Readiness.data.coverage_warnings.map((warning) => (
+              <p key={warning}>覆盖提醒：{warning}</p>
+            ))}
             <p>生产晋级仍被阻止：{v2Readiness.data.production_blockers[0]}</p>
           </>
         )}

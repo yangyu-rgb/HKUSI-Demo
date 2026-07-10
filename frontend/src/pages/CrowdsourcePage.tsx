@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useSearchParams } from "react-router-dom";
 import { FeedItem } from "../features/crowdsource/FeedItem";
+import type { ReportInput } from "../features/crowdsource/types";
 import { useCrowdsource } from "../features/crowdsource/useCrowdsource";
 import type { CrowdLevel } from "../features/realtime/types";
 import { useRealtime } from "../features/realtime/useRealtime";
@@ -24,6 +25,14 @@ export function CrowdsourcePage() {
   const [wait, setWait] = useState<number | "">("");
   const [crowd, setCrowd] = useState<CrowdLevel>("low");
   const [comment, setComment] = useState("");
+  const [direction, setDirection] = useState<NonNullable<ReportInput["direction"]>>(
+    "hong_kong_to_shenzhen",
+  );
+  const [channel, setChannel] = useState<NonNullable<ReportInput["channel"]>>(
+    "traveller",
+  );
+  const [isRealObservation, setIsRealObservation] = useState(false);
+  const [trainingConsent, setTrainingConsent] = useState(false);
   const forecastRunId = searchParams.get("forecast_run_id");
   const forecastPortId = searchParams.get("forecast_port_id");
 
@@ -50,6 +59,10 @@ export function CrowdsourcePage() {
       comment,
       forecast_run_id: forecastRunId,
       forecast_port_id: forecastPortId,
+      direction,
+      channel,
+      is_real_observation: isRealObservation,
+      training_consent: isRealObservation && trainingConsent,
     });
     if (submitted) {
       await realtime.refresh();
@@ -76,7 +89,7 @@ export function CrowdsourcePage() {
         <form className={styles.form} onSubmit={handleSubmit}>
           {forecastRunId && forecastPortId && (
             <p className={styles.forecastLink}>
-              本次反馈将关联到路线预测，符合高质量规则时会成为 V2 的实际等待标签。
+              本次反馈将关联到路线预测；只有真实现场、明确同意且质量达标的数据才可能成为 V2 标签。
             </p>
           )}
           <div className={styles.formRow}>
@@ -107,6 +120,27 @@ export function CrowdsourcePage() {
               </div>
             </label>
           </div>
+          <div className={styles.formRow}>
+            <label>
+              <span>通关方向</span>
+              <select value={direction} onChange={(event) => setDirection(
+                event.target.value as NonNullable<ReportInput["direction"]>,
+              )}>
+                <option value="hong_kong_to_shenzhen">香港 → 深圳</option>
+                <option value="shenzhen_to_hong_kong">深圳 → 香港</option>
+              </select>
+            </label>
+            <label>
+              <span>通关类型</span>
+              <select value={channel} onChange={(event) => setChannel(
+                event.target.value as NonNullable<ReportInput["channel"]>,
+              )}>
+                <option value="traveller">旅客</option>
+                <option value="vehicle">车辆</option>
+                <option value="cargo">货运</option>
+              </select>
+            </label>
+          </div>
           <label>
             <span>现场人流</span>
             <div className={styles.segmented}>
@@ -122,6 +156,29 @@ export function CrowdsourcePage() {
               ))}
             </div>
           </label>
+          <div className={styles.dataGovernance}>
+            <label>
+              <input
+                type="checkbox"
+                checked={isRealObservation}
+                onChange={(event) => {
+                  setIsRealObservation(event.target.checked);
+                  if (!event.target.checked) setTrainingConsent(false);
+                }}
+              />
+              <span>这是我刚完成通关后的真实现场反馈</span>
+            </label>
+            <label>
+              <input
+                type="checkbox"
+                checked={trainingConsent}
+                disabled={!isRealObservation}
+                onChange={(event) => setTrainingConsent(event.target.checked)}
+              />
+              <span>同意将去标识化记录用于后续模型训练与评估</span>
+            </label>
+            <small>未勾选的反馈仍可用于 Demo 校准，但会与真实训练标签严格隔离。</small>
+          </div>
           <label>
             <span>补充说明</span>
             <input

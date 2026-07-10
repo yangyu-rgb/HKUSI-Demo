@@ -13,7 +13,7 @@ from ..repositories import DemoRepository
 from ..clock import as_hong_kong
 
 
-SNAPSHOT_SCHEMA_VERSION = 1
+SNAPSHOT_SCHEMA_VERSION = 2
 MIN_V2_LABELS = 200
 MIN_V2_PORTS = 4
 MIN_V2_DATES = 21
@@ -34,6 +34,12 @@ SNAPSHOT_FIELDS = (
     "is_holiday",
     "data_version",
     "observed_report_id",
+    "direction",
+    "channel",
+    "source_type",
+    "training_consent",
+    "wait_started_at",
+    "wait_ended_at",
 )
 
 
@@ -61,6 +67,12 @@ def _records_from_rows(rows: list[dict]) -> list[dict]:
                 "is_holiday": features.get("is_holiday", False),
                 "data_version": row["data_version"],
                 "observed_report_id": row["observed_report_id"],
+                "direction": row["direction"],
+                "channel": row["channel"],
+                "source_type": row["source_type"],
+                "training_consent": bool(row["training_consent"]),
+                "wait_started_at": row["wait_started_at"],
+                "wait_ended_at": row["wait_ended_at"],
             }
         )
     return records
@@ -111,6 +123,8 @@ def assess_v2_readiness(repository: DemoRepository) -> dict:
         for record in records
     }
     provider_statuses = repository.get_provider_statuses()
+    label_audit = repository.get_training_label_audit()
+    source_counts = Counter(record["source_type"] for record in records)
     active_provider_names = {
         item["provider"]
         for item in provider_statuses
@@ -125,6 +139,10 @@ def assess_v2_readiness(repository: DemoRepository) -> dict:
         for record in records
         if record["shadow_wait_minutes"] is not None
     ]
+    time_split = chronological_split(records)
+    populated_splits = sum(
+        1 for split in time_split.values() if split["sample_count"] > 0
+    )
     checks = [
         {
             "name": "高质量实际等待标签",
@@ -156,16 +174,39 @@ def assess_v2_readiness(repository: DemoRepository) -> dict:
             "required": len(REQUIRED_PROVIDERS),
             "passed": REQUIRED_PROVIDERS <= active_provider_names,
         },
+        {
+            "name": "时间切分可用",
+            "actual": populated_splits,
+            "required": 3,
+            "passed": populated_splits == 3,
+        },
     ]
     experiment_ready = all(check["passed"] for check in checks)
+    coverage_warnings = []
+    if not records:
+        coverage_warnings.append("尚无符合真实来源、建模同意和质量要求的训练标签。")
+    elif ports and max(ports.values()) / len(records) > 0.50:
+        dominant_port, dominant_count = ports.most_common(1)[0]
+        coverage_warnings.append(
+            f"{dominant_port} 占 {dominant_count}/{len(records)} 条标签，口岸分布过于集中。"
+        )
+    coverage_warnings.append(
+        "200 条门槛只验证维度覆盖，不等于完整覆盖四口岸 × 21 日期 × 8 小时的 672 个组合单元。"
+    )
     production_reasons = [
         "当前仍是本地 Demo Provider；尚未验证真实口岸、天气和日历数据源。",
-        "标签来自 Demo 众包流程，尚未完成真实运营环境的回测与漂移监测。",
+        "尚未完成真实运营环境的独立回测、校准比较、漂移监测和人工验收。",
     ]
     return {
         "experiment_ready": experiment_ready,
         "production_promotion_ready": False,
         "label_count": len(records),
+        "linked_feedback_count": label_audit["linked_count"],
+        "excluded_feedback_count": label_audit["excluded_count"],
+        "label_sources": [
+            {"source_type": source_type, "label_count": source_counts[source_type]}
+            for source_type in sorted(source_counts)
+        ],
         "ports": [
             {"port_id": port_id, "label_count": ports[port_id]}
             for port_id in sorted(ports)
@@ -178,9 +219,10 @@ def assess_v2_readiness(repository: DemoRepository) -> dict:
         else None,
         "shadow_mae_minutes": round(mean(shadow_errors), 2) if shadow_errors else None,
         "shadow_labeled_count": len(shadow_errors),
-        "time_split": chronological_split(records),
+        "time_split": time_split,
         "checks": checks,
         "data_sources": provider_statuses,
+        "coverage_warnings": coverage_warnings,
         "production_blockers": production_reasons,
     }
 
@@ -220,8 +262,10 @@ def export_labeled_snapshot(repository: DemoRepository, output_dir: Path) -> dic
         "data_versions": readiness["data_versions"],
         "readiness": readiness,
         "limitations": [
-            "只导出关联到 forecast_run_id 的高质量、未过期众包反馈。",
+            "只导出关联到 forecast_run_id、获得建模同意且来源可追溯的高质量真实反馈。",
+            "演示种子、演示录入、低质量反馈和未授权反馈会保留审计关联，但不会写入训练 CSV。",
             "当前数据源均为本地 Demo Provider；该快照不能作为生产模型效果声明。",
+            "200 条门槛不代表 672 个口岸—日期—小时组合单元已完整覆盖。",
         ],
     }
     metadata_path = output_dir / "forecast_feedback_labels.metadata.json"

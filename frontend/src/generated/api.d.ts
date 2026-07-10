@@ -466,6 +466,11 @@ export interface components {
             recommendation: string;
         };
         /**
+         * CrossingChannel
+         * @enum {string}
+         */
+        CrossingChannel: "traveller" | "vehicle" | "cargo";
+        /**
          * CrowdLevel
          * @enum {string}
          */
@@ -498,6 +503,20 @@ export interface components {
             forecast_run_id?: string | null;
             /** Forecast Port Id */
             forecast_port_id?: string | null;
+            /** @default hong_kong_to_shenzhen */
+            direction: components["schemas"]["TravelDirection"];
+            /** @default traveller */
+            channel: components["schemas"]["CrossingChannel"];
+            /**
+             * Is Real Observation
+             * @default false
+             */
+            is_real_observation: boolean;
+            /**
+             * Training Consent
+             * @default false
+             */
+            training_consent: boolean;
             /** Id */
             id: string;
             /**
@@ -517,6 +536,13 @@ export interface components {
             expires_at: string;
             /** Used For Prediction */
             used_for_prediction: boolean;
+            source_type: components["schemas"]["ObservationSource"];
+            /** Wait Started At */
+            wait_started_at?: string | null;
+            /** Wait Ended At */
+            wait_ended_at?: string | null;
+            /** Eligible For V2 Label */
+            eligible_for_v2_label: boolean;
         };
         /** CrowdsourceReport */
         CrowdsourceReport: {
@@ -539,6 +565,20 @@ export interface components {
             forecast_run_id?: string | null;
             /** Forecast Port Id */
             forecast_port_id?: string | null;
+            /** @default hong_kong_to_shenzhen */
+            direction: components["schemas"]["TravelDirection"];
+            /** @default traveller */
+            channel: components["schemas"]["CrossingChannel"];
+            /**
+             * Is Real Observation
+             * @default false
+             */
+            is_real_observation: boolean;
+            /**
+             * Training Consent
+             * @default false
+             */
+            training_consent: boolean;
         };
         /** CrowdsourceSubmitResponse */
         CrowdsourceSubmitResponse: {
@@ -671,6 +711,11 @@ export interface components {
             /** Destinations */
             destinations: components["schemas"]["LocationOption"][];
         };
+        /**
+         * ObservationSource
+         * @enum {string}
+         */
+        ObservationSource: "demo_seed" | "demo_entry" | "crowdsource_observation" | "partner" | "official";
         /** PortPrediction */
         PortPrediction: {
             /** Port Id */
@@ -1054,6 +1099,11 @@ export interface components {
             routine: components["schemas"]["Routine"];
             alerts?: components["schemas"]["AlertPreferences"];
         };
+        /**
+         * TravelDirection
+         * @enum {string}
+         */
+        TravelDirection: "hong_kong_to_shenzhen" | "shenzhen_to_hong_kong";
         /** V2ReadinessCheck */
         V2ReadinessCheck: {
             /** Name */
@@ -1064,6 +1114,13 @@ export interface components {
             required: number;
             /** Passed */
             passed: boolean;
+        };
+        /** V2ReadinessLabelSource */
+        V2ReadinessLabelSource: {
+            /** Source Type */
+            source_type: string;
+            /** Label Count */
+            label_count: number;
         };
         /** V2ReadinessPort */
         V2ReadinessPort: {
@@ -1080,6 +1137,12 @@ export interface components {
             production_promotion_ready: boolean;
             /** Label Count */
             label_count: number;
+            /** Linked Feedback Count */
+            linked_feedback_count: number;
+            /** Excluded Feedback Count */
+            excluded_feedback_count: number;
+            /** Label Sources */
+            label_sources: components["schemas"]["V2ReadinessLabelSource"][];
             /** Ports */
             ports: components["schemas"]["V2ReadinessPort"][];
             /** Distinct Dates */
@@ -1102,6 +1165,8 @@ export interface components {
             checks: components["schemas"]["V2ReadinessCheck"][];
             /** Data Sources */
             data_sources: components["schemas"]["DataSourceStatus"][];
+            /** Coverage Warnings */
+            coverage_warnings: string[];
             /** Production Blockers */
             production_blockers: string[];
         };

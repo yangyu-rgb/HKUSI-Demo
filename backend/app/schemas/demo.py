@@ -48,10 +48,18 @@ class V2ReadinessPort(BaseModel):
     label_count: int
 
 
+class V2ReadinessLabelSource(BaseModel):
+    source_type: str
+    label_count: int
+
+
 class V2ReadinessResponse(BaseModel):
     experiment_ready: bool
     production_promotion_ready: bool
     label_count: int
+    linked_feedback_count: int
+    excluded_feedback_count: int
+    label_sources: list[V2ReadinessLabelSource]
     ports: list[V2ReadinessPort]
     distinct_dates: int
     hour_slices: int
@@ -62,4 +70,5 @@ class V2ReadinessResponse(BaseModel):
     time_split: dict
     checks: list[V2ReadinessCheck]
     data_sources: list[DataSourceStatus]
+    coverage_warnings: list[str]
     production_blockers: list[str]

@@ -358,6 +358,10 @@ def test_high_quality_feedback_creates_labeled_forecast_observation(
             "crowd_level": crowd_level,
             "forecast_run_id": forecast_run_id,
             "forecast_port_id": port["id"],
+            "direction": "hong_kong_to_shenzhen",
+            "channel": "traveller",
+            "is_real_observation": True,
+            "training_consent": True,
             "comment": "关联预测的高质量实际等待反馈",
         },
     )
@@ -365,6 +369,8 @@ def test_high_quality_feedback_creates_labeled_forecast_observation(
     assert report.status_code == 200
     assert report.json()["forecast_feedback"]["linked"] is True
     assert report.json()["forecast_feedback"]["labeled"] is True
+    assert report.json()["report"]["source_type"] == "crowdsource_observation"
+    assert report.json()["report"]["eligible_for_v2_label"] is True
     labels = client.app.state.repository.list_labeled_forecast_rows()
     assert len(labels) == 1
     assert labels[0]["forecast_run_id"] == forecast_run_id
@@ -373,7 +379,58 @@ def test_high_quality_feedback_creates_labeled_forecast_observation(
     readiness = client.get("/api/demo/v2-readiness")
     assert readiness.status_code == 200
     assert readiness.json()["label_count"] == 1
+    assert readiness.json()["excluded_feedback_count"] == 0
     assert readiness.json()["experiment_ready"] is False
+
+
+def test_demo_feedback_is_linked_but_excluded_from_v2_labels(
+    client: TestClient,
+) -> None:
+    prediction = client.post(
+        "/api/predict",
+        json={
+            "origin_id": "hku",
+            "destination_id": "nanshan-tech",
+            "target_time": "2026-07-10T09:30:00",
+            "preferences": {"priority": "balanced"},
+        },
+    ).json()
+    port = client.get("/api/realtime").json()["ports"][0]
+    report = client.post(
+        "/api/crowdsource/report",
+        json={
+            "user_id": "demo-label-user",
+            "port": port["name"],
+            "actual_wait_time": port["current_wait"],
+            "crowd_level": port["crowd_level"],
+            "forecast_run_id": prediction["forecast_run_id"],
+            "forecast_port_id": port["id"],
+        },
+    )
+
+    assert report.status_code == 200
+    assert report.json()["forecast_feedback"]["linked"] is True
+    assert report.json()["forecast_feedback"]["labeled"] is False
+    assert "演示反馈" in report.json()["forecast_feedback"]["reason"]
+    readiness = client.get("/api/demo/v2-readiness").json()
+    assert readiness["label_count"] == 0
+    assert readiness["linked_feedback_count"] == 1
+    assert readiness["excluded_feedback_count"] == 1
+
+
+def test_training_consent_requires_real_observation(client: TestClient) -> None:
+    response = client.post(
+        "/api/crowdsource/report",
+        json={
+            "port": "福田",
+            "actual_wait_time": 14,
+            "crowd_level": "low",
+            "training_consent": True,
+        },
+    )
+
+    assert response.status_code == 422
+    assert response.json()["error"]["code"] == "VALIDATION_ERROR"
 
 
 def test_demo_end_to_end_flow_and_reset(client: TestClient) -> None:
