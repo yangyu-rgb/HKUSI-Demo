@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useBatchPlans } from "../features/business/useBatchPlans";
+import { downloadBatchPlan, validateBatchCsv } from "../features/business/api";
 import type { BatchEmployee, BatchRequest } from "../features/business/types";
 import {
   useDemoContext,
@@ -42,6 +43,9 @@ export function BusinessPage() {
   const [employees, setEmployees] = useState<BatchEmployee[]>(INITIAL_EMPLOYEES);
   const [batchPriority, setBatchPriority] = useState<Priority>("balanced");
   const [batchBudget, setBatchBudget] = useState("");
+  const [csvMessage, setCsvMessage] = useState("");
+  const [riskFilter, setRiskFilter] = useState("all");
+  const [portFilter, setPortFilter] = useState("all");
   const initialized = useRef(false);
 
   useEffect(() => {
@@ -96,6 +100,17 @@ export function BusinessPage() {
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
     void generatePlan();
+  }
+
+  async function importCsv(file: File | undefined) {
+    if (!file) return;
+    const result = await validateBatchCsv(await file.text());
+    if (result.valid) {
+      setEmployees(result.employees);
+      setCsvMessage(`已导入 ${result.employees.length} 名员工。`);
+    } else {
+      setCsvMessage(result.errors.map((item) => `第${item.row}行：${item.message}`).join("；"));
+    }
   }
 
   function loadHistory(request: Record<string, unknown>) {
@@ -163,7 +178,16 @@ export function BusinessPage() {
                 aria-label={`员工${index + 1}出发地`}
                 required
                 value={employee.origin_id}
-                onChange={(event) => updateEmployee(index, { origin_id: event.target.value })}
+                onChange={(event) => {
+                  const originId = event.target.value;
+                  const direction = locations.data?.directions.find(
+                    (item) => item.origin_ids.includes(originId),
+                  );
+                  updateEmployee(index, {
+                    origin_id: originId,
+                    destination_id: direction?.destination_ids[0] ?? employee.destination_id,
+                  });
+                }}
               >
                 {locations.data?.origins.map((item) => (
                   <option value={item.id} key={item.id}>{item.name}</option>
@@ -175,7 +199,12 @@ export function BusinessPage() {
                 value={employee.destination_id}
                 onChange={(event) => updateEmployee(index, { destination_id: event.target.value })}
               >
-                {locations.data?.destinations.map((item) => (
+                {locations.data?.destinations.filter((item) => {
+                  const direction = locations.data?.directions.find(
+                    (candidate) => candidate.origin_ids.includes(employee.origin_id),
+                  );
+                  return direction?.destination_ids.includes(item.id);
+                }).map((item) => (
                   <option value={item.id} key={item.id}>{item.name}</option>
                 ))}
               </select>
@@ -232,16 +261,40 @@ export function BusinessPage() {
           ))}
         </div>
         <div className={styles.editorActions}>
+          <label className={styles.add}>
+            导入 CSV
+            <input
+              hidden
+              type="file"
+              accept=".csv,text/csv"
+              onChange={(event) => void importCsv(event.target.files?.[0])}
+            />
+          </label>
           <button type="button" className={styles.add} onClick={addEmployee}>+ 添加员工</button>
           <button className="button buttonDark" disabled={batch.generating}>
             {batch.generating ? "正在生成…" : batch.plan ? "重新生成方案" : "生成调度方案"}
           </button>
         </div>
         {batch.error && <p className="formError">{batch.error}</p>}
+        {csvMessage && <p className={csvMessage.startsWith("已导入") ? "formSuccess" : "formError"}>{csvMessage}</p>}
       </form>
 
       {batch.plan && (
         <section className={styles.result}>
+          <div className={styles.editorActions}>
+            <select aria-label="风险筛选" value={riskFilter} onChange={(event) => setRiskFilter(event.target.value)}>
+              <option value="all">全部风险</option>
+              <option value="high">高风险</option>
+              <option value="over_budget">超预算</option>
+            </select>
+            <select aria-label="口岸筛选" value={portFilter} onChange={(event) => setPortFilter(event.target.value)}>
+              <option value="all">全部口岸</option>
+              {[...new Set(batch.plan.plan.map((item) => item.recommended_port))].map((port) => (
+                <option key={port}>{port}</option>
+              ))}
+            </select>
+            <button type="button" onClick={() => void downloadBatchPlan(batch.plan!.plan_id)}>导出当前方案</button>
+          </div>
           <div className={styles.stats}>
             <div><strong>{batch.plan.summary.employee_count}</strong><span>员工</span></div>
             <div><strong>{batch.plan.summary.avg_commute_time}</strong><span>平均分钟</span></div>
@@ -251,7 +304,12 @@ export function BusinessPage() {
             <div className={styles.tableHeader}>
               <span>员工</span><span>推荐口岸</span><span>出发时间</span><span>通勤时间</span><span>风险</span><span>偏好/预算</span>
             </div>
-            {batch.plan.plan.map((item) => (
+            {batch.plan.plan.filter((item) => (
+              (riskFilter === "all"
+                || (riskFilter === "high" && item.late_risk_percent >= 20)
+                || (riskFilter === "over_budget" && !item.within_budget))
+              && (portFilter === "all" || item.recommended_port === portFilter)
+            )).map((item) => (
               <div className={styles.tableRow} key={item.employee_id}>
                 <strong>{item.employee_id}</strong>
                 <span>{item.recommended_port}</span>
@@ -343,6 +401,7 @@ export function BusinessPage() {
               <span>{new Date(item.created_at).toLocaleString("zh-HK")}</span>
             </div>
             <button onClick={() => loadHistory(item.request)}>载入输入</button>
+            <button onClick={() => void downloadBatchPlan(item.plan_id)}>导出</button>
           </article>
         ))}
       </section>

@@ -14,6 +14,60 @@ class DemoContextResponse(BaseModel):
     poll_interval_seconds: int
 
 
+class DemoPersona(BaseModel):
+    id: str
+    name: str
+    role: str
+    organization_id: str
+    organization_name: str
+
+
+class DemoPersonasResponse(BaseModel):
+    default_persona_id: str
+    personas: list[DemoPersona]
+
+
+class V1ModelResponse(BaseModel):
+    artifact_available: bool
+    unavailable_reason: str | None = None
+    model_version: str
+    synthetic_only: bool
+    dataset: dict
+    split: dict
+    metrics: dict
+    features: list[str]
+    promotion: dict
+    limitations: list[str]
+
+
+class V1ReadinessCheck(BaseModel):
+    name: str
+    passed: bool
+    detail: str
+
+
+class V1ReadinessResponse(BaseModel):
+    demo_ready: bool
+    checks: list[V1ReadinessCheck]
+    adapter_modes: dict[str, str]
+
+
+class AuditEvent(BaseModel):
+    id: int
+    request_id: str
+    persona_id: str
+    organization_id: str
+    method: str
+    path: str
+    status_code: int
+    created_at: datetime
+
+
+class AuditEventListResponse(BaseModel):
+    events: list[AuditEvent]
+    total: int
+
+
 class DemoResetResponse(BaseModel):
     success: bool
     seeded: dict[str, int]

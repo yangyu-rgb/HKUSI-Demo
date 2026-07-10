@@ -9,6 +9,7 @@
     "generate:api": "../backend/.venv/bin/python ../backend/scripts/export_openapi.py && openapi-typescript ../docs/openapi.json -o src/generated/api.d.ts",
     "check:api": "npm run generate:api && git diff --exit-code -- ../docs/openapi.json src/generated/api.d.ts",
     "test": "vitest run",
+    "test:e2e": "playwright test",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -22,6 +23,8 @@
     "vite": "^6.0.7"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
+    "@playwright/test": "^1.61.1",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",

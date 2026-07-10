@@ -23,7 +23,7 @@ from ..providers import (
 )
 
 
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 10
 
 
 def load_json(path: Path) -> dict | list:
@@ -84,6 +84,8 @@ class DemoRepository:
         self._port_state = self._providers["port_status"].get()
         self._locations = load_json(data_dir / "routes" / "locations.json")
         self._transit_matrix = load_json(data_dir / "routes" / "transit_matrix.json")
+        self._personas = load_json(data_dir / "demo" / "personas.json")
+        self._route_validation_errors = self._validate_route_data()
         self._history_path = data_dir / "history" / "port_wait_history.csv"
         self._history = self._load_history()
         self._weather = self._providers["weather"].get()
@@ -184,6 +186,27 @@ class DemoRepository:
                     f"ALTER TABLE crowdsource_reports ADD COLUMN {name} {declaration}"
                 )
 
+        forecast_columns = {
+            row["name"]
+            for row in connection.execute("PRAGMA table_info(forecast_runs)")
+        }
+        if "direction" not in forecast_columns:
+            connection.execute(
+                "ALTER TABLE forecast_runs ADD COLUMN direction TEXT NOT NULL "
+                "DEFAULT 'hong_kong_to_shenzhen' "
+                "CHECK(direction IN ('hong_kong_to_shenzhen', 'shenzhen_to_hong_kong'))"
+            )
+
+        batch_columns = {
+            row["name"]
+            for row in connection.execute("PRAGMA table_info(batch_plans)")
+        }
+        if "organization_id" not in batch_columns:
+            connection.execute(
+                "ALTER TABLE batch_plans ADD COLUMN organization_id TEXT NOT NULL "
+                "DEFAULT 'demo-org'"
+            )
+
         # Labels created before provenance was introduced are retained for audit but
         # cannot silently remain eligible for V2 training.
         connection.execute(
@@ -204,6 +227,44 @@ class DemoRepository:
               )
             """
         )
+
+    def _validate_route_data(self) -> list[str]:
+        errors: list[str] = []
+        origins = {item["id"]: item for item in self._locations.get("origins", [])}
+        destinations = {
+            item["id"]: item for item in self._locations.get("destinations", [])
+        }
+        if len(origins) != len(self._locations.get("origins", [])):
+            errors.append("出发地点 ID 不唯一")
+        if len(destinations) != len(self._locations.get("destinations", [])):
+            errors.append("目的地点 ID 不唯一")
+        port_ids = {item["id"] for item in self._port_state["ports"]}
+        for direction in self._locations.get("directions", []):
+            direction_id = direction["id"]
+            matrix = self._transit_matrix.get(direction_id)
+            if matrix is None:
+                errors.append(f"缺少 {direction_id} 交通矩阵")
+                continue
+            for origin_id in direction["origin_ids"]:
+                if origin_id not in origins:
+                    errors.append(f"未知出发地点 {origin_id}")
+                    continue
+                legs = matrix.get("access", {}).get(origin_id, {})
+                if set(legs) != port_ids:
+                    errors.append(f"{direction_id}/{origin_id} 未覆盖四口岸")
+            for port_id in port_ids:
+                legs = matrix.get("onward", {}).get(port_id, {})
+                missing = set(direction["destination_ids"]) - set(legs)
+                if missing:
+                    errors.append(
+                        f"{direction_id}/{port_id} 缺少目的地 {sorted(missing)}"
+                    )
+            for section in ("access", "onward"):
+                for legs in matrix.get(section, {}).values():
+                    for leg in legs.values():
+                        if leg.get("duration", -1) < 0 or leg.get("cost", -1) < 0:
+                            errors.append(f"{direction_id} 存在负数时间或费用")
+        return errors
 
     def _seed_reports(self, connection: sqlite3.Connection) -> None:
         reports = self._crowdsource_seed
@@ -346,6 +407,34 @@ class DemoRepository:
     def get_locations(self) -> dict:
         return deepcopy(self._locations)
 
+    def get_personas(self) -> dict:
+        return deepcopy(self._personas)
+
+    def get_persona(self, persona_id: str | None = None) -> dict | None:
+        selected_id = persona_id or self._personas["default_persona_id"]
+        return next(
+            (
+                deepcopy(item)
+                for item in self._personas["personas"]
+                if item["id"] == selected_id
+            ),
+            None,
+        )
+
+    def get_route_validation_errors(self) -> list[str]:
+        return list(self._route_validation_errors)
+
+    def infer_direction(self, origin_id: str, destination_id: str) -> str | None:
+        origin = self.find_location(origin_id, "origins")
+        destination = self.find_location(destination_id, "destinations")
+        if origin is None or destination is None or origin["city"] == destination["city"]:
+            return None
+        if origin["city"] == "香港" and destination["city"] == "深圳":
+            return "hong_kong_to_shenzhen"
+        if origin["city"] == "深圳" and destination["city"] == "香港":
+            return "shenzhen_to_hong_kong"
+        return None
+
     def get_weather(self) -> dict:
         return deepcopy(self._weather)
 
@@ -384,6 +473,16 @@ class DemoRepository:
     def get_history_path(self) -> Path:
         return self._history_path
 
+    def get_v1_model_metadata(self) -> dict:
+        return load_json(self._data_dir / "models" / "wait_model_v1.metadata.json")
+
+    def database_ready(self) -> bool:
+        try:
+            with self._connect() as connection:
+                return connection.execute("SELECT 1").fetchone()[0] == 1
+        except sqlite3.Error:
+            return False
+
     def get_history(self, port_name: str) -> list[dict]:
         return [
             deepcopy(record)
@@ -397,11 +496,13 @@ class DemoRepository:
             None,
         )
 
-    def get_access_leg(self, origin_id: str, port_id: str) -> dict:
-        return deepcopy(self._transit_matrix["access"][origin_id][port_id])
+    def get_access_leg(self, direction: str, origin_id: str, port_id: str) -> dict:
+        return deepcopy(self._transit_matrix[direction]["access"][origin_id][port_id])
 
-    def get_onward_leg(self, port_id: str, destination_id: str) -> dict:
-        return deepcopy(self._transit_matrix["onward"][port_id][destination_id])
+    def get_onward_leg(self, direction: str, port_id: str, destination_id: str) -> dict:
+        return deepcopy(
+            self._transit_matrix[direction]["onward"][port_id][destination_id]
+        )
 
     def get_reports(self, limit: int | None = None) -> list[dict]:
         query = """
@@ -684,15 +785,140 @@ class DemoRepository:
         except sqlite3.Error as error:
             raise PersistenceError() from error
 
-    def save_batch_plan(self, company: str, service_date: str, request: dict, result: dict) -> str:
+    def save_notifications(self, evaluation: dict, user_id: str) -> int:
+        created = 0
+        try:
+            with self._connect() as connection:
+                for alert in evaluation["alerts"]:
+                    if not alert["triggered"] or alert["scheduled_at"] is None:
+                        continue
+                    cursor = connection.execute(
+                        """
+                        INSERT OR IGNORE INTO notifications(
+                            id, user_id, subscription_id, evaluation_id, kind,
+                            title, message, scheduled_at, is_read, read_at, created_at
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, NULL, ?)
+                        """,
+                        (
+                            f"notification-{uuid4().hex[:12]}",
+                            user_id,
+                            evaluation["subscription_id"],
+                            evaluation["evaluation_id"],
+                            alert["kind"],
+                            alert["title"],
+                            alert["message"],
+                            alert["scheduled_at"],
+                            self._utc_now(),
+                        ),
+                    )
+                    created += cursor.rowcount
+            return created
+        except sqlite3.Error as error:
+            raise PersistenceError() from error
+
+    def list_notifications(
+        self,
+        user_id: str,
+        limit: int,
+        unread_only: bool = False,
+    ) -> list[dict]:
+        clause = "AND is_read = 0" if unread_only else ""
+        try:
+            with self._connect() as connection:
+                rows = connection.execute(
+                    f"""
+                    SELECT * FROM notifications
+                    WHERE user_id = ? {clause}
+                    ORDER BY scheduled_at DESC, created_at DESC LIMIT ?
+                    """,
+                    (user_id, limit),
+                ).fetchall()
+            return [dict(row) | {"is_read": bool(row["is_read"])} for row in rows]
+        except sqlite3.Error as error:
+            raise PersistenceError() from error
+
+    def mark_notification_read(
+        self,
+        notification_id: str,
+        user_id: str | None = None,
+    ) -> dict | None:
+        owner_clause = " AND user_id = ?" if user_id is not None else ""
+        parameters = (
+            (self._utc_now(), notification_id, user_id)
+            if user_id is not None
+            else (self._utc_now(), notification_id)
+        )
+        try:
+            with self._connect() as connection:
+                cursor = connection.execute(
+                    f"""
+                    UPDATE notifications
+                    SET is_read = 1, read_at = COALESCE(read_at, ?)
+                    WHERE id = ?{owner_clause}
+                    """,
+                    parameters,
+                )
+                if cursor.rowcount == 0:
+                    return None
+                row = connection.execute(
+                    "SELECT * FROM notifications WHERE id = ?",
+                    (notification_id,),
+                ).fetchone()
+            return dict(row) | {"is_read": bool(row["is_read"])}
+        except sqlite3.Error as error:
+            raise PersistenceError() from error
+
+    def record_audit_event(self, event: dict) -> None:
+        try:
+            with self._connect() as connection:
+                connection.execute(
+                    """
+                    INSERT INTO audit_events(
+                        request_id, persona_id, organization_id, method,
+                        path, status_code, created_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    (
+                        event["request_id"],
+                        event["persona_id"],
+                        event["organization_id"],
+                        event["method"],
+                        event["path"],
+                        event["status_code"],
+                        self._utc_now(),
+                    ),
+                )
+        except sqlite3.Error:
+            return
+
+    def list_audit_events(self, limit: int) -> list[dict]:
+        try:
+            with self._connect() as connection:
+                rows = connection.execute(
+                    "SELECT * FROM audit_events ORDER BY id DESC LIMIT ?",
+                    (limit,),
+                ).fetchall()
+            return [dict(row) for row in rows]
+        except sqlite3.Error as error:
+            raise PersistenceError() from error
+
+    def save_batch_plan(
+        self,
+        company: str,
+        service_date: str,
+        request: dict,
+        result: dict,
+        organization_id: str = "demo-org",
+    ) -> str:
         plan_id = f"plan-{uuid4().hex[:12]}"
         try:
             with self._connect() as connection:
                 connection.execute(
                     """
                     INSERT INTO batch_plans(
-                        id, company, service_date, request_json, result_json, created_at
-                    ) VALUES (?, ?, ?, ?, ?, ?)
+                        id, company, service_date, request_json, result_json,
+                        organization_id, created_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         plan_id,
@@ -700,6 +926,7 @@ class DemoRepository:
                         service_date,
                         json.dumps(request, ensure_ascii=False),
                         json.dumps(result, ensure_ascii=False),
+                        organization_id,
                         self._utc_now(),
                     ),
                 )
@@ -707,16 +934,21 @@ class DemoRepository:
         except sqlite3.Error as error:
             raise PersistenceError() from error
 
-    def list_batch_plans(self, company: str, limit: int) -> list[dict]:
+    def list_batch_plans(
+        self,
+        company: str,
+        limit: int,
+        organization_id: str = "demo-org",
+    ) -> list[dict]:
         try:
             with self._connect() as connection:
                 rows = connection.execute(
                     """
                     SELECT * FROM batch_plans
-                    WHERE company = ?
+                    WHERE company = ? AND organization_id = ?
                     ORDER BY created_at DESC LIMIT ?
                     """,
-                    (company, limit),
+                    (company, organization_id, limit),
                 ).fetchall()
             return [
                 {
@@ -729,6 +961,30 @@ class DemoRepository:
                 }
                 for row in rows
             ]
+        except sqlite3.Error as error:
+            raise PersistenceError() from error
+
+    def get_batch_plan(
+        self,
+        plan_id: str,
+        organization_id: str = "demo-org",
+    ) -> dict | None:
+        try:
+            with self._connect() as connection:
+                row = connection.execute(
+                    "SELECT * FROM batch_plans WHERE id = ? AND organization_id = ?",
+                    (plan_id, organization_id),
+                ).fetchone()
+            if row is None:
+                return None
+            return {
+                "plan_id": row["id"],
+                "company": row["company"],
+                "date": row["service_date"],
+                "request": json.loads(row["request_json"]),
+                "result": json.loads(row["result_json"]),
+                "created_at": row["created_at"],
+            }
         except sqlite3.Error as error:
             raise PersistenceError() from error
 
@@ -771,8 +1027,8 @@ class DemoRepository:
                     """
                     INSERT OR IGNORE INTO forecast_runs(
                         id, generated_at, target_time, query_json, model_version,
-                        data_version, data_sources_json, created_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        data_version, data_sources_json, direction, created_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         run["id"],
@@ -782,6 +1038,7 @@ class DemoRepository:
                         run["model_version"],
                         run["data_version"],
                         json.dumps(run["data_sources"], ensure_ascii=False),
+                        run.get("direction", "hong_kong_to_shenzhen"),
                         self._utc_now(),
                     ),
                 )
@@ -816,13 +1073,17 @@ class DemoRepository:
             with self._connect() as connection:
                 row = connection.execute(
                     """
-                    SELECT forecast_run_id, port_id, port_name, target_time,
-                           statistical_wait_minutes, shadow_wait_minutes,
-                           shadow_status, shadow_reason, features_json,
-                           observed_wait_minutes, observed_report_id, observed_at,
-                           observed_quality_score, label_status
-                    FROM forecast_run_ports
-                    WHERE forecast_run_id = ? AND port_id = ?
+                    SELECT ports.forecast_run_id, ports.port_id, ports.port_name,
+                           ports.target_time, runs.direction,
+                           ports.statistical_wait_minutes,
+                           ports.shadow_wait_minutes, ports.shadow_status,
+                           ports.shadow_reason, ports.features_json,
+                           ports.observed_wait_minutes, ports.observed_report_id,
+                           ports.observed_at, ports.observed_quality_score,
+                           ports.label_status
+                    FROM forecast_run_ports AS ports
+                    JOIN forecast_runs AS runs ON runs.id = ports.forecast_run_id
+                    WHERE ports.forecast_run_id = ? AND ports.port_id = ?
                     """,
                     (forecast_run_id, port_id),
                 ).fetchone()
@@ -1096,6 +1357,8 @@ class DemoRepository:
                 connection.execute("DELETE FROM forecast_run_ports")
                 connection.execute("DELETE FROM forecast_runs")
                 connection.execute("DELETE FROM subscription_evaluations")
+                connection.execute("DELETE FROM notifications")
+                connection.execute("DELETE FROM audit_events")
                 connection.execute("DELETE FROM crowdsource_reports")
                 connection.execute("DELETE FROM subscriptions")
                 connection.execute("DELETE FROM batch_plans")

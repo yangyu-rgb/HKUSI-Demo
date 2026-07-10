@@ -2,11 +2,39 @@
   "origins": [
     {"id": "hku", "name": "香港大学", "city": "香港"},
     {"id": "central", "name": "中环", "city": "香港"},
-    {"id": "kowloon-tong", "name": "九龙塘", "city": "香港"}
-  ],
-  "destinations": [
+    {"id": "kowloon-tong", "name": "九龙塘", "city": "香港"},
+    {"id": "sha-tin", "name": "沙田", "city": "香港"},
+    {"id": "hong-kong-airport", "name": "香港国际机场", "city": "香港"},
     {"id": "nanshan-tech", "name": "深圳南山科技园", "city": "深圳"},
     {"id": "futian-cbd", "name": "深圳福田 CBD", "city": "深圳"},
-    {"id": "shenzhen-north", "name": "深圳北站", "city": "深圳"}
+    {"id": "shenzhen-north", "name": "深圳北站", "city": "深圳"},
+    {"id": "qianhai", "name": "深圳前海", "city": "深圳"},
+    {"id": "baoan-airport", "name": "深圳宝安机场", "city": "深圳"}
+  ],
+  "destinations": [
+    {"id": "hku", "name": "香港大学", "city": "香港"},
+    {"id": "central", "name": "中环", "city": "香港"},
+    {"id": "kowloon-tong", "name": "九龙塘", "city": "香港"},
+    {"id": "sha-tin", "name": "沙田", "city": "香港"},
+    {"id": "hong-kong-airport", "name": "香港国际机场", "city": "香港"},
+    {"id": "nanshan-tech", "name": "深圳南山科技园", "city": "深圳"},
+    {"id": "futian-cbd", "name": "深圳福田 CBD", "city": "深圳"},
+    {"id": "shenzhen-north", "name": "深圳北站", "city": "深圳"},
+    {"id": "qianhai", "name": "深圳前海", "city": "深圳"},
+    {"id": "baoan-airport", "name": "深圳宝安机场", "city": "深圳"}
+  ],
+  "directions": [
+    {
+      "id": "hong_kong_to_shenzhen",
+      "label": "香港 → 深圳",
+      "origin_ids": ["hku", "central", "kowloon-tong", "sha-tin", "hong-kong-airport"],
+      "destination_ids": ["nanshan-tech", "futian-cbd", "shenzhen-north", "qianhai", "baoan-airport"]
+    },
+    {
+      "id": "shenzhen_to_hong_kong",
+      "label": "深圳 → 香港",
+      "origin_ids": ["nanshan-tech", "futian-cbd", "shenzhen-north", "qianhai", "baoan-airport"],
+      "destination_ids": ["hku", "central", "kowloon-tong", "sha-tin", "hong-kong-airport"]
+    }
   ]
 }

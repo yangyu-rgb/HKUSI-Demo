@@ -21,6 +21,10 @@ def get_clock(request: Request) -> Clock:
     return request.app.state.clock
 
 
+def get_demo_persona(request: Request) -> dict:
+    return request.state.demo_persona
+
+
 def get_shadow_model(request: Request) -> ShadowWaitModel:
     return request.app.state.shadow_model
 
@@ -50,8 +54,9 @@ def get_crowdsource_service(
 def get_demo_service(
     repository: DemoRepository = Depends(get_repository),
     clock: Clock = Depends(get_clock),
+    shadow_model: ShadowWaitModel = Depends(get_shadow_model),
 ) -> DemoService:
-    return DemoService(repository, clock)
+    return DemoService(repository, clock, shadow_model)
 
 
 def get_subscription_service(

@@ -1,0 +1,26 @@
+{
+  "default_persona_id": "demo-user",
+  "personas": [
+    {
+      "id": "demo-user",
+      "name": "Demo 操作员",
+      "role": "operator",
+      "organization_id": "demo-org",
+      "organization_name": "大湾区跨境服务有限公司"
+    },
+    {
+      "id": "commuter-user",
+      "name": "跨境通勤者",
+      "role": "commuter",
+      "organization_id": "personal",
+      "organization_name": "个人空间"
+    },
+    {
+      "id": "enterprise-admin",
+      "name": "企业管理员",
+      "role": "business_admin",
+      "organization_id": "demo-org",
+      "organization_name": "大湾区跨境服务有限公司"
+    }
+  ]
+}

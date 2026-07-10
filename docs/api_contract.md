@@ -22,12 +22,20 @@
 }
 ```
 
-主要错误代码包括 `VALIDATION_ERROR`、`LOCATION_NOT_FOUND`、`TARGET_TIME_OUT_OF_RANGE`、`SUBSCRIPTION_NOT_FOUND`、`SUBSCRIPTION_EVALUATION_NOT_FOUND`、`DATABASE_ERROR` 和 `INTERNAL_ERROR`。
+主要错误代码包括 `VALIDATION_ERROR`、`FORBIDDEN`、`LOCATION_NOT_FOUND`、`TARGET_TIME_OUT_OF_RANGE`、`SUBSCRIPTION_NOT_FOUND`、`NOTIFICATION_NOT_FOUND`、`PLAN_NOT_FOUND`、`DATABASE_ERROR` 和 `INTERNAL_ERROR`。
+
+前端每次请求会附带 `X-Demo-Persona-ID`。可选值来自 `GET /api/demo/personas`；未提供时使用本地默认运营身份。该机制仅用于 Demo 角色与组织隔离，不是生产认证。
 
 ## Demo 控制
 
 - `GET /api/health`：返回服务状态和 Demo 模式。
+- `GET /api/health/live`：进程存活探测。
+- `GET /api/health/ready`：检查双向矩阵、本地 Provider、SQLite、Demo 身份、AI v1 产物和本地通知适配器。
 - `GET /api/demo/context`：返回 `Asia/Hong_Kong` 当前时间、建议目标时间、有效预测范围和轮询间隔。
+- `GET /api/demo/personas`：返回运营、通勤者和企业管理员三种本地身份。
+- `GET /api/demo/v1-model`：返回 AI v1 元数据、合成数据指标、时间切分和运行时产物状态。
+- `GET /api/demo/v1-readiness`：返回 V1 完整 Demo 就绪检查；该状态不影响独立的 V2 门槛。
+- `GET /api/demo/audit?limit=50`：仅运营身份可读取本地写操作审计。
 - `GET /api/demo/model-shadow-summary`：返回 AI v1 影子观测总量、可用/降级次数与各口岸的平均差异，仅用于本地审阅。
 - `GET /api/demo/v2-readiness`：基于来源可追溯且获得建模同意的高质量实际等待标签，返回标签数、已关联/隔离数、训练来源、口岸/日期/小时切片覆盖、时间切分、分布提醒、统计与影子误差、输入源状态和 V2 实验/生产晋级判断。
 - `POST /api/demo/reset`：清空 SQLite 动态数据，并按当前香港时间重新生成反馈和订阅种子。
@@ -35,18 +43,19 @@
 ## 实时状态与地点
 
 - `GET /api/realtime`：返回香港计算时间、提示信息和四口岸模拟状态。每个口岸包含动态等待时间、人流等级、开放状态、预测点和有效众包样本数；顶层 `data_sources` 标明本地 Provider 的来源、读取时间、状态、版本和是否降级。
-- `GET /api/locations`：返回确定性交通矩阵支持的出发地和目的地 ID。
+- `GET /api/locations`：返回香港与深圳地点、两个方向及确定性交通矩阵支持的出发地和目的地 ID。
 
 页面处于活动状态时，前端每 60 秒重新请求实时数据，同时支持手动刷新。
 
 ## 路线预测
 
-`POST /api/predict` 针对一个受支持的地点组合比较四个口岸。
+`POST /api/predict` 针对一个受支持的跨境地点组合比较四个口岸。请求可显式提供 `direction`；服务端同时根据地点校验方向，拒绝同城或方向不匹配组合。
 
 ```json
 {
   "origin_id": "hku",
   "destination_id": "nanshan-tech",
+  "direction": "hong_kong_to_shenzhen",
   "target_time": "2026-07-10T12:00:00+08:00",
   "preferences": {
     "priority": "balanced",
@@ -101,13 +110,20 @@ Demo 模型为每个目标时间筛选相同工作日、周末或节假日，目
 - `GET /api/subscriptions/{subscription_id}/evaluations?limit=10`
 - `PATCH /api/subscription-evaluations/{evaluation_id}/read`
 - `DELETE /api/subscriptions/{subscription_id}`
+- `POST /api/demo/alerts/run-cycle`：为当前 Demo 身份运行一次幂等本地告警周期。
+- `GET /api/notifications?unread_only=false&limit=30`：读取当前身份的本地通知收件箱。
+- `PATCH /api/notifications/{notification_id}/read`：标记本地通知已读。
 
-订阅使用稳定的 `origin_id` 和 `destination_id`，可选择一周七天与三类提醒开关，并持久化到 SQLite。预览接口计算下一次有效通勤日，以到达前三小时内的预测窗口返回推荐口岸、最晚出发、出发前提醒、异常拥堵和更优路线的触发状态；它只用于预览，不发送真实通知。显式保存评估后会得到 `evaluation_id`、`is_read` 和 `read_at`，从而保持提醒审阅历史。`POST /api/subscription` 仅作为已弃用的兼容路径保留。
+订阅使用稳定的 `origin_id` 和 `destination_id`，支持双向跨境组合、一周七天与三类提醒开关，并持久化到 SQLite。预览接口计算下一次有效通勤日，以到达前三小时内的预测窗口返回推荐口岸、最晚出发、出发前提醒、异常拥堵和更优路线的触发状态。运行本地告警周期后，触发结果写入幂等通知收件箱；这仍是本地适配器，不代表真实外部投递。`POST /api/subscription` 仅作为已弃用的兼容路径保留。
 
 ## 企业方案
 
 - `POST /api/batch`：验证最多 100 名可编辑员工；请求可提供批次 `preferences`，员工可用同名字段覆盖默认路线偏好和预算。结果会回显每名员工实际使用的偏好、预算和预算满足状态，并保存到 SQLite。
 - `GET /api/batch/plans?company=...&limit=10`：返回近期保存的方案，前端可载入输入并重新生成。
+- `POST /api/batch/csv/validate`：校验包含 `id,name,origin_id,destination_id,arrival_deadline` 的员工 CSV，并返回可直接生成方案的标准化员工数组。
+- `GET /api/batch/plans/{plan_id}/export.csv`：导出当前组织可访问的方案。
+
+企业接口仅允许运营或企业管理员身份访问，方案按 `organization_id` 隔离；通勤者身份返回 `403 FORBIDDEN`。
 
 ## Demo 边界
 
@@ -115,4 +131,6 @@ Demo 模型为每个目标时间筛选相同工作日、周末或节假日，目
 - 所有 Provider 都是本地 JSON 或内嵌模拟降级值；`data_sources.status=available` 只表示本地输入可用，不表示真实数据可用。
 - SVG 路线仅为示意，不代表真实地理比例。
 - SQLite 仅提供本地 Demo 持久化，不代表生产环境并发能力或部署可靠性。
+- Demo 身份头、本地通知和本地审计只用于闭合演示逻辑，不替代认证、外部投递或生产审计设施。
+- AI v1 仅作影子比较，用户可见结果始终由统计模型控制；V2 在真实标签门槛达成前保持禁用。
 - 所有输出均为辅助决策示例，不是实际口岸运营指引。

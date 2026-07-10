@@ -53,17 +53,27 @@ class CrowdsourceService:
             )
 
         forecast_port_id = report.forecast_port_id or port["id"]
-        if report.forecast_run_id and self._repository.get_forecast_run_port(
-            report.forecast_run_id,
-            forecast_port_id,
-        ) is None:
-            raise DomainValidationError(
-                "预测运行不存在，或反馈口岸与预测口岸不匹配",
-                details={
-                    "forecast_run_id": report.forecast_run_id,
-                    "forecast_port_id": forecast_port_id,
-                },
+        if report.forecast_run_id:
+            forecast_port = self._repository.get_forecast_run_port(
+                report.forecast_run_id,
+                forecast_port_id,
             )
+            if forecast_port is None:
+                raise DomainValidationError(
+                    "预测运行不存在，或反馈口岸与预测口岸不匹配",
+                    details={
+                        "forecast_run_id": report.forecast_run_id,
+                        "forecast_port_id": forecast_port_id,
+                    },
+                )
+            if forecast_port["direction"] != report.direction:
+                raise DomainValidationError(
+                    "反馈方向与关联预测不一致",
+                    details={
+                        "forecast_direction": forecast_port["direction"],
+                        "report_direction": report.direction,
+                    },
+                )
 
         duplicate_age = None
         now_utc = now.astimezone(timezone.utc)

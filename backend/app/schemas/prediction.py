@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from .common import Priority, RiskLevel
+from .common import Priority, RiskLevel, TravelDirection
 from .realtime import DataSourceStatus
 
 
@@ -24,9 +24,17 @@ class LocationOption(BaseModel):
     city: str
 
 
+class DirectionOption(BaseModel):
+    id: TravelDirection
+    label: str
+    origin_ids: list[str]
+    destination_ids: list[str]
+
+
 class LocationsResponse(BaseModel):
     origins: list[LocationOption]
     destinations: list[LocationOption]
+    directions: list[DirectionOption]
 
 
 class RouteStep(BaseModel):
@@ -68,6 +76,7 @@ class PredictionQuery(BaseModel):
     target_time: datetime
     priority: Priority
     max_budget: int | None
+    direction: TravelDirection
 
 
 class PredictionResponse(BaseModel):
@@ -83,4 +92,5 @@ class PredictionResponse(BaseModel):
     demo_notice: str
     data_sources: list[DataSourceStatus]
     data_version: str
+    direction: TravelDirection
     forecast_run_id: str | None = None

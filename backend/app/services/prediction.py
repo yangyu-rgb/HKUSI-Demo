@@ -66,6 +66,7 @@ class PredictionService:
         port: dict,
         origin_id: str,
         destination_id: str,
+        direction: str,
         target_time,
         current_time,
         max_budget: int | None,
@@ -74,8 +75,12 @@ class PredictionService:
         record_shadow: bool,
         prediction_inputs: dict,
     ) -> dict:
-        access = self._repository.get_access_leg(origin_id, port["id"])
-        onward = self._repository.get_onward_leg(port["id"], destination_id)
+        access = self._repository.get_access_leg(direction, origin_id, port["id"])
+        onward = self._repository.get_onward_leg(
+            direction,
+            port["id"],
+            destination_id,
+        )
         estimate = self._forecast.estimate(
             port["name"],
             target_time,
@@ -289,6 +294,7 @@ class PredictionService:
                     "model_version": MODEL_VERSION,
                     "data_version": prediction_inputs["data_version"],
                     "data_sources": prediction_inputs["data_sources"],
+                    "direction": query["direction"],
                 },
                 ports,
             )
@@ -368,6 +374,20 @@ class PredictionService:
                 details={"destination_id": request.destination_id},
             )
 
+        direction = self._repository.infer_direction(
+            request.origin_id,
+            request.destination_id,
+        )
+        if direction is None:
+            raise DomainValidationError(
+                "出发地与目的地必须位于深港两侧",
+                code=ErrorCode.VALIDATION_ERROR,
+                details={
+                    "origin_id": request.origin_id,
+                    "destination_id": request.destination_id,
+                },
+            )
+
         current_time = as_hong_kong(
             current_time or self._clock.now()
         ).replace(microsecond=0)
@@ -395,6 +415,7 @@ class PredictionService:
                 port,
                 request.origin_id,
                 request.destination_id,
+                direction,
                 target_time,
                 current_time,
                 request.preferences.max_budget,
@@ -436,6 +457,7 @@ class PredictionService:
             "target_time": target_time,
             "priority": request.preferences.priority,
             "max_budget": request.preferences.max_budget,
+            "direction": direction,
         }
         self._save_shadow_observations(shadow_observations)
         forecast_run_id = (
@@ -464,5 +486,6 @@ class PredictionService:
             "demo_notice": "结果由香港实时时钟、本地模拟历史、交通矩阵与众包样本计算，不代表真实口岸状态。",
             "data_sources": prediction_inputs["data_sources"],
             "data_version": prediction_inputs["data_version"],
+            "direction": direction,
             "forecast_run_id": forecast_run_id,
         }

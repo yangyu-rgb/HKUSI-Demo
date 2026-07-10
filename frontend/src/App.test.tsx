@@ -9,10 +9,25 @@ const locations = {
   origins: [
     { id: "hku", name: "香港大学", city: "香港" },
     { id: "central", name: "中环", city: "香港" },
+    { id: "kowloon-tong", name: "九龙塘", city: "香港" },
   ],
   destinations: [
     { id: "nanshan-tech", name: "深圳南山科技园", city: "深圳" },
     { id: "futian-cbd", name: "深圳福田CBD", city: "深圳" },
+  ],
+  directions: [
+    {
+      id: "hong_kong_to_shenzhen",
+      label: "香港 → 深圳",
+      origin_ids: ["hku", "central", "kowloon-tong"],
+      destination_ids: ["nanshan-tech", "futian-cbd"],
+    },
+    {
+      id: "shenzhen_to_hong_kong",
+      label: "深圳 → 香港",
+      origin_ids: ["nanshan-tech", "futian-cbd"],
+      destination_ids: ["hku", "central", "kowloon-tong"],
+    },
   ],
 };
 

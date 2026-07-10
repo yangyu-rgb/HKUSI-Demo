@@ -35,6 +35,7 @@ export function CrowdsourcePage() {
   const [trainingConsent, setTrainingConsent] = useState(false);
   const forecastRunId = searchParams.get("forecast_run_id");
   const forecastPortId = searchParams.get("forecast_port_id");
+  const forecastDirection = searchParams.get("direction");
 
   useEffect(() => {
     if (!forecastPortId || !realtime.data) {
@@ -45,6 +46,15 @@ export function CrowdsourcePage() {
       setPort(matchedPort.name);
     }
   }, [forecastPortId, realtime.data]);
+
+  useEffect(() => {
+    if (
+      forecastDirection === "hong_kong_to_shenzhen"
+      || forecastDirection === "shenzhen_to_hong_kong"
+    ) {
+      setDirection(forecastDirection);
+    }
+  }, [forecastDirection]);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();

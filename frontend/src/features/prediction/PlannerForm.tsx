@@ -31,9 +31,39 @@ export function PlannerForm({
     event.preventDefault();
     void onSubmit();
   }
+  const selectedDirection = locations.directions.find(
+    (item) => item.id === query.direction,
+  ) ?? locations.directions[0];
+  const origins = locations.origins.filter(
+    (item) => selectedDirection.origin_ids.includes(item.id),
+  );
+  const destinations = locations.destinations.filter(
+    (item) => selectedDirection.destination_ids.includes(item.id),
+  );
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
+      <label>
+        <span>通勤方向</span>
+        <select
+          value={query.direction}
+          onChange={(event) => {
+            const direction = locations.directions.find(
+              (item) => item.id === event.target.value,
+            ) ?? locations.directions[0];
+            setQuery({
+              ...query,
+              direction: direction.id,
+              origin_id: direction.origin_ids[0],
+              destination_id: direction.destination_ids[0],
+            });
+          }}
+        >
+          {locations.directions.map((direction) => (
+            <option value={direction.id} key={direction.id}>{direction.label}</option>
+          ))}
+        </select>
+      </label>
       <label>
         <span>出发地</span>
         <select
@@ -41,7 +71,7 @@ export function PlannerForm({
           value={query.origin_id}
           onChange={(event) => setQuery({ ...query, origin_id: event.target.value })}
         >
-          {locations.origins.map((location) => (
+          {origins.map((location) => (
             <option value={location.id} key={location.id}>{location.name}</option>
           ))}
         </select>
@@ -53,7 +83,7 @@ export function PlannerForm({
           value={query.destination_id}
           onChange={(event) => setQuery({ ...query, destination_id: event.target.value })}
         >
-          {locations.destinations.map((location) => (
+          {destinations.map((location) => (
             <option value={location.id} key={location.id}>{location.name}</option>
           ))}
         </select>

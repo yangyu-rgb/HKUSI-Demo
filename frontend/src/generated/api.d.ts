@@ -21,6 +21,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/health/live": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 检查 API 进程存活状态 */
+        get: operations["live_api_health_live_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/health/ready": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 检查 V1 Demo 依赖就绪状态 */
+        get: operations["ready_api_health_ready_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/demo/context": {
         parameters: {
             query?: never;
@@ -33,6 +67,74 @@ export interface paths {
          * @description 返回香港当前时间、有效预测范围和轮询间隔。
          */
         get: operations["get_demo_context_api_demo_context_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/demo/personas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 获取本地 Demo 身份 */
+        get: operations["get_demo_personas_api_demo_personas_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/demo/v1-model": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 获取 AI v1 合成数据评估与产物状态 */
+        get: operations["get_v1_model_api_demo_v1_model_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/demo/v1-readiness": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 获取 V1 完整 Demo 就绪度 */
+        get: operations["get_v1_readiness_api_demo_v1_readiness_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/demo/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 获取本地 Demo 写操作审计 */
+        get: operations["get_audit_events_api_demo_audit_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -294,6 +396,57 @@ export interface paths {
         patch: operations["mark_subscription_evaluation_read_api_subscription_evaluations__evaluation_id__read_patch"];
         trace?: never;
     };
+    "/api/demo/alerts/run-cycle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 运行一次本地 Demo 告警周期 */
+        post: operations["run_alert_cycle_api_demo_alerts_run_cycle_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 获取本地通知收件箱 */
+        get: operations["list_notifications_api_notifications_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/notifications/{notification_id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** 将本地通知标记为已读 */
+        patch: operations["mark_notification_read_api_notifications__notification_id__read_patch"];
+        trace?: never;
+    };
     "/api/batch": {
         parameters: {
             query?: never;
@@ -328,10 +481,51 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/batch/csv/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 校验企业员工 CSV */
+        post: operations["validate_batch_csv_api_batch_csv_validate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/batch/plans/{plan_id}/export.csv": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 导出企业方案 CSV */
+        get: operations["export_batch_plan_api_batch_plans__plan_id__export_csv_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AlertCycleResponse */
+        AlertCycleResponse: {
+            /** Evaluated Subscriptions */
+            evaluated_subscriptions: number;
+            /** Created Notifications */
+            created_notifications: number;
+        };
         /** AlertPreferences */
         AlertPreferences: {
             /**
@@ -364,6 +558,56 @@ export interface components {
             triggered: boolean;
             /** Scheduled At */
             scheduled_at?: string | null;
+        };
+        /** AuditEvent */
+        AuditEvent: {
+            /** Id */
+            id: number;
+            /** Request Id */
+            request_id: string;
+            /** Persona Id */
+            persona_id: string;
+            /** Organization Id */
+            organization_id: string;
+            /** Method */
+            method: string;
+            /** Path */
+            path: string;
+            /** Status Code */
+            status_code: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+        };
+        /** AuditEventListResponse */
+        AuditEventListResponse: {
+            /** Events */
+            events: components["schemas"]["AuditEvent"][];
+            /** Total */
+            total: number;
+        };
+        /** BatchCsvError */
+        BatchCsvError: {
+            /** Row */
+            row: number;
+            /** Message */
+            message: string;
+        };
+        /** BatchCsvValidateRequest */
+        BatchCsvValidateRequest: {
+            /** Csv Text */
+            csv_text: string;
+        };
+        /** BatchCsvValidateResponse */
+        BatchCsvValidateResponse: {
+            /** Valid */
+            valid: boolean;
+            /** Employees */
+            employees: components["schemas"]["BatchEmployee"][];
+            /** Errors */
+            errors: components["schemas"]["BatchCsvError"][];
         };
         /** BatchEmployee */
         BatchEmployee: {
@@ -640,6 +884,26 @@ export interface components {
             /** Poll Interval Seconds */
             poll_interval_seconds: number;
         };
+        /** DemoPersona */
+        DemoPersona: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Role */
+            role: string;
+            /** Organization Id */
+            organization_id: string;
+            /** Organization Name */
+            organization_name: string;
+        };
+        /** DemoPersonasResponse */
+        DemoPersonasResponse: {
+            /** Default Persona Id */
+            default_persona_id: string;
+            /** Personas */
+            personas: components["schemas"]["DemoPersona"][];
+        };
         /** DemoResetResponse */
         DemoResetResponse: {
             /** Success */
@@ -650,6 +914,16 @@ export interface components {
             };
             /** Message */
             message: string;
+        };
+        /** DirectionOption */
+        DirectionOption: {
+            id: components["schemas"]["TravelDirection"];
+            /** Label */
+            label: string;
+            /** Origin Ids */
+            origin_ids: string[];
+            /** Destination Ids */
+            destination_ids: string[];
         };
         /** ErrorBody */
         ErrorBody: {
@@ -710,6 +984,48 @@ export interface components {
             origins: components["schemas"]["LocationOption"][];
             /** Destinations */
             destinations: components["schemas"]["LocationOption"][];
+            /** Directions */
+            directions: components["schemas"]["DirectionOption"][];
+        };
+        /** NotificationListResponse */
+        NotificationListResponse: {
+            /** Notifications */
+            notifications: components["schemas"]["NotificationRecord"][];
+            /** Total */
+            total: number;
+            /** Unread Total */
+            unread_total: number;
+        };
+        /** NotificationRecord */
+        NotificationRecord: {
+            /** Id */
+            id: string;
+            /** User Id */
+            user_id: string;
+            /** Subscription Id */
+            subscription_id: string;
+            /** Evaluation Id */
+            evaluation_id: string;
+            /** Kind */
+            kind: string;
+            /** Title */
+            title: string;
+            /** Message */
+            message: string;
+            /**
+             * Scheduled At
+             * Format: date-time
+             */
+            scheduled_at: string;
+            /** Is Read */
+            is_read: boolean;
+            /** Read At */
+            read_at?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /**
          * ObservationSource
@@ -822,6 +1138,7 @@ export interface components {
             priority: components["schemas"]["Priority"];
             /** Max Budget */
             max_budget: number | null;
+            direction: components["schemas"]["TravelDirection"];
         };
         /** PredictionRequest */
         PredictionRequest: {
@@ -864,6 +1181,7 @@ export interface components {
             data_sources: components["schemas"]["DataSourceStatus"][];
             /** Data Version */
             data_version: string;
+            direction: components["schemas"]["TravelDirection"];
             /** Forecast Run Id */
             forecast_run_id?: string | null;
         };
@@ -872,6 +1190,19 @@ export interface components {
          * @enum {string}
          */
         Priority: "fastest" | "cheapest" | "balanced";
+        /** ReadinessHealthResponse */
+        ReadinessHealthResponse: {
+            /** Status */
+            status: string;
+            /** Service */
+            service: string;
+            /** Mode */
+            mode: string;
+            /** Checks */
+            checks: {
+                [key: string]: unknown;
+            }[];
+        };
         /** RealtimeResponse */
         RealtimeResponse: {
             /**
@@ -1104,6 +1435,57 @@ export interface components {
          * @enum {string}
          */
         TravelDirection: "hong_kong_to_shenzhen" | "shenzhen_to_hong_kong";
+        /** V1ModelResponse */
+        V1ModelResponse: {
+            /** Artifact Available */
+            artifact_available: boolean;
+            /** Unavailable Reason */
+            unavailable_reason?: string | null;
+            /** Model Version */
+            model_version: string;
+            /** Synthetic Only */
+            synthetic_only: boolean;
+            /** Dataset */
+            dataset: {
+                [key: string]: unknown;
+            };
+            /** Split */
+            split: {
+                [key: string]: unknown;
+            };
+            /** Metrics */
+            metrics: {
+                [key: string]: unknown;
+            };
+            /** Features */
+            features: string[];
+            /** Promotion */
+            promotion: {
+                [key: string]: unknown;
+            };
+            /** Limitations */
+            limitations: string[];
+        };
+        /** V1ReadinessCheck */
+        V1ReadinessCheck: {
+            /** Name */
+            name: string;
+            /** Passed */
+            passed: boolean;
+            /** Detail */
+            detail: string;
+        };
+        /** V1ReadinessResponse */
+        V1ReadinessResponse: {
+            /** Demo Ready */
+            demo_ready: boolean;
+            /** Checks */
+            checks: components["schemas"]["V1ReadinessCheck"][];
+            /** Adapter Modes */
+            adapter_modes: {
+                [key: string]: string;
+            };
+        };
         /** V2ReadinessCheck */
         V2ReadinessCheck: {
             /** Name */
@@ -1240,6 +1622,118 @@ export interface operations {
             };
         };
     };
+    live_api_health_live_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HealthResponse"];
+                };
+            };
+            /** @description 请求的资源不存在 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 领域规则或请求参数验证失败 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 内部服务或持久化错误 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    ready_api_health_ready_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadinessHealthResponse"];
+                };
+            };
+            /** @description 请求的资源不存在 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 领域规则或请求参数验证失败 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 内部服务或持久化错误 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     get_demo_context_api_demo_context_get: {
         parameters: {
             query?: never;
@@ -1256,6 +1750,232 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DemoContextResponse"];
+                };
+            };
+            /** @description 请求的资源不存在 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 领域规则或请求参数验证失败 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 内部服务或持久化错误 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_demo_personas_api_demo_personas_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DemoPersonasResponse"];
+                };
+            };
+            /** @description 请求的资源不存在 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 领域规则或请求参数验证失败 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 内部服务或持久化错误 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_v1_model_api_demo_v1_model_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["V1ModelResponse"];
+                };
+            };
+            /** @description 请求的资源不存在 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 领域规则或请求参数验证失败 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 内部服务或持久化错误 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_v1_readiness_api_demo_v1_readiness_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["V1ReadinessResponse"];
+                };
+            };
+            /** @description 请求的资源不存在 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 领域规则或请求参数验证失败 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 内部服务或持久化错误 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_audit_events_api_demo_audit_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditEventListResponse"];
                 };
             };
             /** @description 请求的资源不存在 */
@@ -2284,6 +3004,182 @@ export interface operations {
             };
         };
     };
+    run_alert_cycle_api_demo_alerts_run_cycle_post: {
+        parameters: {
+            query?: {
+                user_id?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AlertCycleResponse"];
+                };
+            };
+            /** @description 请求的资源不存在 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 领域规则或请求参数验证失败 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 内部服务或持久化错误 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_notifications_api_notifications_get: {
+        parameters: {
+            query?: {
+                user_id?: string;
+                limit?: number;
+                unread_only?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationListResponse"];
+                };
+            };
+            /** @description 请求的资源不存在 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 领域规则或请求参数验证失败 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 内部服务或持久化错误 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    mark_notification_read_api_notifications__notification_id__read_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                notification_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationRecord"];
+                };
+            };
+            /** @description 请求的资源不存在 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 领域规则或请求参数验证失败 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 内部服务或持久化错误 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     create_batch_plan_api_batch_post: {
         parameters: {
             query?: never;
@@ -2364,6 +3260,122 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["BatchHistoryResponse"];
                 };
+            };
+            /** @description 请求的资源不存在 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 领域规则或请求参数验证失败 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 内部服务或持久化错误 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    validate_batch_csv_api_batch_csv_validate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BatchCsvValidateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BatchCsvValidateResponse"];
+                };
+            };
+            /** @description 请求的资源不存在 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 领域规则或请求参数验证失败 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 内部服务或持久化错误 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    export_batch_plan_api_batch_plans__plan_id__export_csv_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                plan_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description 请求的资源不存在 */
             404: {

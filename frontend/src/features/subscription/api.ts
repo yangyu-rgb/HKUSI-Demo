@@ -7,6 +7,9 @@ import type {
   SubscriptionListResponse,
   SubscriptionRecord,
   SubscriptionUpdate,
+  AlertCycleResponse,
+  NotificationListResponse,
+  NotificationRecord,
 } from "./types";
 
 
@@ -70,4 +73,21 @@ export function updateSubscription(
 
 export function deleteSubscription(subscriptionId: string): Promise<void> {
   return request(`/api/subscriptions/${subscriptionId}`, { method: "DELETE" });
+}
+
+
+export function runAlertCycle(userId: string): Promise<AlertCycleResponse> {
+  return request(`/api/demo/alerts/run-cycle?user_id=${encodeURIComponent(userId)}`, {
+    method: "POST",
+  });
+}
+
+
+export function fetchNotifications(userId: string): Promise<NotificationListResponse> {
+  return request(`/api/notifications?user_id=${encodeURIComponent(userId)}`);
+}
+
+
+export function markNotificationRead(notificationId: string): Promise<NotificationRecord> {
+  return request(`/api/notifications/${notificationId}/read`, { method: "PATCH" });
 }

@@ -9,6 +9,7 @@ export type RouteStep = components["schemas"]["RouteStep"];
 export type PortPrediction = components["schemas"]["PortPrediction"];
 export type PredictionResponse = components["schemas"]["PredictionResponse"];
 export type DemoContext = components["schemas"]["DemoContextResponse"];
+export type TravelDirection = components["schemas"]["TravelDirection"];
 
 export type PredictionQueryInput = {
   origin_id: string;
@@ -16,4 +17,5 @@ export type PredictionQueryInput = {
   target_time: string;
   priority: Priority;
   max_budget: number | null;
+  direction: TravelDirection;
 };

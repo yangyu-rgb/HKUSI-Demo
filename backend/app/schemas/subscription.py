@@ -81,3 +81,28 @@ class SubscriptionEvaluationListResponse(BaseModel):
     evaluations: list[SubscriptionEvaluationRecord]
     total: int
     unread_total: int
+
+
+class NotificationRecord(BaseModel):
+    id: str
+    user_id: str
+    subscription_id: str
+    evaluation_id: str
+    kind: str
+    title: str
+    message: str
+    scheduled_at: datetime
+    is_read: bool
+    read_at: datetime | None = None
+    created_at: datetime
+
+
+class NotificationListResponse(BaseModel):
+    notifications: list[NotificationRecord]
+    total: int
+    unread_total: int
+
+
+class AlertCycleResponse(BaseModel):
+    evaluated_subscriptions: int
+    created_notifications: int

@@ -6,7 +6,7 @@ from ..schemas.crowdsource import (
     CrowdsourceSubmitResponse,
 )
 from ..services import CrowdsourceService
-from .dependencies import get_crowdsource_service
+from .dependencies import get_crowdsource_service, get_demo_persona
 
 
 router = APIRouter(prefix="/api/crowdsource", tags=["众包反馈"])
@@ -34,5 +34,8 @@ def crowdsource_feed(
 def submit_crowdsource_report(
     report: CrowdsourceReport,
     service: CrowdsourceService = Depends(get_crowdsource_service),
+    persona: dict = Depends(get_demo_persona),
 ) -> dict:
+    if persona["explicit"]:
+        report = report.model_copy(update={"user_id": persona["id"]})
     return service.submit(report)

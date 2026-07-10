@@ -61,6 +61,9 @@ if ! "${BACKEND_PYTHON}" -c 'import fastapi, pydantic, uvicorn' >/dev/null 2>&1;
   "${BACKEND_PYTHON}" -m pip install -r "${BACKEND_DIR}/requirements.txt"
 fi
 
+log "Checking the AI v1 shadow artifact..."
+"${BACKEND_PYTHON}" "${BACKEND_DIR}/scripts/ensure_v1_model.py"
+
 if [[ ! -d "${FRONTEND_DIR}/node_modules" ]] || ! (
   cd "${FRONTEND_DIR}"
   npm ls --depth=0 >/dev/null 2>&1

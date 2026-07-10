@@ -61,7 +61,7 @@ export function PlannerPage() {
               {prediction.forecast_run_id && recommendedRoute && (
                 <Link
                   className={styles.feedbackLink}
-                  to={`/crowdsource?forecast_run_id=${encodeURIComponent(prediction.forecast_run_id)}&forecast_port_id=${encodeURIComponent(recommendedRoute.port_id)}`}
+                  to={`/crowdsource?forecast_run_id=${encodeURIComponent(prediction.forecast_run_id)}&forecast_port_id=${encodeURIComponent(recommendedRoute.port_id)}&direction=${encodeURIComponent(prediction.direction)}`}
                 >
                   通关后反馈实际等待
                 </Link>

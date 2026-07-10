@@ -1,44 +1,130 @@
 {
-  "access": {
-    "hku": {
-      "luohu": {"mode": "mtr", "label": "香港大学 → 罗湖", "duration": 48, "cost": 31},
-      "futian": {"mode": "mtr", "label": "香港大学 → 福田", "duration": 39, "cost": 43},
-      "huanggang": {"mode": "bus", "label": "香港大学 → 皇岗", "duration": 44, "cost": 38},
-      "shenzhen-bay": {"mode": "bus", "label": "香港大学 → 深圳湾", "duration": 37, "cost": 34}
+  "hong_kong_to_shenzhen": {
+    "access": {
+      "hku": {
+        "luohu": {"mode": "mtr", "label": "香港大学 → 罗湖", "duration": 48, "cost": 31},
+        "futian": {"mode": "mtr", "label": "香港大学 → 福田", "duration": 39, "cost": 43},
+        "huanggang": {"mode": "bus", "label": "香港大学 → 皇岗", "duration": 44, "cost": 38},
+        "shenzhen-bay": {"mode": "bus", "label": "香港大学 → 深圳湾", "duration": 37, "cost": 34}
+      },
+      "central": {
+        "luohu": {"mode": "mtr", "label": "中环 → 罗湖", "duration": 52, "cost": 35},
+        "futian": {"mode": "mtr", "label": "中环 → 福田", "duration": 45, "cost": 48},
+        "huanggang": {"mode": "bus", "label": "中环 → 皇岗", "duration": 36, "cost": 42},
+        "shenzhen-bay": {"mode": "bus", "label": "中环 → 深圳湾", "duration": 40, "cost": 38}
+      },
+      "kowloon-tong": {
+        "luohu": {"mode": "mtr", "label": "九龙塘 → 罗湖", "duration": 32, "cost": 26},
+        "futian": {"mode": "mtr", "label": "九龙塘 → 福田", "duration": 30, "cost": 34},
+        "huanggang": {"mode": "bus", "label": "九龙塘 → 皇岗", "duration": 35, "cost": 32},
+        "shenzhen-bay": {"mode": "bus", "label": "九龙塘 → 深圳湾", "duration": 46, "cost": 40}
+      },
+      "sha-tin": {
+        "luohu": {"mode": "mtr", "label": "沙田 → 罗湖", "duration": 29, "cost": 24},
+        "futian": {"mode": "mtr", "label": "沙田 → 福田", "duration": 34, "cost": 31},
+        "huanggang": {"mode": "bus", "label": "沙田 → 皇岗", "duration": 42, "cost": 35},
+        "shenzhen-bay": {"mode": "bus", "label": "沙田 → 深圳湾", "duration": 55, "cost": 43}
+      },
+      "hong-kong-airport": {
+        "luohu": {"mode": "bus", "label": "香港国际机场 → 罗湖", "duration": 70, "cost": 62},
+        "futian": {"mode": "bus", "label": "香港国际机场 → 福田", "duration": 58, "cost": 68},
+        "huanggang": {"mode": "bus", "label": "香港国际机场 → 皇岗", "duration": 51, "cost": 60},
+        "shenzhen-bay": {"mode": "bus", "label": "香港国际机场 → 深圳湾", "duration": 34, "cost": 45}
+      }
     },
-    "central": {
-      "luohu": {"mode": "mtr", "label": "中环 → 罗湖", "duration": 52, "cost": 35},
-      "futian": {"mode": "mtr", "label": "中环 → 福田", "duration": 45, "cost": 48},
-      "huanggang": {"mode": "bus", "label": "中环 → 皇岗", "duration": 36, "cost": 42},
-      "shenzhen-bay": {"mode": "bus", "label": "中环 → 深圳湾", "duration": 40, "cost": 38}
-    },
-    "kowloon-tong": {
-      "luohu": {"mode": "mtr", "label": "九龙塘 → 罗湖", "duration": 32, "cost": 26},
-      "futian": {"mode": "mtr", "label": "九龙塘 → 福田", "duration": 30, "cost": 34},
-      "huanggang": {"mode": "bus", "label": "九龙塘 → 皇岗", "duration": 35, "cost": 32},
-      "shenzhen-bay": {"mode": "bus", "label": "九龙塘 → 深圳湾", "duration": 46, "cost": 40}
+    "onward": {
+      "luohu": {
+        "nanshan-tech": {"mode": "metro", "label": "罗湖 → 深圳南山科技园", "duration": 42, "cost": 8},
+        "futian-cbd": {"mode": "metro", "label": "罗湖 → 深圳福田 CBD", "duration": 18, "cost": 4},
+        "shenzhen-north": {"mode": "metro", "label": "罗湖 → 深圳北站", "duration": 33, "cost": 6},
+        "qianhai": {"mode": "metro", "label": "罗湖 → 深圳前海", "duration": 45, "cost": 9},
+        "baoan-airport": {"mode": "metro", "label": "罗湖 → 深圳宝安机场", "duration": 62, "cost": 12}
+      },
+      "futian": {
+        "nanshan-tech": {"mode": "metro", "label": "福田 → 深圳南山科技园", "duration": 27, "cost": 6},
+        "futian-cbd": {"mode": "metro", "label": "福田 → 深圳福田 CBD", "duration": 12, "cost": 3},
+        "shenzhen-north": {"mode": "metro", "label": "福田 → 深圳北站", "duration": 22, "cost": 5},
+        "qianhai": {"mode": "metro", "label": "福田 → 深圳前海", "duration": 31, "cost": 7},
+        "baoan-airport": {"mode": "metro", "label": "福田 → 深圳宝安机场", "duration": 48, "cost": 10}
+      },
+      "huanggang": {
+        "nanshan-tech": {"mode": "metro", "label": "皇岗 → 深圳南山科技园", "duration": 34, "cost": 7},
+        "futian-cbd": {"mode": "metro", "label": "皇岗 → 深圳福田 CBD", "duration": 10, "cost": 3},
+        "shenzhen-north": {"mode": "metro", "label": "皇岗 → 深圳北站", "duration": 25, "cost": 5},
+        "qianhai": {"mode": "metro", "label": "皇岗 → 深圳前海", "duration": 29, "cost": 7},
+        "baoan-airport": {"mode": "metro", "label": "皇岗 → 深圳宝安机场", "duration": 46, "cost": 10}
+      },
+      "shenzhen-bay": {
+        "nanshan-tech": {"mode": "bus", "label": "深圳湾 → 深圳南山科技园", "duration": 21, "cost": 12},
+        "futian-cbd": {"mode": "bus", "label": "深圳湾 → 深圳福田 CBD", "duration": 35, "cost": 15},
+        "shenzhen-north": {"mode": "bus", "label": "深圳湾 → 深圳北站", "duration": 48, "cost": 18},
+        "qianhai": {"mode": "bus", "label": "深圳湾 → 深圳前海", "duration": 16, "cost": 8},
+        "baoan-airport": {"mode": "bus", "label": "深圳湾 → 深圳宝安机场", "duration": 31, "cost": 9}
+      }
     }
   },
-  "onward": {
-    "luohu": {
-      "nanshan-tech": {"mode": "metro", "label": "罗湖 → 深圳南山科技园", "duration": 42, "cost": 8},
-      "futian-cbd": {"mode": "metro", "label": "罗湖 → 深圳福田 CBD", "duration": 18, "cost": 4},
-      "shenzhen-north": {"mode": "metro", "label": "罗湖 → 深圳北站", "duration": 33, "cost": 6}
+  "shenzhen_to_hong_kong": {
+    "access": {
+      "nanshan-tech": {
+        "luohu": {"mode": "metro", "label": "深圳南山科技园 → 罗湖", "duration": 42, "cost": 8},
+        "futian": {"mode": "metro", "label": "深圳南山科技园 → 福田", "duration": 27, "cost": 6},
+        "huanggang": {"mode": "metro", "label": "深圳南山科技园 → 皇岗", "duration": 34, "cost": 7},
+        "shenzhen-bay": {"mode": "bus", "label": "深圳南山科技园 → 深圳湾", "duration": 21, "cost": 12}
+      },
+      "futian-cbd": {
+        "luohu": {"mode": "metro", "label": "深圳福田 CBD → 罗湖", "duration": 18, "cost": 4},
+        "futian": {"mode": "metro", "label": "深圳福田 CBD → 福田", "duration": 12, "cost": 3},
+        "huanggang": {"mode": "metro", "label": "深圳福田 CBD → 皇岗", "duration": 10, "cost": 3},
+        "shenzhen-bay": {"mode": "bus", "label": "深圳福田 CBD → 深圳湾", "duration": 35, "cost": 15}
+      },
+      "shenzhen-north": {
+        "luohu": {"mode": "metro", "label": "深圳北站 → 罗湖", "duration": 33, "cost": 6},
+        "futian": {"mode": "metro", "label": "深圳北站 → 福田", "duration": 22, "cost": 5},
+        "huanggang": {"mode": "metro", "label": "深圳北站 → 皇岗", "duration": 25, "cost": 5},
+        "shenzhen-bay": {"mode": "bus", "label": "深圳北站 → 深圳湾", "duration": 48, "cost": 18}
+      },
+      "qianhai": {
+        "luohu": {"mode": "metro", "label": "深圳前海 → 罗湖", "duration": 45, "cost": 9},
+        "futian": {"mode": "metro", "label": "深圳前海 → 福田", "duration": 31, "cost": 7},
+        "huanggang": {"mode": "metro", "label": "深圳前海 → 皇岗", "duration": 29, "cost": 7},
+        "shenzhen-bay": {"mode": "bus", "label": "深圳前海 → 深圳湾", "duration": 16, "cost": 8}
+      },
+      "baoan-airport": {
+        "luohu": {"mode": "metro", "label": "深圳宝安机场 → 罗湖", "duration": 62, "cost": 12},
+        "futian": {"mode": "metro", "label": "深圳宝安机场 → 福田", "duration": 48, "cost": 10},
+        "huanggang": {"mode": "metro", "label": "深圳宝安机场 → 皇岗", "duration": 46, "cost": 10},
+        "shenzhen-bay": {"mode": "bus", "label": "深圳宝安机场 → 深圳湾", "duration": 31, "cost": 9}
+      }
     },
-    "futian": {
-      "nanshan-tech": {"mode": "metro", "label": "福田 → 深圳南山科技园", "duration": 27, "cost": 6},
-      "futian-cbd": {"mode": "metro", "label": "福田 → 深圳福田 CBD", "duration": 12, "cost": 3},
-      "shenzhen-north": {"mode": "metro", "label": "福田 → 深圳北站", "duration": 22, "cost": 5}
-    },
-    "huanggang": {
-      "nanshan-tech": {"mode": "metro", "label": "皇岗 → 深圳南山科技园", "duration": 34, "cost": 7},
-      "futian-cbd": {"mode": "metro", "label": "皇岗 → 深圳福田 CBD", "duration": 10, "cost": 3},
-      "shenzhen-north": {"mode": "metro", "label": "皇岗 → 深圳北站", "duration": 25, "cost": 5}
-    },
-    "shenzhen-bay": {
-      "nanshan-tech": {"mode": "bus", "label": "深圳湾 → 深圳南山科技园", "duration": 21, "cost": 12},
-      "futian-cbd": {"mode": "bus", "label": "深圳湾 → 深圳福田 CBD", "duration": 35, "cost": 15},
-      "shenzhen-north": {"mode": "bus", "label": "深圳湾 → 深圳北站", "duration": 48, "cost": 18}
+    "onward": {
+      "luohu": {
+        "hku": {"mode": "mtr", "label": "罗湖 → 香港大学", "duration": 48, "cost": 31},
+        "central": {"mode": "mtr", "label": "罗湖 → 中环", "duration": 52, "cost": 35},
+        "kowloon-tong": {"mode": "mtr", "label": "罗湖 → 九龙塘", "duration": 32, "cost": 26},
+        "sha-tin": {"mode": "mtr", "label": "罗湖 → 沙田", "duration": 29, "cost": 24},
+        "hong-kong-airport": {"mode": "bus", "label": "罗湖 → 香港国际机场", "duration": 70, "cost": 62}
+      },
+      "futian": {
+        "hku": {"mode": "mtr", "label": "福田 → 香港大学", "duration": 39, "cost": 43},
+        "central": {"mode": "mtr", "label": "福田 → 中环", "duration": 45, "cost": 48},
+        "kowloon-tong": {"mode": "mtr", "label": "福田 → 九龙塘", "duration": 30, "cost": 34},
+        "sha-tin": {"mode": "mtr", "label": "福田 → 沙田", "duration": 34, "cost": 31},
+        "hong-kong-airport": {"mode": "bus", "label": "福田 → 香港国际机场", "duration": 58, "cost": 68}
+      },
+      "huanggang": {
+        "hku": {"mode": "bus", "label": "皇岗 → 香港大学", "duration": 44, "cost": 38},
+        "central": {"mode": "bus", "label": "皇岗 → 中环", "duration": 36, "cost": 42},
+        "kowloon-tong": {"mode": "bus", "label": "皇岗 → 九龙塘", "duration": 35, "cost": 32},
+        "sha-tin": {"mode": "bus", "label": "皇岗 → 沙田", "duration": 42, "cost": 35},
+        "hong-kong-airport": {"mode": "bus", "label": "皇岗 → 香港国际机场", "duration": 51, "cost": 60}
+      },
+      "shenzhen-bay": {
+        "hku": {"mode": "bus", "label": "深圳湾 → 香港大学", "duration": 37, "cost": 34},
+        "central": {"mode": "bus", "label": "深圳湾 → 中环", "duration": 40, "cost": 38},
+        "kowloon-tong": {"mode": "bus", "label": "深圳湾 → 九龙塘", "duration": 46, "cost": 40},
+        "sha-tin": {"mode": "bus", "label": "深圳湾 → 沙田", "duration": 55, "cost": 43},
+        "hong-kong-airport": {"mode": "bus", "label": "深圳湾 → 香港国际机场", "duration": 34, "cost": 45}
+      }
     }
   }
 }

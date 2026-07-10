@@ -74,12 +74,47 @@ CREATE TABLE IF NOT EXISTS subscription_evaluations (
 CREATE INDEX IF NOT EXISTS idx_subscription_evaluations_subscription
 ON subscription_evaluations(subscription_id, evaluated_at DESC, id DESC);
 
+CREATE TABLE IF NOT EXISTS notifications (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    subscription_id TEXT NOT NULL,
+    evaluation_id TEXT NOT NULL,
+    kind TEXT NOT NULL,
+    title TEXT NOT NULL,
+    message TEXT NOT NULL,
+    scheduled_at TEXT NOT NULL,
+    is_read INTEGER NOT NULL DEFAULT 0,
+    read_at TEXT,
+    created_at TEXT NOT NULL,
+    UNIQUE(subscription_id, kind, scheduled_at),
+    FOREIGN KEY(subscription_id) REFERENCES subscriptions(id) ON DELETE CASCADE,
+    FOREIGN KEY(evaluation_id) REFERENCES subscription_evaluations(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_notifications_user
+ON notifications(user_id, is_read, scheduled_at DESC);
+
+CREATE TABLE IF NOT EXISTS audit_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    request_id TEXT NOT NULL,
+    persona_id TEXT NOT NULL,
+    organization_id TEXT NOT NULL,
+    method TEXT NOT NULL,
+    path TEXT NOT NULL,
+    status_code INTEGER NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_audit_events_created
+ON audit_events(created_at DESC, id DESC);
+
 CREATE TABLE IF NOT EXISTS batch_plans (
     id TEXT PRIMARY KEY,
     company TEXT NOT NULL,
     service_date TEXT NOT NULL,
     request_json TEXT NOT NULL,
     result_json TEXT NOT NULL,
+    organization_id TEXT NOT NULL DEFAULT 'demo-org',
     created_at TEXT NOT NULL
 );
 
@@ -111,6 +146,8 @@ CREATE TABLE IF NOT EXISTS forecast_runs (
     model_version TEXT NOT NULL,
     data_version TEXT NOT NULL,
     data_sources_json TEXT NOT NULL,
+    direction TEXT NOT NULL DEFAULT 'hong_kong_to_shenzhen'
+        CHECK(direction IN ('hong_kong_to_shenzhen', 'shenzhen_to_hong_kong')),
     created_at TEXT NOT NULL
 );
 

@@ -1,6 +1,16 @@
 const API_BASE = import.meta.env.VITE_API_BASE ?? "http://127.0.0.1:8000";
 
 
+export function getDemoPersonaId(): string {
+  return window.localStorage.getItem("crossborder-demo-persona") ?? "demo-user";
+}
+
+
+export function setDemoPersonaId(personaId: string): void {
+  window.localStorage.setItem("crossborder-demo-persona", personaId);
+}
+
+
 type ErrorEnvelope = {
   error?: {
     code?: string;
@@ -32,6 +42,7 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
       ...init,
       headers: {
         "Content-Type": "application/json",
+        "X-Demo-Persona-ID": getDemoPersonaId(),
         ...init?.headers,
       },
     });

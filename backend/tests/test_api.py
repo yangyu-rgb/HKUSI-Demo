@@ -10,8 +10,190 @@ def test_health_realtime_and_locations(client: TestClient) -> None:
     assert realtime.status_code == 200
     assert locations.status_code == 200
     assert len(realtime.json()["ports"]) == 4
-    assert len(locations.json()["origins"]) == 3
-    assert len(locations.json()["destinations"]) == 3
+    assert len(locations.json()["origins"]) == 10
+    assert len(locations.json()["destinations"]) == 10
+    assert len(locations.json()["directions"]) == 2
+    assert health.headers["X-Content-Type-Options"] == "nosniff"
+
+
+def test_v1_model_personas_and_readiness(client: TestClient) -> None:
+    personas = client.get("/api/demo/personas")
+    model = client.get("/api/demo/v1-model")
+    readiness = client.get("/api/demo/v1-readiness")
+    ready_health = client.get("/api/health/ready")
+
+    assert personas.status_code == model.status_code == readiness.status_code == 200
+    assert len(personas.json()["personas"]) == 3
+    assert model.json()["synthetic_only"] is True
+    route_check = next(
+        item for item in readiness.json()["checks"]
+        if item["name"] == "双向地点与交通矩阵"
+    )
+    assert route_check["passed"] is True
+    assert ready_health.status_code == 200
+
+
+def test_reverse_direction_prediction(client: TestClient) -> None:
+    response = client.post(
+        "/api/predict",
+        json={
+            "origin_id": "qianhai",
+            "destination_id": "central",
+            "target_time": "2026-07-10T10:30:00",
+            "preferences": {"priority": "balanced"},
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["direction"] == "shenzhen_to_hong_kong"
+    assert response.json()["query"]["direction"] == "shenzhen_to_hong_kong"
+    assert len(response.json()["ports"]) == 4
+
+
+def test_same_city_route_is_rejected(client: TestClient) -> None:
+    response = client.post(
+        "/api/predict",
+        json={
+            "origin_id": "hku",
+            "destination_id": "central",
+            "target_time": "2026-07-10T10:30:00",
+        },
+    )
+
+    assert response.status_code == 422
+    assert "深港两侧" in response.json()["error"]["message"]
+
+
+def test_feedback_direction_must_match_forecast(client: TestClient) -> None:
+    prediction = client.post(
+        "/api/predict",
+        json={
+            "origin_id": "qianhai",
+            "destination_id": "central",
+            "target_time": "2026-07-10T10:30:00",
+        },
+    ).json()
+    response = client.post(
+        "/api/crowdsource/report",
+        json={
+            "user_id": "direction-user",
+            "port": "福田",
+            "actual_wait_time": 12,
+            "crowd_level": "low",
+            "forecast_run_id": prediction["forecast_run_id"],
+            "forecast_port_id": "futian",
+            "direction": "hong_kong_to_shenzhen",
+        },
+    )
+
+    assert response.status_code == 422
+    assert "方向" in response.json()["error"]["message"]
+
+
+def test_batch_csv_validation_export_and_notification_inbox(client: TestClient) -> None:
+    csv_response = client.post(
+        "/api/batch/csv/validate",
+        json={
+            "csv_text": (
+                "id,name,origin_id,destination_id,arrival_deadline\n"
+                "E-9,反向员工,qianhai,central,10:30\n"
+            )
+        },
+    )
+    assert csv_response.status_code == 200
+    assert csv_response.json()["valid"] is True
+
+    plan = client.post(
+        "/api/batch",
+        json={
+            "company": "CSV 测试企业",
+            "date": "2026-07-10",
+            "employees": csv_response.json()["employees"],
+        },
+    )
+    exported = client.get(f"/api/batch/plans/{plan.json()['plan_id']}/export.csv")
+    assert exported.status_code == 200
+    assert "反向员工" in exported.text
+
+    first_cycle = client.post("/api/demo/alerts/run-cycle?user_id=demo-user")
+    second_cycle = client.post("/api/demo/alerts/run-cycle?user_id=demo-user")
+    inbox = client.get("/api/notifications?user_id=demo-user")
+    assert first_cycle.status_code == second_cycle.status_code == inbox.status_code == 200
+    assert first_cycle.json()["created_notifications"] >= 1
+    assert second_cycle.json()["created_notifications"] == 0
+    notification = inbox.json()["notifications"][0]
+    marked = client.patch(f"/api/notifications/{notification['id']}/read")
+    assert marked.status_code == 200
+    assert marked.json()["is_read"] is True
+
+
+def test_demo_persona_permissions_cover_business_and_audit(client: TestClient) -> None:
+    commuter_headers = {"X-Demo-Persona-ID": "commuter-user"}
+    business_payload = {
+        "company": "权限测试企业",
+        "date": "2026-07-10",
+        "employees": [
+            {
+                "id": "E-1",
+                "origin_id": "hku",
+                "destination_id": "nanshan-tech",
+                "arrival_deadline": "10:30",
+            }
+        ],
+    }
+
+    forbidden_batch = client.post(
+        "/api/batch", json=business_payload, headers=commuter_headers
+    )
+    forbidden_audit = client.get("/api/demo/audit", headers=commuter_headers)
+    operator_batch = client.post("/api/batch", json=business_payload)
+    operator_audit = client.get("/api/demo/audit")
+
+    assert forbidden_batch.status_code == 403
+    assert forbidden_batch.json()["error"]["code"] == "FORBIDDEN"
+    assert forbidden_audit.status_code == 403
+    assert operator_batch.status_code == 200
+    assert operator_audit.status_code == 200
+    assert any(
+        event["path"] == "/api/batch" for event in operator_audit.json()["events"]
+    )
+
+
+def test_explicit_demo_persona_cannot_access_another_users_subscription(
+    client: TestClient,
+) -> None:
+    commuter_headers = {"X-Demo-Persona-ID": "commuter-user"}
+    operator_headers = {"X-Demo-Persona-ID": "demo-user"}
+    created = client.post(
+        "/api/subscriptions",
+        headers=commuter_headers,
+        json={
+            "user_id": "ignored-client-value",
+            "routine": {
+                "origin_id": "hku",
+                "destination_id": "nanshan-tech",
+                "days": ["monday"],
+                "arrival_deadline": "09:30",
+                "priority": "balanced",
+            },
+            "alerts": {},
+        },
+    )
+    subscription_id = created.json()["subscription_id"]
+
+    own_preview = client.get(
+        f"/api/subscriptions/{subscription_id}/preview",
+        headers=commuter_headers,
+    )
+    other_preview = client.get(
+        f"/api/subscriptions/{subscription_id}/preview",
+        headers=operator_headers,
+    )
+
+    assert created.status_code == 201
+    assert created.json()["user_id"] == "commuter-user"
+    assert own_preview.status_code == 200
+    assert other_preview.status_code == 404
 
 
 def test_prediction_contract(client: TestClient) -> None:

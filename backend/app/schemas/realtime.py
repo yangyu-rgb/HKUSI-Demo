@@ -52,3 +52,7 @@ class HealthResponse(BaseModel):
     status: str
     service: str
     mode: str
+
+
+class ReadinessHealthResponse(HealthResponse):
+    checks: list[dict]

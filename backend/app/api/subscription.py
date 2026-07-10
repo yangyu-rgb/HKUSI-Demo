@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Depends, Query, Response, status
 
 from ..schemas.subscription import (
+    AlertCycleResponse,
+    NotificationListResponse,
+    NotificationRecord,
     SubscriptionListResponse,
     SubscriptionEvaluationResponse,
     SubscriptionEvaluationRecord,
@@ -10,7 +13,7 @@ from ..schemas.subscription import (
     SubscriptionUpdate,
 )
 from ..services import SubscriptionService
-from .dependencies import get_subscription_service
+from .dependencies import get_demo_persona, get_subscription_service
 
 
 router = APIRouter(prefix="/api", tags=["提醒订阅"])
@@ -25,7 +28,10 @@ router = APIRouter(prefix="/api", tags=["提醒订阅"])
 def list_subscriptions(
     user_id: str = Query(min_length=1),
     service: SubscriptionService = Depends(get_subscription_service),
+    persona: dict = Depends(get_demo_persona),
 ) -> dict:
+    if persona["explicit"]:
+        user_id = persona["id"]
     return service.list(user_id)
 
 
@@ -39,7 +45,10 @@ def list_subscriptions(
 def create_subscription(
     request: SubscriptionRequest,
     service: SubscriptionService = Depends(get_subscription_service),
+    persona: dict = Depends(get_demo_persona),
 ) -> dict:
+    if persona["explicit"]:
+        request = request.model_copy(update={"user_id": persona["id"]})
     return service.create(request)
 
 
@@ -53,7 +62,10 @@ def create_subscription(
 def create_subscription_legacy(
     request: SubscriptionRequest,
     service: SubscriptionService = Depends(get_subscription_service),
+    persona: dict = Depends(get_demo_persona),
 ) -> dict:
+    if persona["explicit"]:
+        request = request.model_copy(update={"user_id": persona["id"]})
     return service.create(request)
 
 
@@ -67,8 +79,13 @@ def update_subscription(
     subscription_id: str,
     request: SubscriptionUpdate,
     service: SubscriptionService = Depends(get_subscription_service),
+    persona: dict = Depends(get_demo_persona),
 ) -> dict:
-    return service.update(subscription_id, request)
+    return service.update(
+        subscription_id,
+        request,
+        persona["id"] if persona["explicit"] else None,
+    )
 
 
 @router.get(
@@ -80,8 +97,12 @@ def update_subscription(
 def preview_subscription(
     subscription_id: str,
     service: SubscriptionService = Depends(get_subscription_service),
+    persona: dict = Depends(get_demo_persona),
 ) -> dict:
-    return service.evaluate(subscription_id)
+    return service.evaluate(
+        subscription_id,
+        persona["id"] if persona["explicit"] else None,
+    )
 
 
 @router.post(
@@ -94,8 +115,12 @@ def preview_subscription(
 def record_subscription_evaluation(
     subscription_id: str,
     service: SubscriptionService = Depends(get_subscription_service),
+    persona: dict = Depends(get_demo_persona),
 ) -> dict:
-    return service.record_evaluation(subscription_id)
+    return service.record_evaluation(
+        subscription_id,
+        persona["id"] if persona["explicit"] else None,
+    )
 
 
 @router.get(
@@ -108,8 +133,13 @@ def list_subscription_evaluations(
     subscription_id: str,
     limit: int = Query(default=10, ge=1, le=50),
     service: SubscriptionService = Depends(get_subscription_service),
+    persona: dict = Depends(get_demo_persona),
 ) -> dict:
-    return service.list_evaluations(subscription_id, limit)
+    return service.list_evaluations(
+        subscription_id,
+        limit,
+        persona["id"] if persona["explicit"] else None,
+    )
 
 
 @router.patch(
@@ -121,8 +151,12 @@ def list_subscription_evaluations(
 def mark_subscription_evaluation_read(
     evaluation_id: str,
     service: SubscriptionService = Depends(get_subscription_service),
+    persona: dict = Depends(get_demo_persona),
 ) -> dict:
-    return service.mark_evaluation_read(evaluation_id)
+    return service.mark_evaluation_read(
+        evaluation_id,
+        persona["id"] if persona["explicit"] else None,
+    )
 
 
 @router.delete(
@@ -134,6 +168,58 @@ def mark_subscription_evaluation_read(
 def delete_subscription(
     subscription_id: str,
     service: SubscriptionService = Depends(get_subscription_service),
+    persona: dict = Depends(get_demo_persona),
 ) -> Response:
-    service.delete(subscription_id)
+    service.delete(
+        subscription_id,
+        persona["id"] if persona["explicit"] else None,
+    )
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post(
+    "/demo/alerts/run-cycle",
+    response_model=AlertCycleResponse,
+    summary="运行一次本地 Demo 告警周期",
+)
+def run_alert_cycle(
+    user_id: str = Query(default="demo-user", min_length=1),
+    service: SubscriptionService = Depends(get_subscription_service),
+    persona: dict = Depends(get_demo_persona),
+) -> dict:
+    if persona["explicit"]:
+        user_id = persona["id"]
+    return service.run_alert_cycle(user_id)
+
+
+@router.get(
+    "/notifications",
+    response_model=NotificationListResponse,
+    summary="获取本地通知收件箱",
+)
+def list_notifications(
+    user_id: str = Query(default="demo-user", min_length=1),
+    limit: int = Query(default=30, ge=1, le=100),
+    unread_only: bool = False,
+    service: SubscriptionService = Depends(get_subscription_service),
+    persona: dict = Depends(get_demo_persona),
+) -> dict:
+    if persona["explicit"]:
+        user_id = persona["id"]
+    return service.list_notifications(user_id, limit, unread_only)
+
+
+@router.patch(
+    "/notifications/{notification_id}/read",
+    response_model=NotificationRecord,
+    summary="将本地通知标记为已读",
+)
+def mark_notification_read(
+    notification_id: str,
+    service: SubscriptionService = Depends(get_subscription_service),
+    persona: dict = Depends(get_demo_persona),
+) -> dict:
+    return service.mark_notification_read(
+        notification_id,
+        persona["id"] if persona["explicit"] else None,
+    )

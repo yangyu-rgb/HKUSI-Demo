@@ -66,6 +66,128 @@
         }
       }
     },
+    "/api/health/live": {
+      "get": {
+        "tags": [
+          "健康检查"
+        ],
+        "summary": "检查 API 进程存活状态",
+        "operationId": "live_api_health_live_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/health/ready": {
+      "get": {
+        "tags": [
+          "健康检查"
+        ],
+        "summary": "检查 V1 Demo 依赖就绪状态",
+        "operationId": "ready_api_health_ready_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReadinessHealthResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/demo/context": {
       "get": {
         "tags": [
@@ -81,6 +203,262 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DemoContextResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/demo/personas": {
+      "get": {
+        "tags": [
+          "Demo 控制"
+        ],
+        "summary": "获取本地 Demo 身份",
+        "operationId": "get_demo_personas_api_demo_personas_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DemoPersonasResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/demo/v1-model": {
+      "get": {
+        "tags": [
+          "Demo 控制"
+        ],
+        "summary": "获取 AI v1 合成数据评估与产物状态",
+        "operationId": "get_v1_model_api_demo_v1_model_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1ModelResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/demo/v1-readiness": {
+      "get": {
+        "tags": [
+          "Demo 控制"
+        ],
+        "summary": "获取 V1 完整 Demo 就绪度",
+        "operationId": "get_v1_readiness_api_demo_v1_readiness_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V1ReadinessResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/demo/audit": {
+      "get": {
+        "tags": [
+          "Demo 控制"
+        ],
+        "summary": "获取本地 Demo 写操作审计",
+        "operationId": "get_audit_events_api_demo_audit_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 50,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditEventListResponse"
                 }
               }
             }
@@ -1310,6 +1688,248 @@
         }
       }
     },
+    "/api/demo/alerts/run-cycle": {
+      "post": {
+        "tags": [
+          "提醒订阅"
+        ],
+        "summary": "运行一次本地 Demo 告警周期",
+        "operationId": "run_alert_cycle_api_demo_alerts_run_cycle_post",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "default": "demo-user",
+              "title": "User Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlertCycleResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notifications": {
+      "get": {
+        "tags": [
+          "提醒订阅"
+        ],
+        "summary": "获取本地通知收件箱",
+        "operationId": "list_notifications_api_notifications_get",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "default": "demo-user",
+              "title": "User Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 30,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "unread_only",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Unread Only"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationListResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/notifications/{notification_id}/read": {
+      "patch": {
+        "tags": [
+          "提醒订阅"
+        ],
+        "summary": "将本地通知标记为已读",
+        "operationId": "mark_notification_read_api_notifications__notification_id__read_patch",
+        "parameters": [
+          {
+            "name": "notification_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Notification Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NotificationRecord"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/batch": {
       "post": {
         "tags": [
@@ -1465,10 +2085,164 @@
           }
         }
       }
+    },
+    "/api/batch/csv/validate": {
+      "post": {
+        "tags": [
+          "企业方案"
+        ],
+        "summary": "校验企业员工 CSV",
+        "operationId": "validate_batch_csv_api_batch_csv_validate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchCsvValidateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BatchCsvValidateResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/batch/plans/{plan_id}/export.csv": {
+      "get": {
+        "tags": [
+          "企业方案"
+        ],
+        "summary": "导出企业方案 CSV",
+        "operationId": "export_batch_plan_api_batch_plans__plan_id__export_csv_get",
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Plan Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "AlertCycleResponse": {
+        "properties": {
+          "evaluated_subscriptions": {
+            "type": "integer",
+            "title": "Evaluated Subscriptions"
+          },
+          "created_notifications": {
+            "type": "integer",
+            "title": "Created Notifications"
+          }
+        },
+        "type": "object",
+        "required": [
+          "evaluated_subscriptions",
+          "created_notifications"
+        ],
+        "title": "AlertCycleResponse"
+      },
       "AlertPreferences": {
         "properties": {
           "advance_reminder": {
@@ -1534,6 +2308,138 @@
           "triggered"
         ],
         "title": "AlertPreview"
+      },
+      "AuditEvent": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          },
+          "persona_id": {
+            "type": "string",
+            "title": "Persona Id"
+          },
+          "organization_id": {
+            "type": "string",
+            "title": "Organization Id"
+          },
+          "method": {
+            "type": "string",
+            "title": "Method"
+          },
+          "path": {
+            "type": "string",
+            "title": "Path"
+          },
+          "status_code": {
+            "type": "integer",
+            "title": "Status Code"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "request_id",
+          "persona_id",
+          "organization_id",
+          "method",
+          "path",
+          "status_code",
+          "created_at"
+        ],
+        "title": "AuditEvent"
+      },
+      "AuditEventListResponse": {
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/AuditEvent"
+            },
+            "type": "array",
+            "title": "Events"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "events",
+          "total"
+        ],
+        "title": "AuditEventListResponse"
+      },
+      "BatchCsvError": {
+        "properties": {
+          "row": {
+            "type": "integer",
+            "title": "Row"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "row",
+          "message"
+        ],
+        "title": "BatchCsvError"
+      },
+      "BatchCsvValidateRequest": {
+        "properties": {
+          "csv_text": {
+            "type": "string",
+            "maxLength": 200000,
+            "minLength": 1,
+            "title": "Csv Text"
+          }
+        },
+        "type": "object",
+        "required": [
+          "csv_text"
+        ],
+        "title": "BatchCsvValidateRequest"
+      },
+      "BatchCsvValidateResponse": {
+        "properties": {
+          "valid": {
+            "type": "boolean",
+            "title": "Valid"
+          },
+          "employees": {
+            "items": {
+              "$ref": "#/components/schemas/BatchEmployee"
+            },
+            "type": "array",
+            "title": "Employees"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/BatchCsvError"
+            },
+            "type": "array",
+            "title": "Errors"
+          }
+        },
+        "type": "object",
+        "required": [
+          "valid",
+          "employees",
+          "errors"
+        ],
+        "title": "BatchCsvValidateResponse"
       },
       "BatchEmployee": {
         "properties": {
@@ -2206,6 +3112,60 @@
         ],
         "title": "DemoContextResponse"
       },
+      "DemoPersona": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "organization_id": {
+            "type": "string",
+            "title": "Organization Id"
+          },
+          "organization_name": {
+            "type": "string",
+            "title": "Organization Name"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "role",
+          "organization_id",
+          "organization_name"
+        ],
+        "title": "DemoPersona"
+      },
+      "DemoPersonasResponse": {
+        "properties": {
+          "default_persona_id": {
+            "type": "string",
+            "title": "Default Persona Id"
+          },
+          "personas": {
+            "items": {
+              "$ref": "#/components/schemas/DemoPersona"
+            },
+            "type": "array",
+            "title": "Personas"
+          }
+        },
+        "type": "object",
+        "required": [
+          "default_persona_id",
+          "personas"
+        ],
+        "title": "DemoPersonasResponse"
+      },
       "DemoResetResponse": {
         "properties": {
           "success": {
@@ -2231,6 +3191,39 @@
           "message"
         ],
         "title": "DemoResetResponse"
+      },
+      "DirectionOption": {
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/TravelDirection"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "origin_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Origin Ids"
+          },
+          "destination_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Destination Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "label",
+          "origin_ids",
+          "destination_ids"
+        ],
+        "title": "DirectionOption"
       },
       "ErrorBody": {
         "properties": {
@@ -2389,14 +3382,120 @@
             },
             "type": "array",
             "title": "Destinations"
+          },
+          "directions": {
+            "items": {
+              "$ref": "#/components/schemas/DirectionOption"
+            },
+            "type": "array",
+            "title": "Directions"
           }
         },
         "type": "object",
         "required": [
           "origins",
-          "destinations"
+          "destinations",
+          "directions"
         ],
         "title": "LocationsResponse"
+      },
+      "NotificationListResponse": {
+        "properties": {
+          "notifications": {
+            "items": {
+              "$ref": "#/components/schemas/NotificationRecord"
+            },
+            "type": "array",
+            "title": "Notifications"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "unread_total": {
+            "type": "integer",
+            "title": "Unread Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "notifications",
+          "total",
+          "unread_total"
+        ],
+        "title": "NotificationListResponse"
+      },
+      "NotificationRecord": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "subscription_id": {
+            "type": "string",
+            "title": "Subscription Id"
+          },
+          "evaluation_id": {
+            "type": "string",
+            "title": "Evaluation Id"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "scheduled_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Scheduled At"
+          },
+          "is_read": {
+            "type": "boolean",
+            "title": "Is Read"
+          },
+          "read_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Read At"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "user_id",
+          "subscription_id",
+          "evaluation_id",
+          "kind",
+          "title",
+          "message",
+          "scheduled_at",
+          "is_read",
+          "created_at"
+        ],
+        "title": "NotificationRecord"
       },
       "ObservationSource": {
         "type": "string",
@@ -2675,6 +3774,9 @@
               }
             ],
             "title": "Max Budget"
+          },
+          "direction": {
+            "$ref": "#/components/schemas/TravelDirection"
           }
         },
         "type": "object",
@@ -2685,7 +3787,8 @@
           "destination_name",
           "target_time",
           "priority",
-          "max_budget"
+          "max_budget",
+          "direction"
         ],
         "title": "PredictionQuery"
       },
@@ -2777,6 +3880,9 @@
             "type": "string",
             "title": "Data Version"
           },
+          "direction": {
+            "$ref": "#/components/schemas/TravelDirection"
+          },
           "forecast_run_id": {
             "anyOf": [
               {
@@ -2802,7 +3908,8 @@
           "confidence_level",
           "demo_notice",
           "data_sources",
-          "data_version"
+          "data_version",
+          "direction"
         ],
         "title": "PredictionResponse"
       },
@@ -2814,6 +3921,38 @@
           "balanced"
         ],
         "title": "Priority"
+      },
+      "ReadinessHealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "service": {
+            "type": "string",
+            "title": "Service"
+          },
+          "mode": {
+            "type": "string",
+            "title": "Mode"
+          },
+          "checks": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Checks"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "service",
+          "mode",
+          "checks"
+        ],
+        "title": "ReadinessHealthResponse"
       },
       "RealtimeResponse": {
         "properties": {
@@ -3414,6 +4553,132 @@
           "shenzhen_to_hong_kong"
         ],
         "title": "TravelDirection"
+      },
+      "V1ModelResponse": {
+        "properties": {
+          "artifact_available": {
+            "type": "boolean",
+            "title": "Artifact Available"
+          },
+          "unavailable_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unavailable Reason"
+          },
+          "model_version": {
+            "type": "string",
+            "title": "Model Version"
+          },
+          "synthetic_only": {
+            "type": "boolean",
+            "title": "Synthetic Only"
+          },
+          "dataset": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Dataset"
+          },
+          "split": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Split"
+          },
+          "metrics": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Metrics"
+          },
+          "features": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Features"
+          },
+          "promotion": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Promotion"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          }
+        },
+        "type": "object",
+        "required": [
+          "artifact_available",
+          "model_version",
+          "synthetic_only",
+          "dataset",
+          "split",
+          "metrics",
+          "features",
+          "promotion",
+          "limitations"
+        ],
+        "title": "V1ModelResponse"
+      },
+      "V1ReadinessCheck": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "passed": {
+            "type": "boolean",
+            "title": "Passed"
+          },
+          "detail": {
+            "type": "string",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "passed",
+          "detail"
+        ],
+        "title": "V1ReadinessCheck"
+      },
+      "V1ReadinessResponse": {
+        "properties": {
+          "demo_ready": {
+            "type": "boolean",
+            "title": "Demo Ready"
+          },
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/V1ReadinessCheck"
+            },
+            "type": "array",
+            "title": "Checks"
+          },
+          "adapter_modes": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Adapter Modes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "demo_ready",
+          "checks",
+          "adapter_modes"
+        ],
+        "title": "V1ReadinessResponse"
       },
       "V2ReadinessCheck": {
         "properties": {

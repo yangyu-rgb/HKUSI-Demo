@@ -38,6 +38,22 @@ class SubscriptionService:
         self._clock = clock
         self._prediction_service = prediction_service
 
+    def _get_subscription(
+        self,
+        subscription_id: str,
+        user_id: str | None = None,
+    ) -> dict:
+        subscription = self._repository.get_subscription(subscription_id)
+        if subscription is None or (
+            user_id is not None and subscription["user_id"] != user_id
+        ):
+            raise ResourceNotFoundError(
+                ErrorCode.SUBSCRIPTION_NOT_FOUND,
+                "订阅不存在",
+                details={"subscription_id": subscription_id},
+            )
+        return subscription
+
     @staticmethod
     def _target_time_for_next_commute(routine: dict, now: datetime) -> datetime:
         selected_days = set(routine["days"])
@@ -182,6 +198,15 @@ class SubscriptionService:
                 code=ErrorCode.LOCATION_NOT_FOUND,
                 details={"destination_id": destination_id},
             )
+        if self._repository.infer_direction(origin_id, destination_id) is None:
+            raise DomainValidationError(
+                "出发地与目的地必须位于深港两侧",
+                code=ErrorCode.VALIDATION_ERROR,
+                details={
+                    "origin_id": origin_id,
+                    "destination_id": destination_id,
+                },
+            )
 
     def list(self, user_id: str) -> dict:
         subscriptions = self._repository.list_subscriptions(user_id)
@@ -211,14 +236,13 @@ class SubscriptionService:
         )
         return subscription
 
-    def update(self, subscription_id: str, request: SubscriptionUpdate) -> dict:
-        existing = self._repository.get_subscription(subscription_id)
-        if existing is None:
-            raise ResourceNotFoundError(
-                ErrorCode.SUBSCRIPTION_NOT_FOUND,
-                "订阅不存在",
-                details={"subscription_id": subscription_id},
-            )
+    def update(
+        self,
+        subscription_id: str,
+        request: SubscriptionUpdate,
+        user_id: str | None = None,
+    ) -> dict:
+        self._get_subscription(subscription_id, user_id)
         routine = request.routine.model_dump(mode="json")
         alerts = request.alerts.model_dump(mode="json")
         self._validate_locations(routine["origin_id"], routine["destination_id"])
@@ -231,28 +255,68 @@ class SubscriptionService:
         updated["message"] = "订阅已更新。"
         return updated
 
-    def evaluate(self, subscription_id: str) -> dict:
-        subscription = self._repository.get_subscription(subscription_id)
-        if subscription is None:
-            raise ResourceNotFoundError(
-                ErrorCode.SUBSCRIPTION_NOT_FOUND,
-                "订阅不存在",
-                details={"subscription_id": subscription_id},
-            )
+    def evaluate(self, subscription_id: str, user_id: str | None = None) -> dict:
+        subscription = self._get_subscription(subscription_id, user_id)
         return self._evaluate_subscription(subscription)
 
-    def record_evaluation(self, subscription_id: str) -> dict:
-        return self._repository.save_subscription_evaluation(
-            self.evaluate(subscription_id)
+    def record_evaluation(
+        self,
+        subscription_id: str,
+        user_id: str | None = None,
+    ) -> dict:
+        subscription = self._get_subscription(subscription_id, user_id)
+        record = self._repository.save_subscription_evaluation(
+            self._evaluate_subscription(subscription)
         )
+        self._repository.save_notifications(record, subscription["user_id"])
+        return record
 
-    def list_evaluations(self, subscription_id: str, limit: int) -> dict:
-        if self._repository.get_subscription(subscription_id) is None:
-            raise ResourceNotFoundError(
-                ErrorCode.SUBSCRIPTION_NOT_FOUND,
-                "订阅不存在",
-                details={"subscription_id": subscription_id},
+    def run_alert_cycle(self, user_id: str) -> dict:
+        subscriptions = self._repository.list_subscriptions(user_id)
+        created = 0
+        for subscription in subscriptions:
+            record = self._repository.save_subscription_evaluation(
+                self._evaluate_subscription(subscription)
             )
+            created += self._repository.save_notifications(record, user_id)
+        return {
+            "evaluated_subscriptions": len(subscriptions),
+            "created_notifications": created,
+        }
+
+    def list_notifications(self, user_id: str, limit: int, unread_only: bool) -> dict:
+        notifications = self._repository.list_notifications(
+            user_id,
+            limit,
+            unread_only,
+        )
+        return {
+            "notifications": notifications,
+            "total": len(notifications),
+            "unread_total": sum(not item["is_read"] for item in notifications),
+        }
+
+    def mark_notification_read(
+        self,
+        notification_id: str,
+        user_id: str | None = None,
+    ) -> dict:
+        notification = self._repository.mark_notification_read(notification_id, user_id)
+        if notification is None:
+            raise ResourceNotFoundError(
+                ErrorCode.NOTIFICATION_NOT_FOUND,
+                "通知不存在",
+                details={"notification_id": notification_id},
+            )
+        return notification
+
+    def list_evaluations(
+        self,
+        subscription_id: str,
+        limit: int,
+        user_id: str | None = None,
+    ) -> dict:
+        self._get_subscription(subscription_id, user_id)
         evaluations = self._repository.list_subscription_evaluations(
             subscription_id,
             limit,
@@ -263,7 +327,19 @@ class SubscriptionService:
             "unread_total": sum(not item["is_read"] for item in evaluations),
         }
 
-    def mark_evaluation_read(self, evaluation_id: str) -> dict:
+    def mark_evaluation_read(
+        self,
+        evaluation_id: str,
+        user_id: str | None = None,
+    ) -> dict:
+        existing = self._repository.get_subscription_evaluation(evaluation_id)
+        if existing is None:
+            raise ResourceNotFoundError(
+                ErrorCode.SUBSCRIPTION_EVALUATION_NOT_FOUND,
+                "提醒评估记录不存在",
+                details={"evaluation_id": evaluation_id},
+            )
+        self._get_subscription(existing["subscription_id"], user_id)
         evaluation = self._repository.mark_subscription_evaluation_read(evaluation_id)
         if evaluation is None:
             raise ResourceNotFoundError(
@@ -273,7 +349,8 @@ class SubscriptionService:
             )
         return evaluation
 
-    def delete(self, subscription_id: str) -> None:
+    def delete(self, subscription_id: str, user_id: str | None = None) -> None:
+        self._get_subscription(subscription_id, user_id)
         if not self._repository.delete_subscription(subscription_id):
             raise ResourceNotFoundError(
                 ErrorCode.SUBSCRIPTION_NOT_FOUND,

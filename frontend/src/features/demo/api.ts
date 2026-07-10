@@ -6,6 +6,9 @@ export type DemoContext = components["schemas"]["DemoContextResponse"];
 export type DemoResetResponse = components["schemas"]["DemoResetResponse"];
 export type ShadowObservationSummary = components["schemas"]["ShadowObservationSummaryResponse"];
 export type V2Readiness = components["schemas"]["V2ReadinessResponse"];
+export type V1Model = components["schemas"]["V1ModelResponse"];
+export type V1Readiness = components["schemas"]["V1ReadinessResponse"];
+export type DemoPersonas = components["schemas"]["DemoPersonasResponse"];
 
 
 export function fetchDemoContext(): Promise<DemoContext> {
@@ -20,6 +23,21 @@ export function fetchModelShadowSummary(): Promise<ShadowObservationSummary> {
 
 export function fetchV2Readiness(): Promise<V2Readiness> {
   return request("/api/demo/v2-readiness");
+}
+
+
+export function fetchV1Model(): Promise<V1Model> {
+  return request("/api/demo/v1-model");
+}
+
+
+export function fetchV1Readiness(): Promise<V1Readiness> {
+  return request("/api/demo/v1-readiness");
+}
+
+
+export function fetchDemoPersonas(): Promise<DemoPersonas> {
+  return request("/api/demo/personas");
 }
 
 

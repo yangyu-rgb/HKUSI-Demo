@@ -9,11 +9,13 @@ class ErrorCode(str, Enum):
     DUPLICATE_REPORT = "DUPLICATE_REPORT"
     SUBSCRIPTION_NOT_FOUND = "SUBSCRIPTION_NOT_FOUND"
     SUBSCRIPTION_EVALUATION_NOT_FOUND = "SUBSCRIPTION_EVALUATION_NOT_FOUND"
+    NOTIFICATION_NOT_FOUND = "NOTIFICATION_NOT_FOUND"
     PLAN_NOT_FOUND = "PLAN_NOT_FOUND"
     TARGET_TIME_OUT_OF_RANGE = "TARGET_TIME_OUT_OF_RANGE"
     DATABASE_ERROR = "DATABASE_ERROR"
     NOT_FOUND = "NOT_FOUND"
     INTERNAL_ERROR = "INTERNAL_ERROR"
+    FORBIDDEN = "FORBIDDEN"
 
 
 class AppError(Exception):
@@ -60,3 +62,8 @@ class PersistenceError(AppError):
             message,
             status_code=500,
         )
+
+
+class PermissionDeniedError(AppError):
+    def __init__(self, message: str = "当前 Demo 身份无权执行此操作"):
+        super().__init__(ErrorCode.FORBIDDEN, message, status_code=403)

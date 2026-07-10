@@ -2,6 +2,9 @@ export const queryKeys = {
   demoContext: ["demo-context"] as const,
   modelShadowSummary: ["model-shadow-summary"] as const,
   v2Readiness: ["v2-readiness"] as const,
+  v1Model: ["v1-model"] as const,
+  v1Readiness: ["v1-readiness"] as const,
+  demoPersonas: ["demo-personas"] as const,
   realtime: ["realtime"] as const,
   crowdsource: ["crowdsource"] as const,
   locations: ["locations"] as const,
@@ -9,5 +12,6 @@ export const queryKeys = {
   subscriptions: (userId: string) => ["subscriptions", userId] as const,
   subscriptionPreview: (subscriptionId: string) => ["subscription-preview", subscriptionId] as const,
   subscriptionEvaluations: (subscriptionId: string) => ["subscription-evaluations", subscriptionId] as const,
+  notifications: (userId: string) => ["notifications", userId] as const,
   batchPlans: (company: string) => ["batch-plans", company] as const,
 };

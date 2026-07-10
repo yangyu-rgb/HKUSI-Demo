@@ -58,6 +58,12 @@ export function RouteCard({
           {factors.map((factor, index) => (
             <li key={`${String(factor.code)}-${index}`}>
               <strong>{String(factor.label ?? factor.code)}</strong>
+              {factor.effective_weight !== undefined && (
+                <i
+                  className={styles.factorBar}
+                  style={{ width: `${Math.max(4, Math.min(100, Number(factor.effective_weight) * 100))}%` }}
+                />
+              )}
               <span>
                 {factor.value_minutes !== undefined && `${String(factor.value_minutes)}分钟`}
                 {factor.effective_weight !== undefined && ` · 权重${Math.round(Number(factor.effective_weight) * 100)}%`}

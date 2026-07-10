@@ -13,13 +13,15 @@ app/
   main.py        # 应用组装、中间件和错误映射
 ```
 
-口岸元数据、历史样本和交通矩阵保存在 `data/`。众包反馈、订阅、提醒评估、预测运行与企业方案历史保存在被 Git 忽略的 `data/runtime/crossborder.db`。调用 `POST /api/demo/reset` 会按当前香港时间恢复种子状态。
+口岸元数据、历史样本和双向交通矩阵保存在 `data/`。众包反馈、订阅、提醒评估、本地通知、预测运行、企业方案、影子观测与审计保存在被 Git 忽略的 `data/runtime/crossborder.db`。调用 `POST /api/demo/reset` 会按当前香港时间恢复种子状态。
 
 预测器按工作日/周末或节假日、目标小时前后 1 小时、模拟天气和 28 天历史半衰期计算加权基线。重复事件会按配置影响指定口岸并写入预测依据与实时异常；众包反馈按质量分修正结果，影响随新鲜度和预测跨度衰减。置信区间使用历史波动率和预测斜率计算；`app/config.py` 中的命名常量保证 Demo 模型可解释、可审查。
 
 ## 离线 AI v1
 
 AI v1 使用合成历史数据训练梯度提升等待时间回归模型，并按时间划分训练、验证和测试集。FastAPI 启动时会可选加载该模型，但仅作影子计算：用户看到的等待时间、路线推荐和 API 契约仍由统计模型决定。
+
+根目录 `start.sh` 会先运行 `scripts/ensure_v1_model.py`。只有运行时二进制缺失或无法通过已跟踪元数据、特征与数据哈希校验时才重建被忽略的产物，不会改写已跟踪评估报告。
 
 ```bash
 pip install -r requirements-dev.txt
@@ -36,13 +38,17 @@ python scripts/train_wait_model.py
 
 影子加载器会校验模型架构版本、模型版本、特征顺序、晋级状态，以及训练数据哈希是否仍与当前历史文件一致。每个口岸会将统计等待值、AI 等待值、差值和不可用原因写入本地 SQLite；模型文件缺失、元数据不兼容、数据不一致或推理失败时，预测会自动保持统计模型结果。`POST /api/demo/reset` 会清除这些观测记录。
 
-## 提醒评估、数据 Provider 与影子观测
+## 提醒、Demo 身份、数据 Provider 与影子观测
 
 `GET /api/subscriptions/{subscription_id}/preview` 会选取下一次有效通勤日期，并以到达前三小时内的预测窗口生成推荐口岸、最晚出发时间和三类提醒预览。它是纯计算，不发送通知，也不写入提醒历史或影子模型观测。需要保留审阅记录时，调用 `POST /api/subscriptions/{subscription_id}/evaluations`；历史与已读状态分别由 `GET /api/subscriptions/{subscription_id}/evaluations` 和 `PATCH /api/subscription-evaluations/{evaluation_id}/read` 提供。
 
 口岸状态、天气、日历、重复事件和众包种子统一经本地 JSON Provider 读取。每个实时或预测响应都携带来源、读取时间、状态、版本和是否使用内嵌降级数据。当前没有任何外部 Provider；该边界只为未来经过审核的数据接入保留，不能视为真实数据服务。
 
 `GET /api/demo/model-shadow-summary` 提供按口岸汇总的影子可用性和模型差异，仅用于本地 Demo 审阅。
+
+请求可用 `X-Demo-Persona-ID` 在运营、通勤者和企业管理员之间切换。企业方案按组织隔离，企业接口仅允许运营或企业管理员访问，审计接口仅允许运营访问。显式执行本地告警周期会把触发的提醒以幂等方式写入通知收件箱；这套身份、组织和通知机制只用于 V1 Demo，不是生产认证或投递服务。
+
+`GET /api/demo/v1-readiness` 汇总双向路线矩阵、本地 Provider、SQLite、Demo 身份、AI v1 产物和通知适配器状态；`GET /api/health/live` 与 `GET /api/health/ready` 可供本地运行探测。所有写请求记录请求 ID、身份、组织、路径和状态码，并返回基础安全响应头。
 
 每个正式预测还会生成稳定的 `forecast_run_id`。众包提交可带上 `forecast_run_id` 与 `forecast_port_id`，并记录方向、通关类型、等待起止时间、真实现场声明、来源和建模同意；只有真实、已授权、高质量、未过期且尚无标签的反馈才会写入实际等待标签。旧数据库会进行保守的增量迁移，迁移前的反馈默认视为 Demo 数据。运行以下命令可将标签导出为被 Git 忽略的 CSV 与元数据，并包含数据哈希、时间范围、时间切分、来源和 V2 就绪度：
 

@@ -60,3 +60,18 @@ class BatchHistoryRecord(BaseModel):
 class BatchHistoryResponse(BaseModel):
     plans: list[BatchHistoryRecord]
     total: int
+
+
+class BatchCsvValidateRequest(BaseModel):
+    csv_text: str = Field(min_length=1, max_length=200_000)
+
+
+class BatchCsvError(BaseModel):
+    row: int
+    message: str
+
+
+class BatchCsvValidateResponse(BaseModel):
+    valid: bool
+    employees: list[BatchEmployee]
+    errors: list[BatchCsvError]

@@ -6,6 +6,9 @@ import {
   fetchSubscriptionEvaluations,
   fetchSubscriptionPreview,
   markSubscriptionEvaluationRead,
+  fetchNotifications,
+  markNotificationRead,
+  runAlertCycle,
   saveSubscriptionEvaluation,
 } from "../features/subscription/api";
 import { useSubscriptions } from "../features/subscription/useSubscriptions";
@@ -64,6 +67,21 @@ export function AlertsPage() {
     queryKey: queryKeys.subscriptionEvaluations(previewId ?? ""),
     queryFn: () => fetchSubscriptionEvaluations(previewId!),
     enabled: Boolean(previewId),
+  });
+  const notifications = useQuery({
+    queryKey: queryKeys.notifications(USER_ID),
+    queryFn: () => fetchNotifications(USER_ID),
+  });
+  const alertCycle = useMutation({
+    mutationFn: () => runAlertCycle(USER_ID),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: queryKeys.notifications(USER_ID) });
+      setMessage("本地告警周期已完成，触发结果已写入通知收件箱。");
+    },
+  });
+  const markNotification = useMutation({
+    mutationFn: markNotificationRead,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: queryKeys.notifications(USER_ID) }),
   });
   const saveEvaluation = useMutation({
     mutationFn: saveSubscriptionEvaluation,
@@ -200,7 +218,14 @@ export function AlertsPage() {
           <h2>{editingId ? "编辑订阅" : "新增订阅"}</h2>
           <label>
             <span>出发地</span>
-            <select required value={originId} onChange={(event) => setOriginId(event.target.value)}>
+            <select required value={originId} onChange={(event) => {
+              const nextOrigin = event.target.value;
+              const direction = locations.data?.directions.find(
+                (item) => item.origin_ids.includes(nextOrigin),
+              );
+              setOriginId(nextOrigin);
+              setDestinationId(direction?.destination_ids[0] ?? destinationId);
+            }}>
               {locations.data?.origins.map((item) => (
                 <option value={item.id} key={item.id}>{item.name}</option>
               ))}
@@ -209,7 +234,12 @@ export function AlertsPage() {
           <label>
             <span>目的地</span>
             <select required value={destinationId} onChange={(event) => setDestinationId(event.target.value)}>
-              {locations.data?.destinations.map((item) => (
+              {locations.data?.destinations.filter((item) => {
+                const direction = locations.data?.directions.find(
+                  (candidate) => candidate.origin_ids.includes(originId),
+                );
+                return direction?.destination_ids.includes(item.id);
+              }).map((item) => (
                 <option value={item.id} key={item.id}>{item.name}</option>
               ))}
             </select>
@@ -354,6 +384,37 @@ export function AlertsPage() {
               </div>
             )}
           </section>
+        </div>
+      </section>
+      <section className={styles.preview}>
+        <div className={styles.previewHeading}>
+          <div><span className="sectionKicker">Local delivery adapter</span><h2>通知收件箱</h2></div>
+          <button
+            type="button"
+            className={styles.saveEvaluation}
+            disabled={alertCycle.isPending}
+            onClick={() => alertCycle.mutate()}
+          >
+            {alertCycle.isPending ? "运行中…" : "运行本地告警周期"}
+          </button>
+        </div>
+        <p>此处模拟邮件、短信或推送的投递边界，不会连接外部服务。</p>
+        {notifications.data?.notifications.length === 0 && <p>暂无通知。</p>}
+        <div className={styles.history}>
+          {notifications.data?.notifications.map((notification) => (
+            <article
+              className={notification.is_read ? styles.historyRead : styles.historyUnread}
+              key={notification.id}
+            >
+              <div>
+                <strong>{notification.title}</strong>
+                <span>{notification.message} · {formatHongKongDateTime(notification.scheduled_at)}</span>
+              </div>
+              {!notification.is_read && (
+                <button onClick={() => markNotification.mutate(notification.id)}>标为已读</button>
+              )}
+            </article>
+          ))}
         </div>
       </section>
     </main>

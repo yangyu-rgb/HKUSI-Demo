@@ -2,12 +2,17 @@ from fastapi import APIRouter, Depends
 
 from ..schemas.demo import (
     DemoContextResponse,
+    DemoPersonasResponse,
+    V1ModelResponse,
+    V1ReadinessResponse,
+    AuditEventListResponse,
     DemoResetResponse,
     ShadowObservationSummaryResponse,
     V2ReadinessResponse,
 )
+from ..exceptions import PermissionDeniedError
 from ..services import DemoService
-from .dependencies import get_demo_service
+from .dependencies import get_demo_persona, get_demo_service
 
 
 router = APIRouter(prefix="/api/demo", tags=["Demo 控制"])
@@ -24,6 +29,54 @@ def get_demo_context(
     service: DemoService = Depends(get_demo_service),
 ) -> dict:
     return service.get_context()
+
+
+@router.get(
+    "/personas",
+    response_model=DemoPersonasResponse,
+    summary="获取本地 Demo 身份",
+)
+def get_demo_personas(
+    service: DemoService = Depends(get_demo_service),
+) -> dict:
+    return service.get_personas()
+
+
+@router.get(
+    "/v1-model",
+    response_model=V1ModelResponse,
+    summary="获取 AI v1 合成数据评估与产物状态",
+)
+def get_v1_model(
+    service: DemoService = Depends(get_demo_service),
+) -> dict:
+    return service.get_v1_model()
+
+
+@router.get(
+    "/v1-readiness",
+    response_model=V1ReadinessResponse,
+    summary="获取 V1 完整 Demo 就绪度",
+)
+def get_v1_readiness(
+    service: DemoService = Depends(get_demo_service),
+) -> dict:
+    return service.get_v1_readiness()
+
+
+@router.get(
+    "/audit",
+    response_model=AuditEventListResponse,
+    summary="获取本地 Demo 写操作审计",
+)
+def get_audit_events(
+    limit: int = 50,
+    service: DemoService = Depends(get_demo_service),
+    persona: dict = Depends(get_demo_persona),
+) -> dict:
+    if persona["role"] != "operator":
+        raise PermissionDeniedError("仅运营人员可查看 Demo 审计记录")
+    return service.get_audit_events(min(max(limit, 1), 200))
 
 
 @router.get(

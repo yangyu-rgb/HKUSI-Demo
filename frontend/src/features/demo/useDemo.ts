@@ -4,6 +4,9 @@ import {
   fetchDemoContext,
   fetchModelShadowSummary,
   fetchV2Readiness,
+  fetchV1Model,
+  fetchV1Readiness,
+  fetchDemoPersonas,
   resetDemo,
 } from "./api";
 
@@ -36,6 +39,21 @@ export function useV2Readiness() {
     refetchInterval: 60_000,
     refetchIntervalInBackground: false,
   });
+}
+
+
+export function useV1Model() {
+  return useQuery({ queryKey: queryKeys.v1Model, queryFn: fetchV1Model });
+}
+
+
+export function useV1Readiness() {
+  return useQuery({ queryKey: queryKeys.v1Readiness, queryFn: fetchV1Readiness });
+}
+
+
+export function useDemoPersonas() {
+  return useQuery({ queryKey: queryKeys.demoPersonas, queryFn: fetchDemoPersonas });
 }
 
 

@@ -9,6 +9,7 @@ const BusinessPage = lazy(() => import("./pages/BusinessPage").then((module) => 
 const CrowdsourcePage = lazy(() => import("./pages/CrowdsourcePage").then((module) => ({ default: module.CrowdsourcePage })));
 const HomePage = lazy(() => import("./pages/HomePage").then((module) => ({ default: module.HomePage })));
 const PlannerPage = lazy(() => import("./pages/PlannerPage").then((module) => ({ default: module.PlannerPage })));
+const ModelPage = lazy(() => import("./pages/ModelPage").then((module) => ({ default: module.ModelPage })));
 
 
 export function AppRoutes() {
@@ -20,6 +21,7 @@ export function AppRoutes() {
         <Route path="crowdsource" element={<Suspense fallback={<PageSkeleton cards={2} />}><CrowdsourcePage /></Suspense>} />
         <Route path="alerts" element={<Suspense fallback={<PageSkeleton cards={2} />}><AlertsPage /></Suspense>} />
         <Route path="business" element={<Suspense fallback={<PageSkeleton cards={3} />}><BusinessPage /></Suspense>} />
+        <Route path="model" element={<Suspense fallback={<PageSkeleton cards={3} />}><ModelPage /></Suspense>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
     </Routes>

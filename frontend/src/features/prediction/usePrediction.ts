@@ -13,6 +13,7 @@ export const DEFAULT_QUERY: PredictionQueryInput = {
   target_time: "",
   priority: "balanced",
   max_budget: 100,
+  direction: "hong_kong_to_shenzhen",
 };
 
 

@@ -144,6 +144,14 @@
   margin-top: 2px;
 }
 
+.factorBar {
+  display: block;
+  height: 4px;
+  margin-top: 4px;
+  background: var(--teal);
+  border-radius: 999px;
+}
+
 .steps {
   margin-top: 12px;
   display: grid;

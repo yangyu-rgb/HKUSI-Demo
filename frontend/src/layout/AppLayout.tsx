@@ -1,7 +1,7 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { useDemoContext, useDemoReset } from "../features/demo/useDemo";
+import { useDemoContext, useDemoPersonas, useDemoReset } from "../features/demo/useDemo";
 import { useHongKongClock } from "../features/demo/useHongKongClock";
-import { userFacingError } from "../shared/api/client";
+import { getDemoPersonaId, setDemoPersonaId, userFacingError } from "../shared/api/client";
 import { formatHongKongDateTime } from "../shared/formatters";
 import styles from "./AppLayout.module.css";
 
@@ -12,12 +12,14 @@ const navigation = [
   { to: "/crowdsource", label: "众包反馈" },
   { to: "/alerts", label: "智能提醒" },
   { to: "/business", label: "企业方案" },
+  { to: "/model", label: "V1 模型" },
 ];
 
 
 export function AppLayout() {
   const context = useDemoContext();
   const reset = useDemoReset();
+  const personas = useDemoPersonas();
   const hongKongTime = useHongKongClock(context.data?.current_time);
 
   function handleReset() {
@@ -53,6 +55,18 @@ export function AppLayout() {
           <strong>{hongKongTime ? formatHongKongDateTime(hongKongTime, true) : "同步中"}</strong>
         </time>
         <div className={styles.demoControls}>
+          <select
+            aria-label="Demo 身份"
+            value={getDemoPersonaId()}
+            onChange={(event) => {
+              setDemoPersonaId(event.target.value);
+              window.location.reload();
+            }}
+          >
+            {personas.data?.personas.map((persona) => (
+              <option value={persona.id} key={persona.id}>{persona.name}</option>
+            ))}
+          </select>
           <span className={styles.demoChip}>Simulated Data</span>
           <button onClick={handleReset} disabled={reset.isPending}>重置</button>
         </div>

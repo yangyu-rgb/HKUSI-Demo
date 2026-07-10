@@ -53,15 +53,45 @@ def create_app(
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
-        expose_headers=["X-Request-ID"],
+        expose_headers=["X-Request-ID", "X-Demo-Persona-ID"],
     )
 
     @app.middleware("http")
     async def request_id_middleware(request: Request, call_next):
         request_id = request.headers.get("X-Request-ID") or uuid4().hex
         request.state.request_id = request_id
+        persona_header = request.headers.get("X-Demo-Persona-ID")
+        persona = app.state.repository.get_persona(persona_header)
+        if persona is None:
+            return error_response(
+                request,
+                status_code=422,
+                code=ErrorCode.VALIDATION_ERROR.value,
+                message="未知 Demo 身份",
+                details={"persona_id": persona_header},
+            )
+        request.state.demo_persona = {
+            **persona,
+            "explicit": persona_header is not None,
+        }
         response = await call_next(request)
+        if request.method in {"POST", "PATCH", "DELETE"}:
+            app.state.repository.record_audit_event(
+                {
+                    "request_id": request_id,
+                    "persona_id": persona["id"],
+                    "organization_id": persona["organization_id"],
+                    "method": request.method,
+                    "path": request.url.path,
+                    "status_code": response.status_code,
+                }
+            )
         response.headers["X-Request-ID"] = request_id
+        response.headers["X-Demo-Persona-ID"] = persona["id"]
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "no-referrer"
+        response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
         return response
 
     def error_response(
