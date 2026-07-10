@@ -9,3 +9,5 @@ __pycache__/
 data/runtime/
 frontend/test-results/
 frontend/playwright-report/
+data/runtime/official-collector.pid
+data/runtime/official-collector.log

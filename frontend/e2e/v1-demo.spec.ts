@@ -3,7 +3,8 @@ import { expect, test } from "@playwright/test";
 
 
 test.beforeEach(async ({ request }) => {
-  await request.post("http://127.0.0.1:8000/api/demo/reset");
+  const response = await request.post("http://127.0.0.1:8000/api/demo/reset");
+  expect(response.ok()).toBe(true);
 });
 
 
@@ -22,6 +23,9 @@ test("V1 双向规划、通知与模型实验室闭环", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "V1 模型实验室" })).toBeVisible();
   await expect(page.getByText("可完整演示")).toBeVisible();
   await expect(page.getByText("不可训练 V2", { exact: false })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "官方特征来源" })).toBeVisible();
+  await expect(page.getByText("计入分钟标签：0 条", { exact: false })).toBeVisible();
+  await expect(page.getByText("i口岸实时通关信息")).toBeVisible();
 });
 
 

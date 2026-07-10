@@ -202,6 +202,36 @@ class PredictionService:
         except Exception:
             logger.warning("AI v1 影子模型观测记录失败", exc_info=True)
 
+    def _official_features_for_run(
+        self,
+        port_id: str,
+        direction: str,
+        generated_at: datetime,
+    ) -> dict:
+        try:
+            return self._repository.external_data.features_as_of(
+                port_id,
+                direction,
+                generated_at,
+            )
+        except Exception:
+            logger.warning("官方点时特征读取失败，V1 继续使用原有输入", exc_info=True)
+            payload = {
+                "as_of": generated_at.isoformat(),
+                "status": "missing",
+                "resident_queue": {"available": False, "reason": "query_failed"},
+                "visitor_queue": {"available": False, "reason": "query_failed"},
+                "passenger_traffic": {"available": False, "reason": "query_failed"},
+            }
+            canonical = json.dumps(
+                payload,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            )
+            payload["feature_version"] = sha256(canonical.encode()).hexdigest()[:16]
+            return payload
+
     def _save_forecast_run(
         self,
         *,
@@ -213,6 +243,14 @@ class PredictionService:
         target_time: datetime,
         prediction_inputs: dict,
     ) -> str | None:
+        official_by_port = {
+            prediction["port_id"]: self._official_features_for_run(
+                prediction["port_id"],
+                query["direction"],
+                generated_at,
+            )
+            for prediction in predictions
+        }
         run_identity = json.dumps(
             {
                 "query": query,
@@ -220,6 +258,10 @@ class PredictionService:
                 "target_time": target_time.isoformat(),
                 "model_version": MODEL_VERSION,
                 "data_version": prediction_inputs["data_version"],
+                "official_feature_versions": {
+                    port_id: features["feature_version"]
+                    for port_id, features in sorted(official_by_port.items())
+                },
                 "statistical_predictions": [
                     {
                         "port_id": prediction["port_id"],
@@ -281,6 +323,7 @@ class PredictionService:
                             for factor in prediction["factors"]
                             if factor["code"] in {"holiday_calendar", "recurring_event"}
                         ],
+                        "official_features": official_by_port[prediction["port_id"]],
                     },
                 }
             )

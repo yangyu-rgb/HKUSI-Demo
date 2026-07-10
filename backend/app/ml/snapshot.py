@@ -11,9 +11,10 @@ import json
 
 from ..repositories import DemoRepository
 from ..clock import as_hong_kong
+from .official_alignment import assess_official_alignment
 
 
-SNAPSHOT_SCHEMA_VERSION = 2
+SNAPSHOT_SCHEMA_VERSION = 3
 MIN_V2_LABELS = 200
 MIN_V2_PORTS = 4
 MIN_V2_DATES = 21
@@ -40,6 +41,17 @@ SNAPSHOT_FIELDS = (
     "training_consent",
     "wait_started_at",
     "wait_ended_at",
+    "official_feature_status",
+    "official_feature_version",
+    "resident_queue_status_code",
+    "resident_queue_level",
+    "resident_queue_age_minutes",
+    "visitor_queue_status_code",
+    "visitor_queue_level",
+    "visitor_queue_age_minutes",
+    "passenger_total",
+    "passenger_hong_kong_resident",
+    "passenger_traffic_age_hours",
 )
 
 
@@ -51,6 +63,10 @@ def _records_from_rows(rows: list[dict]) -> list[dict]:
     records = []
     for row in rows:
         features = row["features"]
+        official = features.get("official_features", {})
+        resident_queue = official.get("resident_queue", {})
+        visitor_queue = official.get("visitor_queue", {})
+        passenger_traffic = official.get("passenger_traffic", {})
         records.append(
             {
                 "forecast_run_id": row["forecast_run_id"],
@@ -73,6 +89,19 @@ def _records_from_rows(rows: list[dict]) -> list[dict]:
                 "training_consent": bool(row["training_consent"]),
                 "wait_started_at": row["wait_started_at"],
                 "wait_ended_at": row["wait_ended_at"],
+                "official_feature_status": official.get("status", "missing"),
+                "official_feature_version": official.get("feature_version"),
+                "resident_queue_status_code": resident_queue.get("status_code"),
+                "resident_queue_level": resident_queue.get("level"),
+                "resident_queue_age_minutes": resident_queue.get("age_minutes"),
+                "visitor_queue_status_code": visitor_queue.get("status_code"),
+                "visitor_queue_level": visitor_queue.get("level"),
+                "visitor_queue_age_minutes": visitor_queue.get("age_minutes"),
+                "passenger_total": passenger_traffic.get("total"),
+                "passenger_hong_kong_resident": passenger_traffic.get(
+                    "hong_kong_resident"
+                ),
+                "passenger_traffic_age_hours": passenger_traffic.get("age_hours"),
             }
         )
     return records
@@ -113,6 +142,8 @@ def chronological_split(records: list[dict]) -> dict[str, dict[str, Any]]:
 def assess_v2_readiness(repository: DemoRepository) -> dict:
     rows = repository.list_labeled_forecast_rows()
     records = _records_from_rows(rows)
+    external_data = repository.external_data.readiness()
+    external_data["alignment"] = assess_official_alignment(repository)
     ports = Counter(record["port_id"] for record in records)
     dates = {
         _parse_datetime(record["forecast_target_time"]).date()
@@ -224,6 +255,7 @@ def assess_v2_readiness(repository: DemoRepository) -> dict:
         "data_sources": provider_statuses,
         "coverage_warnings": coverage_warnings,
         "production_blockers": production_reasons,
+        "external_data": external_data,
     }
 
 

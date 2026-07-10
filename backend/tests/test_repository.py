@@ -156,7 +156,7 @@ def test_labeled_snapshot_contains_feedback_and_auditable_metadata(
     assert "crowdsource_observation" in Path(result["csv_path"]).read_text(encoding="utf-8")
     assert metadata["sha256"] == result["sha256"]
     assert metadata["readiness"]["label_count"] == 1
-    assert metadata["schema_version"] == 2
+    assert metadata["schema_version"] == 3
 
 
 def test_existing_database_adds_provenance_columns_conservatively(
@@ -199,5 +199,5 @@ def test_existing_database_adds_provenance_columns_conservatively(
     assert legacy["source_type"] == "demo_seed"
     with sqlite3.connect(database) as connection:
         assert connection.execute(
-            "SELECT COUNT(*) FROM schema_version WHERE version = 10"
+            "SELECT COUNT(*) FROM schema_version WHERE version = 12"
         ).fetchone()[0] == 1

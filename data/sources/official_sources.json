@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "id": "hk_immd_queue_resident",
+      "name": "香港入境处陆路口岸等候状态（香港居民）",
+      "provider": "Hong Kong Immigration Department",
+      "status": "approved_feature_only",
+      "usage": "official_congestion_feature",
+      "kind": "queue_status_json",
+      "collection_enabled": true,
+      "url": "https://secure1.info.gov.hk/immd/mobileapps/2bb9ae17/data/CPQueueTimeR.json",
+      "source_version": "data-gov-hk-2025-01",
+      "refresh_seconds": 900,
+      "traveler_category": "hong_kong_resident",
+      "attribution": "香港特别行政区政府入境事务处、DATA.GOV.HK",
+      "terms_url": "https://data.gov.hk/sc/terms-and-conditions",
+      "reason": "官方开放数据，只提供拥堵等级，不提供精确等待分钟。"
+    },
+    {
+      "id": "hk_immd_queue_visitor",
+      "name": "香港入境处陆路口岸等候状态（访客）",
+      "provider": "Hong Kong Immigration Department",
+      "status": "approved_feature_only",
+      "usage": "official_congestion_feature",
+      "kind": "queue_status_json",
+      "collection_enabled": true,
+      "url": "https://secure1.info.gov.hk/immd/mobileapps/2bb9ae17/data/CPQueueTimeV.json",
+      "source_version": "data-gov-hk-2025-01",
+      "refresh_seconds": 900,
+      "traveler_category": "visitor",
+      "attribution": "香港特别行政区政府入境事务处、DATA.GOV.HK",
+      "terms_url": "https://data.gov.hk/sc/terms-and-conditions",
+      "reason": "官方开放数据，只提供拥堵等级，不提供精确等待分钟。"
+    },
+    {
+      "id": "hk_immd_daily_passenger_traffic",
+      "name": "香港入境处每日口岸客流",
+      "provider": "Hong Kong Immigration Department",
+      "status": "approved_feature_only",
+      "usage": "official_passenger_volume_feature",
+      "kind": "daily_traffic_csv",
+      "collection_enabled": true,
+      "url": "https://www.immd.gov.hk/opendata/eng/transport/immigration_clearance/statistics_on_daily_passenger_traffic.csv",
+      "source_version": "data-gov-hk-daily-traffic-v1",
+      "refresh_seconds": 86400,
+      "attribution": "香港特别行政区政府入境事务处、DATA.GOV.HK",
+      "terms_url": "https://data.gov.hk/sc/terms-and-conditions",
+      "reason": "官方每日客流可作真实特征，但不是等待分钟标签。"
+    },
+    {
+      "id": "shenzhen_open_port_passenger_data",
+      "name": "深圳市政府数据开放平台分口岸旅客数据",
+      "provider": "深圳市人民政府口岸办公室",
+      "status": "candidate",
+      "usage": "candidate_passenger_volume_feature",
+      "kind": "unverified_candidate",
+      "collection_enabled": false,
+      "url": "https://opendata.sz.gov.cn/",
+      "source_version": "unverified",
+      "refresh_seconds": 86400,
+      "attribution": "深圳市政府数据开放平台、深圳市人民政府口岸办公室",
+      "terms_url": "https://opendata.sz.gov.cn/",
+      "reason": "尚需核验字段粒度、接口要求、历史范围和许可。"
+    },
+    {
+      "id": "shenzhen_iport",
+      "name": "i口岸实时通关信息",
+      "provider": "深圳市人民政府口岸办公室",
+      "status": "blocked",
+      "usage": "none",
+      "kind": "blocked_web_source",
+      "collection_enabled": false,
+      "url": "https://iport.ka.sz.gov.cn/",
+      "source_version": "unapproved",
+      "refresh_seconds": 900,
+      "attribution": "深圳市人民政府口岸办公室",
+      "terms_url": "https://ka.sz.gov.cn/bqbh/content/post_2289093.html",
+      "reason": "未取得书面授权和机器可读接口语义前禁止自动抓取或用于训练。"
+    }
+  ]
+}

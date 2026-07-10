@@ -33,6 +33,23 @@ def test_v1_model_personas_and_readiness(client: TestClient) -> None:
     assert ready_health.status_code == 200
 
 
+def test_v2_readiness_separates_official_features_from_minute_labels(
+    client: TestClient,
+) -> None:
+    response = client.get("/api/demo/v2-readiness")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["label_count"] == 0
+    assert payload["external_data"]["minute_labels_from_official_features"] == 0
+    assert len(payload["external_data"]["sources"]) == 5
+    assert next(
+        source
+        for source in payload["external_data"]["sources"]
+        if source["id"] == "shenzhen_iport"
+    )["status"] == "blocked"
+
+
 def test_reverse_direction_prediction(client: TestClient) -> None:
     response = client.post(
         "/api/predict",

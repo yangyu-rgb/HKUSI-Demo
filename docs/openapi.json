@@ -3264,6 +3264,313 @@
         ],
         "title": "ErrorResponse"
       },
+      "ExternalDataReadiness": {
+        "properties": {
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/ExternalSourceReadiness"
+            },
+            "type": "array",
+            "title": "Sources"
+          },
+          "official_observation_count": {
+            "type": "integer",
+            "title": "Official Observation Count"
+          },
+          "feature_observation_count": {
+            "type": "integer",
+            "title": "Feature Observation Count"
+          },
+          "ports": {
+            "items": {
+              "$ref": "#/components/schemas/ExternalPortCoverage"
+            },
+            "type": "array",
+            "title": "Ports"
+          },
+          "directions": {
+            "items": {
+              "$ref": "#/components/schemas/ExternalDirectionCoverage"
+            },
+            "type": "array",
+            "title": "Directions"
+          },
+          "distinct_dates": {
+            "type": "integer",
+            "title": "Distinct Dates"
+          },
+          "hour_slices": {
+            "type": "integer",
+            "title": "Hour Slices"
+          },
+          "last_observed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Observed At"
+          },
+          "collection_runs": {
+            "type": "integer",
+            "title": "Collection Runs"
+          },
+          "successful_runs": {
+            "type": "integer",
+            "title": "Successful Runs"
+          },
+          "failed_runs": {
+            "type": "integer",
+            "title": "Failed Runs"
+          },
+          "success_rate_percent": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Success Rate Percent"
+          },
+          "forecast_snapshot_total": {
+            "type": "integer",
+            "title": "Forecast Snapshot Total"
+          },
+          "forecast_snapshot_complete": {
+            "type": "integer",
+            "title": "Forecast Snapshot Complete"
+          },
+          "forecast_snapshot_coverage_percent": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Snapshot Coverage Percent"
+          },
+          "minute_labels_from_official_features": {
+            "type": "integer",
+            "title": "Minute Labels From Official Features"
+          },
+          "alignment": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Alignment"
+          }
+        },
+        "type": "object",
+        "required": [
+          "sources",
+          "official_observation_count",
+          "feature_observation_count",
+          "ports",
+          "directions",
+          "distinct_dates",
+          "hour_slices",
+          "collection_runs",
+          "successful_runs",
+          "failed_runs",
+          "forecast_snapshot_total",
+          "forecast_snapshot_complete",
+          "minute_labels_from_official_features",
+          "alignment"
+        ],
+        "title": "ExternalDataReadiness"
+      },
+      "ExternalDirectionCoverage": {
+        "properties": {
+          "direction": {
+            "type": "string",
+            "title": "Direction"
+          },
+          "observation_count": {
+            "type": "integer",
+            "title": "Observation Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "direction",
+          "observation_count"
+        ],
+        "title": "ExternalDirectionCoverage"
+      },
+      "ExternalPortCoverage": {
+        "properties": {
+          "port_id": {
+            "type": "string",
+            "title": "Port Id"
+          },
+          "observation_count": {
+            "type": "integer",
+            "title": "Observation Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "port_id",
+          "observation_count"
+        ],
+        "title": "ExternalPortCoverage"
+      },
+      "ExternalSourceReadiness": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "usage": {
+            "type": "string",
+            "title": "Usage"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "collection_enabled": {
+            "type": "boolean",
+            "title": "Collection Enabled"
+          },
+          "url": {
+            "type": "string",
+            "title": "Url"
+          },
+          "source_version": {
+            "type": "string",
+            "title": "Source Version"
+          },
+          "refresh_seconds": {
+            "type": "integer",
+            "title": "Refresh Seconds"
+          },
+          "traveler_category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Traveler Category"
+          },
+          "attribution": {
+            "type": "string",
+            "title": "Attribution"
+          },
+          "terms_url": {
+            "type": "string",
+            "title": "Terms Url"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          },
+          "observation_count": {
+            "type": "integer",
+            "title": "Observation Count"
+          },
+          "last_fetched_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Fetched At"
+          },
+          "age_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Age Minutes"
+          },
+          "freshness_status": {
+            "type": "string",
+            "title": "Freshness Status"
+          },
+          "expected_runs_24h": {
+            "type": "integer",
+            "title": "Expected Runs 24H"
+          },
+          "successful_runs_24h": {
+            "type": "integer",
+            "title": "Successful Runs 24H"
+          },
+          "completeness_24h_percent": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completeness 24H Percent"
+          },
+          "max_gap_minutes_24h": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Gap Minutes 24H"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "provider",
+          "status",
+          "usage",
+          "kind",
+          "collection_enabled",
+          "url",
+          "source_version",
+          "refresh_seconds",
+          "attribution",
+          "terms_url",
+          "reason",
+          "observation_count",
+          "freshness_status",
+          "expected_runs_24h",
+          "successful_runs_24h"
+        ],
+        "title": "ExternalSourceReadiness"
+      },
       "ForecastFeedbackLink": {
         "properties": {
           "forecast_run_id": {
@@ -4853,6 +5160,9 @@
             },
             "type": "array",
             "title": "Production Blockers"
+          },
+          "external_data": {
+            "$ref": "#/components/schemas/ExternalDataReadiness"
           }
         },
         "type": "object",
@@ -4872,7 +5182,8 @@
           "checks",
           "data_sources",
           "coverage_warnings",
-          "production_blockers"
+          "production_blockers",
+          "external_data"
         ],
         "title": "V2ReadinessResponse"
       },

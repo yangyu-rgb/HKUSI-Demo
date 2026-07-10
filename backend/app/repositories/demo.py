@@ -8,6 +8,8 @@ import csv
 
 from ..exceptions import PersistenceError
 from ..clock import Clock, HongKongClock
+from ..external_data import load_source_registry
+from .external import ExternalDataRepository
 from ..providers import (
     CROWDSOURCE_FALLBACK,
     EVENT_FALLBACK,
@@ -23,7 +25,7 @@ from ..providers import (
 )
 
 
-SCHEMA_VERSION = 10
+SCHEMA_VERSION = 12
 
 
 def load_json(path: Path) -> dict | list:
@@ -85,6 +87,9 @@ class DemoRepository:
         self._locations = load_json(data_dir / "routes" / "locations.json")
         self._transit_matrix = load_json(data_dir / "routes" / "transit_matrix.json")
         self._personas = load_json(data_dir / "demo" / "personas.json")
+        self._external_source_registry = load_source_registry(
+            data_dir / "sources" / "official_sources.json"
+        )
         self._route_validation_errors = self._validate_route_data()
         self._history_path = data_dir / "history" / "port_wait_history.csv"
         self._history = self._load_history()
@@ -93,9 +98,18 @@ class DemoRepository:
         self._events = self._providers["events"].get()
         self._crowdsource_seed = self._providers["crowdsource_seed"].get()
         self._initialize_database()
+        self.external_data = ExternalDataRepository(
+            self._database_path,
+            self._clock,
+            self._external_source_registry,
+        )
 
     def _utc_now(self) -> str:
         return self._clock.now().astimezone(timezone.utc).isoformat()
+
+    @property
+    def clock(self) -> Clock:
+        return self._clock
 
     def _load_history(self) -> list[dict]:
         with self._history_path.open("r", encoding="utf-8") as file:
@@ -206,6 +220,45 @@ class DemoRepository:
                 "ALTER TABLE batch_plans ADD COLUMN organization_id TEXT NOT NULL "
                 "DEFAULT 'demo-org'"
             )
+
+        external_columns = {
+            row["name"]
+            for row in connection.execute(
+                "PRAGMA table_info(external_feature_observations)"
+            )
+        }
+        if "first_fetched_at" not in external_columns:
+            connection.execute(
+                "ALTER TABLE external_feature_observations "
+                "ADD COLUMN first_fetched_at TEXT"
+            )
+        if "last_fetched_at" not in external_columns:
+            connection.execute(
+                "ALTER TABLE external_feature_observations "
+                "ADD COLUMN last_fetched_at TEXT"
+            )
+        connection.execute(
+            """
+            UPDATE external_feature_observations
+            SET first_fetched_at = COALESCE(first_fetched_at, fetched_at),
+                last_fetched_at = COALESCE(last_fetched_at, fetched_at)
+            """
+        )
+        connection.execute(
+            """
+            INSERT OR IGNORE INTO external_feature_revisions(
+                source_id, source_version, revision_fetched_at, observed_at,
+                port_id, direction, traveler_category, metric_type,
+                raw_value, congestion_level, feature_available, raw_hash,
+                created_at
+            )
+            SELECT source_id, source_version, fetched_at, observed_at,
+                   port_id, direction, traveler_category, metric_type,
+                   raw_value, congestion_level, feature_available, raw_hash,
+                   created_at
+            FROM external_feature_observations
+            """
+        )
 
         # Labels created before provenance was introduced are retained for audit but
         # cannot silently remain eligible for V2 training.
@@ -482,6 +535,42 @@ class DemoRepository:
                 return connection.execute("SELECT 1").fetchone()[0] == 1
         except sqlite3.Error:
             return False
+
+    def get_external_source_registry(self) -> dict:
+        return self.external_data.get_registry()
+
+    def save_external_collection(
+        self,
+        *,
+        source: dict,
+        fetched_at: str,
+        raw_hash: str,
+        archive_path: str,
+        observations: list[dict],
+    ) -> int:
+        return self.external_data.save_collection(
+            source=source,
+            fetched_at=fetched_at,
+            raw_hash=raw_hash,
+            archive_path=archive_path,
+            observations=observations,
+        )
+
+    def record_external_collection_failure(
+        self,
+        *,
+        source: dict,
+        fetched_at: str,
+        error: str,
+    ) -> None:
+        self.external_data.record_failure(
+            source=source,
+            fetched_at=fetched_at,
+            error=error,
+        )
+
+    def get_external_data_readiness(self) -> dict:
+        return self.external_data.readiness()
 
     def get_history(self, port_name: str) -> list[dict]:
         return [

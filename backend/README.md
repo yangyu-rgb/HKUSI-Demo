@@ -58,6 +58,20 @@ python scripts/export_training_snapshot.py
 
 `GET /api/demo/v2-readiness` 也返回相同的在线检查。当前阈值要求至少 200 条真实授权标签、四个口岸、21 个日期、8 个小时切片、可用的时间分区和关键本地输入；同时返回被隔离反馈、真实来源和分布风险。200 条只允许启动受控实验，不代表 672 个口岸—日期—小时组合已完整覆盖；真实 Provider 与真实运营回测未完成前仍不能生产晋级。
 
+## 官方特征采集
+
+`data/sources/official_sources.json` 登记外部来源的审批状态、用途、条款和刷新周期。当前只启用香港入境处居民/访客口岸拥堵等级及每日客流；深圳开放数据仍是候选，i口岸在获得书面授权前保持阻断。
+
+```bash
+python scripts/collect_official_sources.py
+python scripts/collect_official_sources.py --status
+python scripts/validate_exact_wait_labels.py /path/to/candidate.csv
+```
+
+持续采集建议从仓库根目录运行 `./collector.sh start`，并用 `./collector.sh status` 查看进程、来源新鲜度、24 小时成功次数/完整率和最大缺口；`stop`/`restart` 分别停止或重启。采集器将原始响应写入被 Git 忽略的 `data/runtime/external_sources/`，并把标准化特征、内容哈希、修订历史和运行结果写入 SQLite。
+
+每次正式预测只查询 `generated_at` 当时已经抓取且已经观察到的官方值，并把结果冻结到预测运行。训练快照 schema v3 导出该冻结值；后续来源修订不会改写历史运行。V1 预测值、路线排序和用户结果不读取这些字段。官方等级一致性报告只比较 `normal/busy/very_busy` 的序数类别，不生成伪分钟或分钟 MAE。官方等级和客流不会生成等待分钟标签；候选精确标签校验器也只读，不执行导入。
+
 ## 运行
 
 从仓库根目录执行以下命令，可以同时启动前后端：

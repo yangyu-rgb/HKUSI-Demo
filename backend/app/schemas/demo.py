@@ -107,6 +107,61 @@ class V2ReadinessLabelSource(BaseModel):
     label_count: int
 
 
+class ExternalSourceReadiness(BaseModel):
+    id: str
+    name: str
+    provider: str
+    status: str
+    usage: str
+    kind: str
+    collection_enabled: bool
+    url: str
+    source_version: str
+    refresh_seconds: int
+    traveler_category: str | None = None
+    attribution: str
+    terms_url: str
+    reason: str
+    observation_count: int
+    last_fetched_at: datetime | None = None
+    age_minutes: float | None = None
+    freshness_status: str
+    expected_runs_24h: int
+    successful_runs_24h: int
+    completeness_24h_percent: float | None = None
+    max_gap_minutes_24h: float | None = None
+
+
+class ExternalPortCoverage(BaseModel):
+    port_id: str
+    observation_count: int
+
+
+class ExternalDirectionCoverage(BaseModel):
+    direction: str
+    observation_count: int
+
+
+class ExternalDataReadiness(BaseModel):
+    sources: list[ExternalSourceReadiness]
+    official_observation_count: int
+    feature_observation_count: int
+    ports: list[ExternalPortCoverage]
+    directions: list[ExternalDirectionCoverage]
+    distinct_dates: int
+    hour_slices: int
+    last_observed_at: datetime | None = None
+    collection_runs: int
+    successful_runs: int
+    failed_runs: int
+    success_rate_percent: float | None = None
+    forecast_snapshot_total: int
+    forecast_snapshot_complete: int
+    forecast_snapshot_coverage_percent: float | None = None
+    minute_labels_from_official_features: int
+    alignment: dict
+
+
 class V2ReadinessResponse(BaseModel):
     experiment_ready: bool
     production_promotion_ready: bool
@@ -126,3 +181,4 @@ class V2ReadinessResponse(BaseModel):
     data_sources: list[DataSourceStatus]
     coverage_warnings: list[str]
     production_blockers: list[str]
+    external_data: ExternalDataReadiness

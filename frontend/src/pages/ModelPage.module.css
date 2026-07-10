@@ -13,6 +13,7 @@
 
 .panel h2 { margin-top: 0; }
 .panel p, .panel small { color: var(--muted); }
+.wide { grid-column: 1 / -1; }
 .ready { color: #08745d; }
 .blocked { color: #ad5b24; }
 
@@ -37,7 +38,18 @@
 
 .metric i { display: block; height: 8px; background: var(--teal); border-radius: 4px; }
 
+.sources {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.sources div { padding: 12px; border: 1px solid var(--line); border-radius: 10px; }
+.sources b, .sources span, .sources small { display: block; }
+.sources span, .sources small { margin-top: 4px; }
+
 @media (max-width: 760px) {
   .grid { grid-template-columns: 1fr; }
   .stats { grid-template-columns: 1fr; }
+  .sources { grid-template-columns: 1fr; }
 }

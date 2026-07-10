@@ -940,6 +940,106 @@ export interface components {
         ErrorResponse: {
             error: components["schemas"]["ErrorBody"];
         };
+        /** ExternalDataReadiness */
+        ExternalDataReadiness: {
+            /** Sources */
+            sources: components["schemas"]["ExternalSourceReadiness"][];
+            /** Official Observation Count */
+            official_observation_count: number;
+            /** Feature Observation Count */
+            feature_observation_count: number;
+            /** Ports */
+            ports: components["schemas"]["ExternalPortCoverage"][];
+            /** Directions */
+            directions: components["schemas"]["ExternalDirectionCoverage"][];
+            /** Distinct Dates */
+            distinct_dates: number;
+            /** Hour Slices */
+            hour_slices: number;
+            /** Last Observed At */
+            last_observed_at?: string | null;
+            /** Collection Runs */
+            collection_runs: number;
+            /** Successful Runs */
+            successful_runs: number;
+            /** Failed Runs */
+            failed_runs: number;
+            /** Success Rate Percent */
+            success_rate_percent?: number | null;
+            /** Forecast Snapshot Total */
+            forecast_snapshot_total: number;
+            /** Forecast Snapshot Complete */
+            forecast_snapshot_complete: number;
+            /** Forecast Snapshot Coverage Percent */
+            forecast_snapshot_coverage_percent?: number | null;
+            /** Minute Labels From Official Features */
+            minute_labels_from_official_features: number;
+            /** Alignment */
+            alignment: {
+                [key: string]: unknown;
+            };
+        };
+        /** ExternalDirectionCoverage */
+        ExternalDirectionCoverage: {
+            /** Direction */
+            direction: string;
+            /** Observation Count */
+            observation_count: number;
+        };
+        /** ExternalPortCoverage */
+        ExternalPortCoverage: {
+            /** Port Id */
+            port_id: string;
+            /** Observation Count */
+            observation_count: number;
+        };
+        /** ExternalSourceReadiness */
+        ExternalSourceReadiness: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Provider */
+            provider: string;
+            /** Status */
+            status: string;
+            /** Usage */
+            usage: string;
+            /** Kind */
+            kind: string;
+            /** Collection Enabled */
+            collection_enabled: boolean;
+            /** Url */
+            url: string;
+            /** Source Version */
+            source_version: string;
+            /** Refresh Seconds */
+            refresh_seconds: number;
+            /** Traveler Category */
+            traveler_category?: string | null;
+            /** Attribution */
+            attribution: string;
+            /** Terms Url */
+            terms_url: string;
+            /** Reason */
+            reason: string;
+            /** Observation Count */
+            observation_count: number;
+            /** Last Fetched At */
+            last_fetched_at?: string | null;
+            /** Age Minutes */
+            age_minutes?: number | null;
+            /** Freshness Status */
+            freshness_status: string;
+            /** Expected Runs 24H */
+            expected_runs_24h: number;
+            /** Successful Runs 24H */
+            successful_runs_24h: number;
+            /** Completeness 24H Percent */
+            completeness_24h_percent?: number | null;
+            /** Max Gap Minutes 24H */
+            max_gap_minutes_24h?: number | null;
+        };
         /** ForecastFeedbackLink */
         ForecastFeedbackLink: {
             /** Forecast Run Id */
@@ -1551,6 +1651,7 @@ export interface components {
             coverage_warnings: string[];
             /** Production Blockers */
             production_blockers: string[];
+            external_data: components["schemas"]["ExternalDataReadiness"];
         };
         /**
          * Weekday

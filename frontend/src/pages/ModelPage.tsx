@@ -71,6 +71,36 @@ export function ModelPage() {
           <p>{v2.data.label_count}/200 条真实授权标签；当前{v2.data.experiment_ready ? "可实验" : "不可训练 V2"}。</p>
           <p>V1 就绪不会绕过真实数据、时间切分或生产晋级限制。</p>
         </article>
+        <article className={`${styles.panel} ${styles.wide}`}>
+          <h2>官方特征来源</h2>
+          <div className={styles.stats}>
+            <div><strong>{v2.data.external_data.feature_observation_count}</strong><span>可用特征观测</span></div>
+            <div><strong>{v2.data.external_data.ports.length}/4</strong><span>口岸覆盖</span></div>
+            <div><strong>{v2.data.external_data.success_rate_percent ?? "—"}%</strong><span>采集成功率</span></div>
+          </div>
+          <p>
+            官方拥堵等级与客流只作真实特征；计入分钟标签：
+            {v2.data.external_data.minute_labels_from_official_features} 条。
+          </p>
+          <p>
+            点时快照完整率：{v2.data.external_data.forecast_snapshot_coverage_percent ?? "—"}% ·
+            官方等级一致率：{String(v2.data.external_data.alignment.agreement_percent ?? "—")}%
+          </p>
+          <div className={styles.sources}>
+            {v2.data.external_data.sources.map((source) => (
+              <div key={source.id}>
+                <b>{source.name}</b>
+                <span>
+                  {source.status} · {source.freshness_status} · {source.observation_count} 条观测
+                  {source.completeness_24h_percent !== null
+                    ? ` · 24h ${source.completeness_24h_percent}%`
+                    : ""}
+                </span>
+                <small>{source.reason}</small>
+              </div>
+            ))}
+          </div>
+        </article>
       </section>
     </main>
   );

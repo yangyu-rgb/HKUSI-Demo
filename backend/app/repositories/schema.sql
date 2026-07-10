@@ -108,6 +108,86 @@ CREATE TABLE IF NOT EXISTS audit_events (
 CREATE INDEX IF NOT EXISTS idx_audit_events_created
 ON audit_events(created_at DESC, id DESC);
 
+CREATE TABLE IF NOT EXISTS external_collection_runs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    source_id TEXT NOT NULL,
+    source_version TEXT NOT NULL,
+    fetched_at TEXT NOT NULL,
+    status TEXT NOT NULL CHECK(status IN ('success', 'failed')),
+    raw_hash TEXT,
+    archive_path TEXT,
+    observation_count INTEGER NOT NULL DEFAULT 0,
+    error TEXT,
+    created_at TEXT NOT NULL,
+    UNIQUE(source_id, fetched_at, raw_hash)
+);
+
+CREATE INDEX IF NOT EXISTS idx_external_collection_runs_source
+ON external_collection_runs(source_id, fetched_at DESC);
+
+CREATE TABLE IF NOT EXISTS external_feature_observations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    source_id TEXT NOT NULL,
+    source_version TEXT NOT NULL,
+    fetched_at TEXT NOT NULL,
+    first_fetched_at TEXT NOT NULL,
+    last_fetched_at TEXT NOT NULL,
+    observed_at TEXT NOT NULL,
+    port_id TEXT NOT NULL,
+    direction TEXT NOT NULL CHECK(direction IN (
+        'hong_kong_to_shenzhen', 'shenzhen_to_hong_kong'
+    )),
+    traveler_category TEXT NOT NULL,
+    metric_type TEXT NOT NULL CHECK(metric_type IN (
+        'queue_status', 'passenger_count'
+    )),
+    raw_value REAL NOT NULL,
+    congestion_level TEXT,
+    feature_available INTEGER NOT NULL CHECK(feature_available IN (0, 1)),
+    raw_hash TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    UNIQUE(
+        source_id, observed_at, port_id, direction,
+        traveler_category, metric_type
+    )
+);
+
+CREATE INDEX IF NOT EXISTS idx_external_feature_coverage
+ON external_feature_observations(
+    metric_type, feature_available, port_id, direction, observed_at
+);
+
+CREATE TABLE IF NOT EXISTS external_feature_revisions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    source_id TEXT NOT NULL,
+    source_version TEXT NOT NULL,
+    revision_fetched_at TEXT NOT NULL,
+    observed_at TEXT NOT NULL,
+    port_id TEXT NOT NULL,
+    direction TEXT NOT NULL CHECK(direction IN (
+        'hong_kong_to_shenzhen', 'shenzhen_to_hong_kong'
+    )),
+    traveler_category TEXT NOT NULL,
+    metric_type TEXT NOT NULL CHECK(metric_type IN (
+        'queue_status', 'passenger_count'
+    )),
+    raw_value REAL NOT NULL,
+    congestion_level TEXT,
+    feature_available INTEGER NOT NULL CHECK(feature_available IN (0, 1)),
+    raw_hash TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    UNIQUE(
+        source_id, observed_at, port_id, direction,
+        traveler_category, metric_type, revision_fetched_at, raw_hash
+    )
+);
+
+CREATE INDEX IF NOT EXISTS idx_external_revision_as_of
+ON external_feature_revisions(
+    port_id, direction, metric_type, traveler_category,
+    revision_fetched_at, observed_at
+);
+
 CREATE TABLE IF NOT EXISTS batch_plans (
     id TEXT PRIMARY KEY,
     company TEXT NOT NULL,
