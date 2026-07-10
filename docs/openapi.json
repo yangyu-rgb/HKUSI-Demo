@@ -189,6 +189,67 @@
         }
       }
     },
+    "/api/demo/v2-readiness": {
+      "get": {
+        "tags": [
+          "Demo 控制"
+        ],
+        "summary": "获取 V2 模型训练与晋级就绪度",
+        "operationId": "get_v2_readiness_api_demo_v2_readiness_get",
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/V2ReadinessResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/demo/reset": {
       "post": {
         "tags": [
@@ -1023,6 +1084,232 @@
         }
       }
     },
+    "/api/subscriptions/{subscription_id}/evaluations": {
+      "post": {
+        "tags": [
+          "提醒订阅"
+        ],
+        "summary": "持久化当前提醒评估",
+        "operationId": "record_subscription_evaluation_api_subscriptions__subscription_id__evaluations_post",
+        "parameters": [
+          {
+            "name": "subscription_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Subscription Id"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "评估记录已保存",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionEvaluationRecord"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "提醒订阅"
+        ],
+        "summary": "获取提醒评估历史",
+        "operationId": "list_subscription_evaluations_api_subscriptions__subscription_id__evaluations_get",
+        "parameters": [
+          {
+            "name": "subscription_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Subscription Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "default": 10,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "请求成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionEvaluationListResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/subscription-evaluations/{evaluation_id}/read": {
+      "patch": {
+        "tags": [
+          "提醒订阅"
+        ],
+        "summary": "将提醒评估标记为已读",
+        "operationId": "mark_subscription_evaluation_read_api_subscription_evaluations__evaluation_id__read_patch",
+        "parameters": [
+          {
+            "name": "evaluation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Evaluation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "更新成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubscriptionEvaluationRecord"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/batch": {
       "post": {
         "tags": [
@@ -1579,6 +1866,28 @@
             "title": "Comment",
             "default": ""
           },
+          "forecast_run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Run Id"
+          },
+          "forecast_port_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Port Id"
+          },
           "id": {
             "type": "string",
             "title": "Id"
@@ -1653,6 +1962,28 @@
             "maxLength": 160,
             "title": "Comment",
             "default": ""
+          },
+          "forecast_run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Run Id"
+          },
+          "forecast_port_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Port Id"
           }
         },
         "type": "object",
@@ -1683,6 +2014,16 @@
           "message": {
             "type": "string",
             "title": "Message"
+          },
+          "forecast_feedback": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ForecastFeedbackLink"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
@@ -1694,6 +2035,56 @@
           "message"
         ],
         "title": "CrowdsourceSubmitResponse"
+      },
+      "DataSourceStatus": {
+        "properties": {
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "fetched_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Fetched At"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "fallback": {
+            "type": "boolean",
+            "title": "Fallback"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "data_version": {
+            "type": "string",
+            "title": "Data Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "provider",
+          "source",
+          "fetched_at",
+          "status",
+          "fallback",
+          "data_version"
+        ],
+        "title": "DataSourceStatus"
       },
       "DemoContextResponse": {
         "properties": {
@@ -1801,6 +2192,45 @@
           "error"
         ],
         "title": "ErrorResponse"
+      },
+      "ForecastFeedbackLink": {
+        "properties": {
+          "forecast_run_id": {
+            "type": "string",
+            "title": "Forecast Run Id"
+          },
+          "forecast_port_id": {
+            "type": "string",
+            "title": "Forecast Port Id"
+          },
+          "linked": {
+            "type": "boolean",
+            "title": "Linked"
+          },
+          "labeled": {
+            "type": "boolean",
+            "title": "Labeled"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "forecast_run_id",
+          "forecast_port_id",
+          "linked",
+          "labeled"
+        ],
+        "title": "ForecastFeedbackLink"
       },
       "ForecastPoint": {
         "properties": {
@@ -2246,6 +2676,28 @@
           "demo_notice": {
             "type": "string",
             "title": "Demo Notice"
+          },
+          "data_sources": {
+            "items": {
+              "$ref": "#/components/schemas/DataSourceStatus"
+            },
+            "type": "array",
+            "title": "Data Sources"
+          },
+          "data_version": {
+            "type": "string",
+            "title": "Data Version"
+          },
+          "forecast_run_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Forecast Run Id"
           }
         },
         "type": "object",
@@ -2259,7 +2711,9 @@
           "generated_at",
           "model_version",
           "confidence_level",
-          "demo_notice"
+          "demo_notice",
+          "data_sources",
+          "data_version"
         ],
         "title": "PredictionResponse"
       },
@@ -2283,6 +2737,13 @@
             "type": "string",
             "title": "Source"
           },
+          "data_sources": {
+            "items": {
+              "$ref": "#/components/schemas/DataSourceStatus"
+            },
+            "type": "array",
+            "title": "Data Sources"
+          },
           "ports": {
             "items": {
               "$ref": "#/components/schemas/PortStatus"
@@ -2302,6 +2763,7 @@
         "required": [
           "timestamp",
           "source",
+          "data_sources",
           "ports",
           "alerts"
         ],
@@ -2501,6 +2963,152 @@
           "ports"
         ],
         "title": "ShadowObservationSummaryResponse"
+      },
+      "SubscriptionEvaluationListResponse": {
+        "properties": {
+          "evaluations": {
+            "items": {
+              "$ref": "#/components/schemas/SubscriptionEvaluationRecord"
+            },
+            "type": "array",
+            "title": "Evaluations"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "unread_total": {
+            "type": "integer",
+            "title": "Unread Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "evaluations",
+          "total",
+          "unread_total"
+        ],
+        "title": "SubscriptionEvaluationListResponse"
+      },
+      "SubscriptionEvaluationRecord": {
+        "properties": {
+          "subscription_id": {
+            "type": "string",
+            "title": "Subscription Id"
+          },
+          "evaluated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Evaluated At"
+          },
+          "evaluation_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Evaluation Time"
+          },
+          "commute_date": {
+            "type": "string",
+            "format": "date",
+            "title": "Commute Date"
+          },
+          "target_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Target Time"
+          },
+          "recommended_port": {
+            "type": "string",
+            "title": "Recommended Port"
+          },
+          "recommended_port_id": {
+            "type": "string",
+            "title": "Recommended Port Id"
+          },
+          "latest_departure": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Latest Departure"
+          },
+          "next_alert": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Alert"
+          },
+          "alternative_port": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alternative Port"
+          },
+          "alerts": {
+            "items": {
+              "$ref": "#/components/schemas/AlertPreview"
+            },
+            "type": "array",
+            "title": "Alerts"
+          },
+          "warnings": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Warnings"
+          },
+          "evaluation_id": {
+            "type": "string",
+            "title": "Evaluation Id"
+          },
+          "is_read": {
+            "type": "boolean",
+            "title": "Is Read"
+          },
+          "read_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Read At"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "subscription_id",
+          "evaluated_at",
+          "evaluation_time",
+          "commute_date",
+          "target_time",
+          "recommended_port",
+          "recommended_port_id",
+          "latest_departure",
+          "alerts",
+          "warnings",
+          "evaluation_id",
+          "is_read",
+          "created_at"
+        ],
+        "title": "SubscriptionEvaluationRecord"
       },
       "SubscriptionEvaluationResponse": {
         "properties": {
@@ -2709,6 +3317,158 @@
           "routine"
         ],
         "title": "SubscriptionUpdate"
+      },
+      "V2ReadinessCheck": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "actual": {
+            "type": "integer",
+            "title": "Actual"
+          },
+          "required": {
+            "type": "integer",
+            "title": "Required"
+          },
+          "passed": {
+            "type": "boolean",
+            "title": "Passed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "actual",
+          "required",
+          "passed"
+        ],
+        "title": "V2ReadinessCheck"
+      },
+      "V2ReadinessPort": {
+        "properties": {
+          "port_id": {
+            "type": "string",
+            "title": "Port Id"
+          },
+          "label_count": {
+            "type": "integer",
+            "title": "Label Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "port_id",
+          "label_count"
+        ],
+        "title": "V2ReadinessPort"
+      },
+      "V2ReadinessResponse": {
+        "properties": {
+          "experiment_ready": {
+            "type": "boolean",
+            "title": "Experiment Ready"
+          },
+          "production_promotion_ready": {
+            "type": "boolean",
+            "title": "Production Promotion Ready"
+          },
+          "label_count": {
+            "type": "integer",
+            "title": "Label Count"
+          },
+          "ports": {
+            "items": {
+              "$ref": "#/components/schemas/V2ReadinessPort"
+            },
+            "type": "array",
+            "title": "Ports"
+          },
+          "distinct_dates": {
+            "type": "integer",
+            "title": "Distinct Dates"
+          },
+          "hour_slices": {
+            "type": "integer",
+            "title": "Hour Slices"
+          },
+          "data_versions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Data Versions"
+          },
+          "statistical_mae_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Statistical Mae Minutes"
+          },
+          "shadow_mae_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Shadow Mae Minutes"
+          },
+          "shadow_labeled_count": {
+            "type": "integer",
+            "title": "Shadow Labeled Count"
+          },
+          "time_split": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Time Split"
+          },
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/V2ReadinessCheck"
+            },
+            "type": "array",
+            "title": "Checks"
+          },
+          "data_sources": {
+            "items": {
+              "$ref": "#/components/schemas/DataSourceStatus"
+            },
+            "type": "array",
+            "title": "Data Sources"
+          },
+          "production_blockers": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Production Blockers"
+          }
+        },
+        "type": "object",
+        "required": [
+          "experiment_ready",
+          "production_promotion_ready",
+          "label_count",
+          "ports",
+          "distinct_dates",
+          "hour_slices",
+          "data_versions",
+          "shadow_labeled_count",
+          "time_split",
+          "checks",
+          "data_sources",
+          "production_blockers"
+        ],
+        "title": "V2ReadinessResponse"
       },
       "Weekday": {
         "type": "string",

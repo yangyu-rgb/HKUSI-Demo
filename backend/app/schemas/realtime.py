@@ -5,6 +5,16 @@ from pydantic import BaseModel
 from .common import CrowdLevel, RiskLevel
 
 
+class DataSourceStatus(BaseModel):
+    provider: str
+    source: str
+    fetched_at: datetime
+    status: str
+    fallback: bool
+    reason: str | None = None
+    data_version: str
+
+
 class ForecastPoint(BaseModel):
     offset_minutes: int
     wait: int
@@ -33,6 +43,7 @@ class ServiceAlert(BaseModel):
 class RealtimeResponse(BaseModel):
     timestamp: datetime
     source: str
+    data_sources: list[DataSourceStatus]
     ports: list[PortStatus]
     alerts: list[ServiceAlert]
 

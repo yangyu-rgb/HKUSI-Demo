@@ -1,4 +1,5 @@
 import { PlannerForm } from "../features/prediction/PlannerForm";
+import { Link } from "react-router-dom";
 import { RouteCard } from "../features/prediction/RouteCard";
 import { RouteSchematic } from "../features/prediction/RouteSchematic";
 import { usePrediction } from "../features/prediction/usePrediction";
@@ -57,6 +58,14 @@ export function PlannerPage() {
               <h2>{prediction.recommended}口岸</h2>
               <p>{prediction.reason}</p>
               <small>{prediction.model_version} · {Math.round(prediction.confidence_level * 100)}%置信水平 · {prediction.demo_notice}</small>
+              {prediction.forecast_run_id && recommendedRoute && (
+                <Link
+                  className={styles.feedbackLink}
+                  to={`/crowdsource?forecast_run_id=${encodeURIComponent(prediction.forecast_run_id)}&forecast_port_id=${encodeURIComponent(recommendedRoute.port_id)}`}
+                >
+                  通关后反馈实际等待
+                </Link>
+              )}
             </div>
             {prediction.warnings.map((warning) => (
               <p className={styles.warning} key={warning}>{warning}</p>

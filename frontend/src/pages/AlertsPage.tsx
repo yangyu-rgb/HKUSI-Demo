@@ -1,8 +1,13 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState, type FormEvent } from "react";
 import { fetchLocations } from "../features/prediction/api";
 import type { Priority } from "../features/prediction/types";
-import { fetchSubscriptionPreview } from "../features/subscription/api";
+import {
+  fetchSubscriptionEvaluations,
+  fetchSubscriptionPreview,
+  markSubscriptionEvaluationRead,
+  saveSubscriptionEvaluation,
+} from "../features/subscription/api";
 import { useSubscriptions } from "../features/subscription/useSubscriptions";
 import type { SubscriptionRecord, Weekday } from "../features/subscription/types";
 import { PageSkeleton } from "../shared/components/PageSkeleton";
@@ -54,6 +59,31 @@ export function AlertsPage() {
     queryKey: queryKeys.subscriptionPreview(previewId ?? ""),
     queryFn: () => fetchSubscriptionPreview(previewId!),
     enabled: Boolean(previewId),
+  });
+  const evaluations = useQuery({
+    queryKey: queryKeys.subscriptionEvaluations(previewId ?? ""),
+    queryFn: () => fetchSubscriptionEvaluations(previewId!),
+    enabled: Boolean(previewId),
+  });
+  const saveEvaluation = useMutation({
+    mutationFn: saveSubscriptionEvaluation,
+    onSuccess: async () => {
+      if (previewId) {
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.subscriptionEvaluations(previewId),
+        });
+      }
+    },
+  });
+  const markRead = useMutation({
+    mutationFn: markSubscriptionEvaluationRead,
+    onSuccess: async () => {
+      if (previewId) {
+        await queryClient.invalidateQueries({
+          queryKey: queryKeys.subscriptionEvaluations(previewId),
+        });
+      }
+    },
   });
 
   useEffect(() => {
@@ -139,6 +169,18 @@ export function AlertsPage() {
       } catch {
         // The mutation exposes the normalized API error below the form.
       }
+    }
+  }
+
+  async function handleSaveEvaluation() {
+    if (!previewId) {
+      return;
+    }
+    try {
+      await saveEvaluation.mutateAsync(previewId);
+      setMessage("当前提醒评估已保存到历史记录。");
+    } catch {
+      setMessage("提醒评估暂时无法保存，请稍后重试。");
     }
   }
 
@@ -261,6 +303,14 @@ export function AlertsPage() {
             {preview.data && (
               <>
                 <p className={styles.previewMeta}>计划于 {formatHongKongDateTime(preview.data.target_time)} 前到达；最晚建议 {formatClock(preview.data.latest_departure)} 出发。</p>
+                <button
+                  type="button"
+                  className={styles.saveEvaluation}
+                  onClick={() => void handleSaveEvaluation()}
+                  disabled={saveEvaluation.isPending}
+                >
+                  {saveEvaluation.isPending ? "正在保存…" : "保存本次评估"}
+                </button>
                 <div className={styles.previewCards}>
                   {preview.data.alerts.map((alert) => (
                     <article className={alert.triggered ? styles.previewActive : styles.previewInactive} key={alert.kind}>
@@ -272,6 +322,36 @@ export function AlertsPage() {
                 </div>
                 {preview.data.alternative_port && <p className={styles.alternative}>备用口岸：{preview.data.alternative_port}</p>}
               </>
+            )}
+            {previewId && (
+              <div className={styles.history}>
+                <div className={styles.historyHeading}>
+                  <strong>评估历史</strong>
+                  <span>{evaluations.data?.unread_total ?? 0} 条未读</span>
+                </div>
+                {evaluations.isPending && <p>正在读取历史记录…</p>}
+                {!evaluations.isPending && evaluations.data?.evaluations.length === 0 && (
+                  <p>暂无已保存评估；预览本身不会写入历史。</p>
+                )}
+                {evaluations.data?.evaluations.map((evaluation) => (
+                  <article
+                    className={evaluation.is_read ? styles.historyRead : styles.historyUnread}
+                    key={evaluation.evaluation_id}
+                  >
+                    <div>
+                      <strong>{evaluation.recommended_port}口岸</strong>
+                      <span>{formatHongKongDateTime(evaluation.evaluated_at)} · 最晚 {formatClock(evaluation.latest_departure)} 出发</span>
+                    </div>
+                    {!evaluation.is_read && (
+                      <button
+                        type="button"
+                        onClick={() => void markRead.mutateAsync(evaluation.evaluation_id)}
+                        disabled={markRead.isPending}
+                      >标为已读</button>
+                    )}
+                  </article>
+                ))}
+              </div>
             )}
           </section>
         </div>

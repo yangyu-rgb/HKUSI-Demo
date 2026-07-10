@@ -3,6 +3,7 @@ from datetime import datetime
 from pydantic import BaseModel, Field
 
 from .common import Priority, RiskLevel
+from .realtime import DataSourceStatus
 
 
 class PredictionPreferences(BaseModel):
@@ -80,3 +81,6 @@ class PredictionResponse(BaseModel):
     model_version: str
     confidence_level: float
     demo_notice: str
+    data_sources: list[DataSourceStatus]
+    data_version: str
+    forecast_run_id: str | None = None

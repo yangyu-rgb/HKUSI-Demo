@@ -13,7 +13,7 @@ app/
   main.py        # 应用组装、中间件和错误映射
 ```
 
-口岸元数据、历史样本和交通矩阵保存在 `data/`。众包反馈、订阅和企业方案历史保存在被 Git 忽略的 `data/runtime/crossborder.db`。调用 `POST /api/demo/reset` 会按当前香港时间恢复种子状态。
+口岸元数据、历史样本和交通矩阵保存在 `data/`。众包反馈、订阅、提醒评估、预测运行与企业方案历史保存在被 Git 忽略的 `data/runtime/crossborder.db`。调用 `POST /api/demo/reset` 会按当前香港时间恢复种子状态。
 
 预测器按工作日/周末或节假日、目标小时前后 1 小时、模拟天气和 28 天历史半衰期计算加权基线。重复事件会按配置影响指定口岸并写入预测依据与实时异常；众包反馈按质量分修正结果，影响随新鲜度和预测跨度衰减。置信区间使用历史波动率和预测斜率计算；`app/config.py` 中的命名常量保证 Demo 模型可解释、可审查。
 
@@ -36,11 +36,21 @@ python scripts/train_wait_model.py
 
 影子加载器会校验模型架构版本、模型版本、特征顺序、晋级状态，以及训练数据哈希是否仍与当前历史文件一致。每个口岸会将统计等待值、AI 等待值、差值和不可用原因写入本地 SQLite；模型文件缺失、元数据不兼容、数据不一致或推理失败时，预测会自动保持统计模型结果。`POST /api/demo/reset` 会清除这些观测记录。
 
-## 提醒预览与影子观测
+## 提醒评估、数据 Provider 与影子观测
 
-`GET /api/subscriptions/{subscription_id}/preview` 会选取下一次有效通勤日期，并以到达前三小时内的预测窗口生成推荐口岸、最晚出发时间和三类提醒预览。它不发送真实通知，也不会把预览情景写入影子模型观测。
+`GET /api/subscriptions/{subscription_id}/preview` 会选取下一次有效通勤日期，并以到达前三小时内的预测窗口生成推荐口岸、最晚出发时间和三类提醒预览。它是纯计算，不发送通知，也不写入提醒历史或影子模型观测。需要保留审阅记录时，调用 `POST /api/subscriptions/{subscription_id}/evaluations`；历史与已读状态分别由 `GET /api/subscriptions/{subscription_id}/evaluations` 和 `PATCH /api/subscription-evaluations/{evaluation_id}/read` 提供。
+
+口岸状态、天气、日历、重复事件和众包种子统一经本地 JSON Provider 读取。每个实时或预测响应都携带来源、读取时间、状态、版本和是否使用内嵌降级数据。当前没有任何外部 Provider；该边界只为未来经过审核的数据接入保留，不能视为真实数据服务。
 
 `GET /api/demo/model-shadow-summary` 提供按口岸汇总的影子可用性和模型差异，仅用于本地 Demo 审阅。
+
+每个正式预测还会生成稳定的 `forecast_run_id`。众包提交可带上 `forecast_run_id` 与 `forecast_port_id`；只有高质量、未过期且尚无标签的反馈才会写入实际等待标签。运行以下命令可将标签导出为被 Git 忽略的 CSV 与元数据，并包含数据哈希、时间范围、时间切分、来源和 V2 就绪度：
+
+```bash
+python scripts/export_training_snapshot.py
+```
+
+`GET /api/demo/v2-readiness` 也返回相同的在线检查。当前阈值要求至少 200 条标签、四个口岸、21 个日期、8 个小时切片和关键本地输入可用；即使全部达到，真实 Provider 与真实运营回测未完成前仍不能生产晋级。
 
 ## 运行
 

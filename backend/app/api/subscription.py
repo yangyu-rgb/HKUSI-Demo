@@ -3,6 +3,8 @@ from fastapi import APIRouter, Depends, Query, Response, status
 from ..schemas.subscription import (
     SubscriptionListResponse,
     SubscriptionEvaluationResponse,
+    SubscriptionEvaluationRecord,
+    SubscriptionEvaluationListResponse,
     SubscriptionRecord,
     SubscriptionRequest,
     SubscriptionUpdate,
@@ -80,6 +82,47 @@ def preview_subscription(
     service: SubscriptionService = Depends(get_subscription_service),
 ) -> dict:
     return service.evaluate(subscription_id)
+
+
+@router.post(
+    "/subscriptions/{subscription_id}/evaluations",
+    response_model=SubscriptionEvaluationRecord,
+    status_code=status.HTTP_201_CREATED,
+    summary="持久化当前提醒评估",
+    response_description="评估记录已保存",
+)
+def record_subscription_evaluation(
+    subscription_id: str,
+    service: SubscriptionService = Depends(get_subscription_service),
+) -> dict:
+    return service.record_evaluation(subscription_id)
+
+
+@router.get(
+    "/subscriptions/{subscription_id}/evaluations",
+    response_model=SubscriptionEvaluationListResponse,
+    summary="获取提醒评估历史",
+    response_description="请求成功",
+)
+def list_subscription_evaluations(
+    subscription_id: str,
+    limit: int = Query(default=10, ge=1, le=50),
+    service: SubscriptionService = Depends(get_subscription_service),
+) -> dict:
+    return service.list_evaluations(subscription_id, limit)
+
+
+@router.patch(
+    "/subscription-evaluations/{evaluation_id}/read",
+    response_model=SubscriptionEvaluationRecord,
+    summary="将提醒评估标记为已读",
+    response_description="更新成功",
+)
+def mark_subscription_evaluation_read(
+    evaluation_id: str,
+    service: SubscriptionService = Depends(get_subscription_service),
+) -> dict:
+    return service.mark_evaluation_read(evaluation_id)
 
 
 @router.delete(

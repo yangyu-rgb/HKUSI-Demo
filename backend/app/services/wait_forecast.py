@@ -64,17 +64,12 @@ class WaitForecastService:
             and _circular_hour_distance(record["timestamp"].hour, target.hour) <= 1
         ]
 
-        weather_condition = self._repository.get_weather()["condition"]
-        weather = (
-            "rain"
-            if "rain" in weather_condition or "thunder" in weather_condition
-            else "clear"
-        )
+        input_context = self._repository.get_prediction_input_context(target)
+        weather = input_context["weather"]
         weather_records = [record for record in hour_records if record["weather"] == weather]
         comparable = weather_records if len(weather_records) >= 6 else hour_records
 
-        holiday_dates = set(self._repository.get_holidays()["dates"])
-        target_is_holiday = target.date().isoformat() in holiday_dates
+        target_is_holiday = input_context["is_holiday"]
         holiday_records = [
             record for record in comparable if record["is_holiday"] == target_is_holiday
         ]
@@ -295,6 +290,7 @@ class WaitForecastService:
         return {
             "timestamp": now,
             "source": metadata["source"],
+            "data_sources": self._repository.get_provider_statuses(),
             "ports": ports,
             "alerts": metadata["alerts"],
         }, reports

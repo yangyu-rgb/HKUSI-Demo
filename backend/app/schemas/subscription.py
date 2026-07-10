@@ -68,3 +68,16 @@ class SubscriptionEvaluationResponse(BaseModel):
     alternative_port: str | None = None
     alerts: list[AlertPreview]
     warnings: list[str]
+
+
+class SubscriptionEvaluationRecord(SubscriptionEvaluationResponse):
+    evaluation_id: str
+    is_read: bool
+    read_at: datetime | None = None
+    created_at: datetime
+
+
+class SubscriptionEvaluationListResponse(BaseModel):
+    evaluations: list[SubscriptionEvaluationRecord]
+    total: int
+    unread_total: int

@@ -2,6 +2,8 @@ import { request } from "../../shared/api/client";
 import type {
   SubscriptionInput,
   SubscriptionEvaluation,
+  SubscriptionEvaluationListResponse,
+  SubscriptionEvaluationRecord,
   SubscriptionListResponse,
   SubscriptionRecord,
   SubscriptionUpdate,
@@ -27,6 +29,31 @@ export function fetchSubscriptionPreview(
   subscriptionId: string,
 ): Promise<SubscriptionEvaluation> {
   return request(`/api/subscriptions/${subscriptionId}/preview`);
+}
+
+
+export function saveSubscriptionEvaluation(
+  subscriptionId: string,
+): Promise<SubscriptionEvaluationRecord> {
+  return request(`/api/subscriptions/${subscriptionId}/evaluations`, {
+    method: "POST",
+  });
+}
+
+
+export function fetchSubscriptionEvaluations(
+  subscriptionId: string,
+): Promise<SubscriptionEvaluationListResponse> {
+  return request(`/api/subscriptions/${subscriptionId}/evaluations`);
+}
+
+
+export function markSubscriptionEvaluationRead(
+  evaluationId: string,
+): Promise<SubscriptionEvaluationRecord> {
+  return request(`/api/subscription-evaluations/${evaluationId}/read`, {
+    method: "PATCH",
+  });
 }
 
 

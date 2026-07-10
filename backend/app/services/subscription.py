@@ -241,6 +241,38 @@ class SubscriptionService:
             )
         return self._evaluate_subscription(subscription)
 
+    def record_evaluation(self, subscription_id: str) -> dict:
+        return self._repository.save_subscription_evaluation(
+            self.evaluate(subscription_id)
+        )
+
+    def list_evaluations(self, subscription_id: str, limit: int) -> dict:
+        if self._repository.get_subscription(subscription_id) is None:
+            raise ResourceNotFoundError(
+                ErrorCode.SUBSCRIPTION_NOT_FOUND,
+                "订阅不存在",
+                details={"subscription_id": subscription_id},
+            )
+        evaluations = self._repository.list_subscription_evaluations(
+            subscription_id,
+            limit,
+        )
+        return {
+            "evaluations": evaluations,
+            "total": len(evaluations),
+            "unread_total": sum(not item["is_read"] for item in evaluations),
+        }
+
+    def mark_evaluation_read(self, evaluation_id: str) -> dict:
+        evaluation = self._repository.mark_subscription_evaluation_read(evaluation_id)
+        if evaluation is None:
+            raise ResourceNotFoundError(
+                ErrorCode.SUBSCRIPTION_EVALUATION_NOT_FOUND,
+                "提醒评估记录不存在",
+                details={"evaluation_id": evaluation_id},
+            )
+        return evaluation
+
     def delete(self, subscription_id: str) -> None:
         if not self._repository.delete_subscription(subscription_id):
             raise ResourceNotFoundError(

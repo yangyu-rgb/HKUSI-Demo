@@ -52,6 +52,19 @@ class CrowdsourceService:
                 details={"port": report.port},
             )
 
+        forecast_port_id = report.forecast_port_id or port["id"]
+        if report.forecast_run_id and self._repository.get_forecast_run_port(
+            report.forecast_run_id,
+            forecast_port_id,
+        ) is None:
+            raise DomainValidationError(
+                "预测运行不存在，或反馈口岸与预测口岸不匹配",
+                details={
+                    "forecast_run_id": report.forecast_run_id,
+                    "forecast_port_id": forecast_port_id,
+                },
+            )
+
         duplicate_age = None
         now_utc = now.astimezone(timezone.utc)
         for item in reversed(existing_reports):
@@ -90,6 +103,27 @@ class CrowdsourceService:
         stored = self._repository.add_report(record)
         evaluated = evaluate_report(stored, port, now)
         record = public_report(evaluated)
+        forecast_feedback = None
+        if report.forecast_run_id:
+            link = self._repository.link_feedback_to_forecast(
+                report_id=record["id"],
+                forecast_run_id=report.forecast_run_id,
+                port_id=forecast_port_id,
+                actual_wait_minutes=record["actual_wait_time"],
+                quality_score=record["quality_score"],
+                eligible_for_label=(
+                    record["used_for_prediction"]
+                    and record["quality_level"] == "high"
+                ),
+            )
+            assert link is not None
+            record["forecast_run_id"] = report.forecast_run_id
+            record["forecast_port_id"] = forecast_port_id
+            forecast_feedback = {
+                "forecast_run_id": report.forecast_run_id,
+                "forecast_port_id": forecast_port_id,
+                **link,
+            }
         points = {
             "high": 10,
             "medium": 6,
@@ -109,4 +143,5 @@ class CrowdsourceService:
             "model_updated": model_updated,
             "report": record,
             "message": message,
+            "forecast_feedback": forecast_feedback,
         }

@@ -2,6 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel
 
+from .realtime import DataSourceStatus
+
 
 class DemoContextResponse(BaseModel):
     current_time: datetime
@@ -32,3 +34,32 @@ class ShadowObservationSummaryResponse(BaseModel):
     unavailable_observations: int
     latest_observed_at: datetime | None = None
     ports: list[ShadowObservationPortSummary]
+
+
+class V2ReadinessCheck(BaseModel):
+    name: str
+    actual: int
+    required: int
+    passed: bool
+
+
+class V2ReadinessPort(BaseModel):
+    port_id: str
+    label_count: int
+
+
+class V2ReadinessResponse(BaseModel):
+    experiment_ready: bool
+    production_promotion_ready: bool
+    label_count: int
+    ports: list[V2ReadinessPort]
+    distinct_dates: int
+    hour_slices: int
+    data_versions: list[str]
+    statistical_mae_minutes: float | None = None
+    shadow_mae_minutes: float | None = None
+    shadow_labeled_count: int
+    time_split: dict
+    checks: list[V2ReadinessCheck]
+    data_sources: list[DataSourceStatus]
+    production_blockers: list[str]

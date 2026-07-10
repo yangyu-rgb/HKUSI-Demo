@@ -1,4 +1,5 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { useSearchParams } from "react-router-dom";
 import { FeedItem } from "../features/crowdsource/FeedItem";
 import { useCrowdsource } from "../features/crowdsource/useCrowdsource";
 import type { CrowdLevel } from "../features/realtime/types";
@@ -16,12 +17,25 @@ const CROWD_LABELS: Record<CrowdLevel, string> = {
 
 
 export function CrowdsourcePage() {
+  const [searchParams] = useSearchParams();
   const realtime = useRealtime();
   const crowdsource = useCrowdsource();
   const [port, setPort] = useState("福田");
   const [wait, setWait] = useState<number | "">("");
   const [crowd, setCrowd] = useState<CrowdLevel>("low");
   const [comment, setComment] = useState("");
+  const forecastRunId = searchParams.get("forecast_run_id");
+  const forecastPortId = searchParams.get("forecast_port_id");
+
+  useEffect(() => {
+    if (!forecastPortId || !realtime.data) {
+      return;
+    }
+    const matchedPort = realtime.data.ports.find((item) => item.id === forecastPortId);
+    if (matchedPort) {
+      setPort(matchedPort.name);
+    }
+  }, [forecastPortId, realtime.data]);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -34,6 +48,8 @@ export function CrowdsourcePage() {
       actual_wait_time: wait,
       crowd_level: crowd,
       comment,
+      forecast_run_id: forecastRunId,
+      forecast_port_id: forecastPortId,
     });
     if (submitted) {
       await realtime.refresh();
@@ -58,6 +74,11 @@ export function CrowdsourcePage() {
       </div>
       <section className={styles.grid}>
         <form className={styles.form} onSubmit={handleSubmit}>
+          {forecastRunId && forecastPortId && (
+            <p className={styles.forecastLink}>
+              本次反馈将关联到路线预测，符合高质量规则时会成为 V2 的实际等待标签。
+            </p>
+          )}
           <div className={styles.formRow}>
             <label>
               <span>所在口岸</span>

@@ -18,7 +18,15 @@ export function useCrowdsource() {
   const mutation = useMutation({
     mutationFn: submitCrowdsourceReport,
     onSuccess: async (result) => {
-      setMessage(`+${result.points_earned} 积分 · ${result.message}`);
+      const feedbackMessage = result.forecast_feedback
+        ? result.forecast_feedback.labeled
+          ? "已关联本次预测并写入高质量实际等待标签。"
+          : result.forecast_feedback.reason
+        : "";
+      setMessage(
+        `+${result.points_earned} 积分 · ${result.message}`
+        + (feedbackMessage ? ` ${feedbackMessage}` : ""),
+      );
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.crowdsource }),
         queryClient.invalidateQueries({ queryKey: queryKeys.realtime }),

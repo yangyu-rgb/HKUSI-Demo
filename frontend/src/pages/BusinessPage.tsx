@@ -2,7 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useBatchPlans } from "../features/business/useBatchPlans";
 import type { BatchEmployee, BatchRequest } from "../features/business/types";
-import { useDemoContext, useModelShadowSummary } from "../features/demo/useDemo";
+import {
+  useDemoContext,
+  useModelShadowSummary,
+  useV2Readiness,
+} from "../features/demo/useDemo";
 import { fetchLocations } from "../features/prediction/api";
 import type { Priority } from "../features/prediction/types";
 import { PageSkeleton } from "../shared/components/PageSkeleton";
@@ -32,6 +36,7 @@ export function BusinessPage() {
   });
   const context = useDemoContext();
   const shadowSummary = useModelShadowSummary();
+  const v2Readiness = useV2Readiness();
   const batch = useBatchPlans(COMPANY);
   const [date, setDate] = useState("");
   const [employees, setEmployees] = useState<BatchEmployee[]>(INITIAL_EMPLOYEES);
@@ -284,6 +289,32 @@ export function BusinessPage() {
                 ))}
               </div>
             )}
+          </>
+        )}
+      </section>
+
+      <section className={styles.readinessSummary}>
+        <div className={styles.shadowHeading}>
+          <div><span className="sectionKicker">V2 pre-flight</span><h2>模型开发就绪度</h2></div>
+          <span>{v2Readiness.data?.experiment_ready ? "可开始受控实验" : "暂不训练 V2"}</span>
+        </div>
+        {v2Readiness.isPending && <p>正在检查预测—反馈标签覆盖…</p>}
+        {v2Readiness.error && <p>暂时无法读取 V2 就绪度。</p>}
+        {v2Readiness.data && (
+          <>
+            <div className={styles.shadowStats}>
+              <div><strong>{v2Readiness.data.label_count}</strong><span>高质量标签</span></div>
+              <div><strong>{v2Readiness.data.ports.length}/4</strong><span>口岸覆盖</span></div>
+              <div><strong>{v2Readiness.data.distinct_dates}</strong><span>独立日期</span></div>
+            </div>
+            <div className={styles.readinessChecks}>
+              {v2Readiness.data.checks.map((check) => (
+                <span className={check.passed ? styles.checkPassed : styles.checkPending} key={check.name}>
+                  {check.passed ? "已达标" : "待补齐"} · {check.name} {check.actual}/{check.required}
+                </span>
+              ))}
+            </div>
+            <p>生产晋级仍被阻止：{v2Readiness.data.production_blockers[0]}</p>
           </>
         )}
       </section>

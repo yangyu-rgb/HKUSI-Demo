@@ -1,4 +1,6 @@
 from datetime import datetime, timedelta
+from hashlib import sha256
+import json
 import logging
 from statistics import NormalDist
 
@@ -70,6 +72,7 @@ class PredictionService:
         reports: list[dict],
         shadow_observations: list[dict],
         record_shadow: bool,
+        prediction_inputs: dict,
     ) -> dict:
         access = self._repository.get_access_leg(origin_id, port["id"])
         onward = self._repository.get_onward_leg(port["id"], destination_id)
@@ -87,6 +90,7 @@ class PredictionService:
                 target_time=target_time,
                 current_time=current_time,
                 statistical_wait=predicted_value,
+                prediction_inputs=prediction_inputs,
             )
         sigma = estimate["standard_deviation"]
         z_score = NormalDist().inv_cdf(0.5 + CONFIDENCE_LEVEL / 2)
@@ -153,23 +157,15 @@ class PredictionService:
         target_time,
         current_time,
         statistical_wait: float,
+        prediction_inputs: dict,
     ) -> None:
         if self._shadow_model is None:
             return
-        weather_condition = self._repository.get_weather()["condition"]
-        weather = (
-            "rain"
-            if "rain" in weather_condition or "thunder" in weather_condition
-            else "clear"
-        )
-        is_holiday = target_time.date().isoformat() in set(
-            self._repository.get_holidays()["dates"]
-        )
         shadow_wait = self._shadow_model.predict(
             port=port["name"],
             timestamp=target_time,
-            weather=weather,
-            is_holiday=is_holiday,
+            weather=prediction_inputs["weather"],
+            is_holiday=prediction_inputs["is_holiday"],
         )
         status = self._shadow_model.status
         shadow_observations.append(
@@ -200,6 +196,106 @@ class PredictionService:
             self._repository.save_shadow_observations(observations)
         except Exception:
             logger.warning("AI v1 影子模型观测记录失败", exc_info=True)
+
+    def _save_forecast_run(
+        self,
+        *,
+        predictions: list[dict],
+        shadow_observations: list[dict],
+        reports: list[dict],
+        query: dict,
+        generated_at: datetime,
+        target_time: datetime,
+        prediction_inputs: dict,
+    ) -> str | None:
+        run_identity = json.dumps(
+            {
+                "query": query,
+                "generated_at": generated_at.isoformat(),
+                "target_time": target_time.isoformat(),
+                "model_version": MODEL_VERSION,
+                "data_version": prediction_inputs["data_version"],
+                "statistical_predictions": [
+                    {
+                        "port_id": prediction["port_id"],
+                        "predicted_wait_time": prediction["predicted_wait_time"],
+                        "historical_sample_count": prediction[
+                            "historical_sample_count"
+                        ],
+                    }
+                    for prediction in sorted(
+                        predictions,
+                        key=lambda item: item["port_id"],
+                    )
+                ],
+                "active_crowdsource_reports": [
+                    {
+                        "id": report["id"],
+                        "port": report["port"],
+                        "timestamp": report["timestamp"],
+                        "quality_score": report["quality_score"],
+                    }
+                    for report in reports
+                    if report["used_for_prediction"]
+                ],
+            },
+            ensure_ascii=False,
+            sort_keys=True,
+            default=str,
+        )
+        run_id = f"forecast-{sha256(run_identity.encode('utf-8')).hexdigest()[:12]}"
+        shadow_by_port = {
+            observation["port_id"]: observation
+            for observation in shadow_observations
+        }
+        ports = []
+        for prediction in predictions:
+            shadow = shadow_by_port.get(prediction["port_id"])
+            ports.append(
+                {
+                    "port_id": prediction["port_id"],
+                    "port_name": prediction["name"],
+                    "statistical_wait_minutes": prediction["predicted_wait_time"],
+                    "shadow_wait_minutes": (
+                        shadow["shadow_wait_minutes"] if shadow else None
+                    ),
+                    "shadow_status": shadow["status"] if shadow else "unavailable",
+                    "shadow_reason": (
+                        shadow["reason"] if shadow else "AI v1 影子模型未加载或未记录"
+                    ),
+                    "features": {
+                        "weather": prediction_inputs["weather"],
+                        "is_holiday": prediction_inputs["is_holiday"],
+                        "data_version": prediction_inputs["data_version"],
+                        "historical_sample_count": prediction[
+                            "historical_sample_count"
+                        ],
+                        "crowdsource_count": prediction["crowdsource_count"],
+                        "event_factors": [
+                            factor
+                            for factor in prediction["factors"]
+                            if factor["code"] in {"holiday_calendar", "recurring_event"}
+                        ],
+                    },
+                }
+            )
+        try:
+            self._repository.save_forecast_run(
+                {
+                    "id": run_id,
+                    "generated_at": generated_at.isoformat(),
+                    "target_time": target_time.isoformat(),
+                    "query": query,
+                    "model_version": MODEL_VERSION,
+                    "data_version": prediction_inputs["data_version"],
+                    "data_sources": prediction_inputs["data_sources"],
+                },
+                ports,
+            )
+            return run_id
+        except Exception:
+            logger.warning("预测运行记录失败", exc_info=True)
+            return None
 
     @staticmethod
     def _preference_key(item: dict, preferences: PredictionPreferences) -> tuple:
@@ -292,6 +388,7 @@ class PredictionService:
             )
 
         snapshot, reports = self._forecast.build_snapshot(current_time)
+        prediction_inputs = self._repository.get_prediction_input_context(target_time)
         shadow_observations: list[dict] = []
         predictions = [
             self._prediction_for_port(
@@ -304,10 +401,10 @@ class PredictionService:
                 reports,
                 shadow_observations,
                 record_shadow,
+                prediction_inputs,
             )
             for port in snapshot["ports"]
         ]
-        self._save_shadow_observations(shadow_observations)
         recommended, warnings = self._choose_recommended(
             predictions,
             request.preferences,
@@ -331,16 +428,31 @@ class PredictionService:
                 f"当前已无法准时到达；{recommended['name']}预计迟到最少，"
                 f"全程约{recommended['total_time']}分钟。"
             )
+        query = {
+            "origin_id": origin["id"],
+            "origin_name": origin["name"],
+            "destination_id": destination["id"],
+            "destination_name": destination["name"],
+            "target_time": target_time,
+            "priority": request.preferences.priority,
+            "max_budget": request.preferences.max_budget,
+        }
+        self._save_shadow_observations(shadow_observations)
+        forecast_run_id = (
+            self._save_forecast_run(
+                predictions=predictions,
+                shadow_observations=shadow_observations,
+                reports=reports,
+                query=query,
+                generated_at=current_time,
+                target_time=target_time,
+                prediction_inputs=prediction_inputs,
+            )
+            if record_shadow
+            else None
+        )
         return {
-            "query": {
-                "origin_id": origin["id"],
-                "origin_name": origin["name"],
-                "destination_id": destination["id"],
-                "destination_name": destination["name"],
-                "target_time": target_time,
-                "priority": request.preferences.priority,
-                "max_budget": request.preferences.max_budget,
-            },
+            "query": query,
             "ports": ordered,
             "recommended": recommended["name"],
             "recommended_port_id": recommended["port_id"],
@@ -350,4 +462,7 @@ class PredictionService:
             "model_version": MODEL_VERSION,
             "confidence_level": CONFIDENCE_LEVEL,
             "demo_notice": "结果由香港实时时钟、本地模拟历史、交通矩阵与众包样本计算，不代表真实口岸状态。",
+            "data_sources": prediction_inputs["data_sources"],
+            "data_version": prediction_inputs["data_version"],
+            "forecast_run_id": forecast_run_id,
         }

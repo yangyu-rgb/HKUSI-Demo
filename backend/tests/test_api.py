@@ -211,6 +211,41 @@ def test_subscription_preview_uses_next_commute_and_alert_preferences(
     assert client.app.state.repository.list_shadow_observations() == []
 
 
+def test_subscription_evaluation_history_can_be_saved_and_marked_read(
+    client: TestClient,
+) -> None:
+    subscription_id = client.get(
+        "/api/subscriptions",
+        params={"user_id": "demo-user"},
+    ).json()["subscriptions"][0]["subscription_id"]
+
+    preview = client.get(f"/api/subscriptions/{subscription_id}/preview")
+    saved = client.post(f"/api/subscriptions/{subscription_id}/evaluations")
+
+    assert preview.status_code == 200
+    assert saved.status_code == 201
+    record = saved.json()
+    assert record["subscription_id"] == subscription_id
+    assert record["is_read"] is False
+    assert "evaluation_id" in record
+    assert record["recommended_port"] == preview.json()["recommended_port"]
+
+    history = client.get(f"/api/subscriptions/{subscription_id}/evaluations")
+    assert history.status_code == 200
+    assert history.json()["total"] == 1
+    assert history.json()["unread_total"] == 1
+
+    marked = client.patch(
+        f"/api/subscription-evaluations/{record['evaluation_id']}/read"
+    )
+    assert marked.status_code == 200
+    assert marked.json()["is_read"] is True
+    assert marked.json()["read_at"]
+
+    history = client.get(f"/api/subscriptions/{subscription_id}/evaluations")
+    assert history.json()["unread_total"] == 0
+
+
 def test_batch_plan_history(client: TestClient) -> None:
     response = client.post(
         "/api/batch",
@@ -290,6 +325,55 @@ def test_model_shadow_summary_reports_prediction_observations(client: TestClient
     assert payload["total_observations"] == 4
     assert payload["available_observations"] + payload["unavailable_observations"] == 4
     assert len(payload["ports"]) == 4
+
+
+def test_high_quality_feedback_creates_labeled_forecast_observation(
+    client: TestClient,
+) -> None:
+    prediction = client.post(
+        "/api/predict",
+        json={
+            "origin_id": "hku",
+            "destination_id": "nanshan-tech",
+            "target_time": "2026-07-10T09:30:00",
+            "preferences": {"priority": "balanced"},
+        },
+    )
+    assert prediction.status_code == 200
+    forecast_run_id = prediction.json()["forecast_run_id"]
+    assert forecast_run_id
+
+    port = client.get("/api/realtime").json()["ports"][0]
+    crowd_level = (
+        "low"
+        if port["current_wait"] < 18
+        else "medium" if port["current_wait"] < 35 else "high"
+    )
+    report = client.post(
+        "/api/crowdsource/report",
+        json={
+            "user_id": "forecast-feedback-user",
+            "port": port["name"],
+            "actual_wait_time": port["current_wait"],
+            "crowd_level": crowd_level,
+            "forecast_run_id": forecast_run_id,
+            "forecast_port_id": port["id"],
+            "comment": "关联预测的高质量实际等待反馈",
+        },
+    )
+
+    assert report.status_code == 200
+    assert report.json()["forecast_feedback"]["linked"] is True
+    assert report.json()["forecast_feedback"]["labeled"] is True
+    labels = client.app.state.repository.list_labeled_forecast_rows()
+    assert len(labels) == 1
+    assert labels[0]["forecast_run_id"] == forecast_run_id
+    assert labels[0]["observed_wait_minutes"] == port["current_wait"]
+
+    readiness = client.get("/api/demo/v2-readiness")
+    assert readiness.status_code == 200
+    assert readiness.json()["label_count"] == 1
+    assert readiness.json()["experiment_ready"] is False
 
 
 def test_demo_end_to_end_flow_and_reset(client: TestClient) -> None:

@@ -58,6 +58,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/demo/v2-readiness": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 获取 V2 模型训练与晋级就绪度 */
+        get: operations["get_v2_readiness_api_demo_v2_readiness_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/demo/reset": {
         parameters: {
             query?: never;
@@ -240,6 +257,41 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/subscriptions/{subscription_id}/evaluations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 获取提醒评估历史 */
+        get: operations["list_subscription_evaluations_api_subscriptions__subscription_id__evaluations_get"];
+        put?: never;
+        /** 持久化当前提醒评估 */
+        post: operations["record_subscription_evaluation_api_subscriptions__subscription_id__evaluations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/subscription-evaluations/{evaluation_id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** 将提醒评估标记为已读 */
+        patch: operations["mark_subscription_evaluation_read_api_subscription_evaluations__evaluation_id__read_patch"];
         trace?: never;
     };
     "/api/batch": {
@@ -442,6 +494,10 @@ export interface components {
              * @default
              */
             comment: string;
+            /** Forecast Run Id */
+            forecast_run_id?: string | null;
+            /** Forecast Port Id */
+            forecast_port_id?: string | null;
             /** Id */
             id: string;
             /**
@@ -479,6 +535,10 @@ export interface components {
              * @default
              */
             comment: string;
+            /** Forecast Run Id */
+            forecast_run_id?: string | null;
+            /** Forecast Port Id */
+            forecast_port_id?: string | null;
         };
         /** CrowdsourceSubmitResponse */
         CrowdsourceSubmitResponse: {
@@ -491,6 +551,27 @@ export interface components {
             report: components["schemas"]["CrowdsourceRecord"];
             /** Message */
             message: string;
+            forecast_feedback?: components["schemas"]["ForecastFeedbackLink"] | null;
+        };
+        /** DataSourceStatus */
+        DataSourceStatus: {
+            /** Provider */
+            provider: string;
+            /** Source */
+            source: string;
+            /**
+             * Fetched At
+             * Format: date-time
+             */
+            fetched_at: string;
+            /** Status */
+            status: string;
+            /** Fallback */
+            fallback: boolean;
+            /** Reason */
+            reason?: string | null;
+            /** Data Version */
+            data_version: string;
         };
         /** DemoContextResponse */
         DemoContextResponse: {
@@ -544,6 +625,19 @@ export interface components {
         /** ErrorResponse */
         ErrorResponse: {
             error: components["schemas"]["ErrorBody"];
+        };
+        /** ForecastFeedbackLink */
+        ForecastFeedbackLink: {
+            /** Forecast Run Id */
+            forecast_run_id: string;
+            /** Forecast Port Id */
+            forecast_port_id: string;
+            /** Linked */
+            linked: boolean;
+            /** Labeled */
+            labeled: boolean;
+            /** Reason */
+            reason?: string | null;
         };
         /** ForecastPoint */
         ForecastPoint: {
@@ -721,6 +815,12 @@ export interface components {
             confidence_level: number;
             /** Demo Notice */
             demo_notice: string;
+            /** Data Sources */
+            data_sources: components["schemas"]["DataSourceStatus"][];
+            /** Data Version */
+            data_version: string;
+            /** Forecast Run Id */
+            forecast_run_id?: string | null;
         };
         /**
          * Priority
@@ -736,6 +836,8 @@ export interface components {
             timestamp: string;
             /** Source */
             source: string;
+            /** Data Sources */
+            data_sources: components["schemas"]["DataSourceStatus"][];
             /** Ports */
             ports: components["schemas"]["PortStatus"][];
             /** Alerts */
@@ -808,6 +910,68 @@ export interface components {
             latest_observed_at?: string | null;
             /** Ports */
             ports: components["schemas"]["ShadowObservationPortSummary"][];
+        };
+        /** SubscriptionEvaluationListResponse */
+        SubscriptionEvaluationListResponse: {
+            /** Evaluations */
+            evaluations: components["schemas"]["SubscriptionEvaluationRecord"][];
+            /** Total */
+            total: number;
+            /** Unread Total */
+            unread_total: number;
+        };
+        /** SubscriptionEvaluationRecord */
+        SubscriptionEvaluationRecord: {
+            /** Subscription Id */
+            subscription_id: string;
+            /**
+             * Evaluated At
+             * Format: date-time
+             */
+            evaluated_at: string;
+            /**
+             * Evaluation Time
+             * Format: date-time
+             */
+            evaluation_time: string;
+            /**
+             * Commute Date
+             * Format: date
+             */
+            commute_date: string;
+            /**
+             * Target Time
+             * Format: date-time
+             */
+            target_time: string;
+            /** Recommended Port */
+            recommended_port: string;
+            /** Recommended Port Id */
+            recommended_port_id: string;
+            /**
+             * Latest Departure
+             * Format: date-time
+             */
+            latest_departure: string;
+            /** Next Alert */
+            next_alert?: string | null;
+            /** Alternative Port */
+            alternative_port?: string | null;
+            /** Alerts */
+            alerts: components["schemas"]["AlertPreview"][];
+            /** Warnings */
+            warnings: string[];
+            /** Evaluation Id */
+            evaluation_id: string;
+            /** Is Read */
+            is_read: boolean;
+            /** Read At */
+            read_at?: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
         };
         /** SubscriptionEvaluationResponse */
         SubscriptionEvaluationResponse: {
@@ -889,6 +1053,57 @@ export interface components {
         SubscriptionUpdate: {
             routine: components["schemas"]["Routine"];
             alerts?: components["schemas"]["AlertPreferences"];
+        };
+        /** V2ReadinessCheck */
+        V2ReadinessCheck: {
+            /** Name */
+            name: string;
+            /** Actual */
+            actual: number;
+            /** Required */
+            required: number;
+            /** Passed */
+            passed: boolean;
+        };
+        /** V2ReadinessPort */
+        V2ReadinessPort: {
+            /** Port Id */
+            port_id: string;
+            /** Label Count */
+            label_count: number;
+        };
+        /** V2ReadinessResponse */
+        V2ReadinessResponse: {
+            /** Experiment Ready */
+            experiment_ready: boolean;
+            /** Production Promotion Ready */
+            production_promotion_ready: boolean;
+            /** Label Count */
+            label_count: number;
+            /** Ports */
+            ports: components["schemas"]["V2ReadinessPort"][];
+            /** Distinct Dates */
+            distinct_dates: number;
+            /** Hour Slices */
+            hour_slices: number;
+            /** Data Versions */
+            data_versions: string[];
+            /** Statistical Mae Minutes */
+            statistical_mae_minutes?: number | null;
+            /** Shadow Mae Minutes */
+            shadow_mae_minutes?: number | null;
+            /** Shadow Labeled Count */
+            shadow_labeled_count: number;
+            /** Time Split */
+            time_split: {
+                [key: string]: unknown;
+            };
+            /** Checks */
+            checks: components["schemas"]["V2ReadinessCheck"][];
+            /** Data Sources */
+            data_sources: components["schemas"]["DataSourceStatus"][];
+            /** Production Blockers */
+            production_blockers: string[];
         };
         /**
          * Weekday
@@ -1032,6 +1247,62 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ShadowObservationSummaryResponse"];
+                };
+            };
+            /** @description 请求的资源不存在 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 领域规则或请求参数验证失败 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 内部服务或持久化错误 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_v2_readiness_api_demo_v2_readiness_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 请求成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["V2ReadinessResponse"];
                 };
             };
             /** @description 请求的资源不存在 */
@@ -1732,6 +2003,182 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SubscriptionEvaluationResponse"];
+                };
+            };
+            /** @description 请求的资源不存在 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 领域规则或请求参数验证失败 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 内部服务或持久化错误 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    list_subscription_evaluations_api_subscriptions__subscription_id__evaluations_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                subscription_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 请求成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionEvaluationListResponse"];
+                };
+            };
+            /** @description 请求的资源不存在 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 领域规则或请求参数验证失败 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 内部服务或持久化错误 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    record_subscription_evaluation_api_subscriptions__subscription_id__evaluations_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                subscription_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 评估记录已保存 */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionEvaluationRecord"];
+                };
+            };
+            /** @description 请求的资源不存在 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 领域规则或请求参数验证失败 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 内部服务或持久化错误 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    mark_subscription_evaluation_read_api_subscription_evaluations__evaluation_id__read_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                evaluation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 更新成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SubscriptionEvaluationRecord"];
                 };
             };
             /** @description 请求的资源不存在 */

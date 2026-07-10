@@ -11,6 +11,8 @@ class CrowdsourceReport(BaseModel):
     actual_wait_time: int = Field(ge=0, le=180)
     crowd_level: CrowdLevel
     comment: str = Field(default="", max_length=160)
+    forecast_run_id: str | None = None
+    forecast_port_id: str | None = None
 
 
 class CrowdsourceRecord(CrowdsourceReport):
@@ -28,9 +30,18 @@ class CrowdsourceFeedResponse(BaseModel):
     total: int
 
 
+class ForecastFeedbackLink(BaseModel):
+    forecast_run_id: str
+    forecast_port_id: str
+    linked: bool
+    labeled: bool
+    reason: str | None = None
+
+
 class CrowdsourceSubmitResponse(BaseModel):
     success: bool
     points_earned: int
     model_updated: bool
     report: CrowdsourceRecord
     message: str
+    forecast_feedback: ForecastFeedbackLink | None = None

@@ -7,6 +7,7 @@ from ..config import (
     REALTIME_POLL_INTERVAL_SECONDS,
 )
 from ..repositories import DemoRepository
+from ..ml.snapshot import assess_v2_readiness
 
 
 class DemoService:
@@ -40,3 +41,6 @@ class DemoService:
 
     def get_model_shadow_summary(self) -> dict:
         return self._repository.get_shadow_observation_summary()
+
+    def get_v2_readiness(self) -> dict:
+        return assess_v2_readiness(self._repository)

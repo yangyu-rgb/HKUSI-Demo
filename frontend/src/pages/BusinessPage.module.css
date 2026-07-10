@@ -93,6 +93,42 @@
   border-radius: 22px;
 }
 
+.readinessSummary {
+  margin-top: 18px;
+  padding: 24px 30px;
+  background: #f7f7ea;
+  border: 1px solid #e2e5bd;
+  border-radius: 22px;
+}
+
+.readinessSummary > p {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.readinessChecks {
+  margin-top: 13px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.readinessChecks span {
+  padding: 5px 8px;
+  border-radius: 999px;
+  font-size: 9px;
+}
+
+.checkPassed {
+  color: #0f6652;
+  background: #e0f5ec;
+}
+
+.checkPending {
+  color: #725619;
+  background: #fff1d7;
+}
+
 .shadowHeading {
   display: flex;
   align-items: center;
@@ -253,6 +289,10 @@
   .result,
   .history,
   .shadowSummary {
+    padding: 20px;
+  }
+
+  .readinessSummary {
     padding: 20px;
   }
 

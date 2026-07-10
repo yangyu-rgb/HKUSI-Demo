@@ -20,6 +20,17 @@
   gap: 10px;
 }
 
+.forecastLink {
+  margin: 0;
+  padding: 9px 10px;
+  color: #0f6652;
+  background: #e6f7f0;
+  border: 1px solid #bce4d8;
+  border-radius: 9px;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
 .unitInput {
   position: relative;
 }

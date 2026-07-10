@@ -50,6 +50,19 @@
   font-size: 9px;
 }
 
+.feedbackLink {
+  grid-column: 3;
+  width: fit-content;
+  margin-top: 8px;
+  padding: 7px 9px;
+  color: var(--teal-dark);
+  background: var(--lime);
+  border-radius: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
 .warning {
   margin: 0 0 12px;
   padding: 10px 13px;
@@ -90,6 +103,10 @@
   }
 
   .summary small {
+    grid-column: 1;
+  }
+
+  .feedbackLink {
     grid-column: 1;
   }
 
