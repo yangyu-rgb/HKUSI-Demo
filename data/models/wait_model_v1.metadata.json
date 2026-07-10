@@ -1,0 +1,528 @@
+{
+  "schema_version": 1,
+  "model_version": "synthetic-hgb-wait-v1",
+  "generated_at": "2026-07-10T11:04:43+08:00",
+  "evaluation_scope": "synthetic_engineering_reference",
+  "synthetic_only": true,
+  "dataset": {
+    "path": "data/history/port_wait_history.csv",
+    "sha256": "f2e5bd5a8bca334c5193054d1542263dd1054240c672e591becd608c79b9b40a",
+    "sample_count": 5376,
+    "start": "2026-05-14T00:00:00",
+    "end": "2026-07-08T23:00:00"
+  },
+  "split": {
+    "train": {
+      "start": "2026-05-14",
+      "end": "2026-06-21",
+      "sample_count": 3744
+    },
+    "validation": {
+      "start": "2026-06-22",
+      "end": "2026-06-29",
+      "sample_count": 768
+    },
+    "test": {
+      "start": "2026-06-30",
+      "end": "2026-07-08",
+      "sample_count": 864
+    }
+  },
+  "features": [
+    "port_luohu",
+    "port_futian",
+    "port_huanggang",
+    "port_shenzhen_bay",
+    "hour_sin",
+    "hour_cos",
+    "weekday_sin",
+    "weekday_cos",
+    "is_weekend",
+    "is_rain",
+    "is_holiday"
+  ],
+  "excluded_target_derived_fields": [
+    "crowd_level"
+  ],
+  "selected_parameters": {
+    "learning_rate": 0.1,
+    "max_leaf_nodes": 31,
+    "min_samples_leaf": 10
+  },
+  "random_state": 2612,
+  "residual_q90_by_port": {
+    "罗湖": 0.9456,
+    "福田": 0.9621,
+    "皇岗": 0.8011,
+    "深圳湾": 1.1581
+  },
+  "metrics": {
+    "calendar_mean": {
+      "validation": {
+        "overall": {
+          "mae": 1.8149,
+          "rmse": 2.0929,
+          "sample_count": 768
+        },
+        "by_port": {
+          "罗湖": {
+            "mae": 1.8411,
+            "rmse": 2.1161
+          },
+          "福田": {
+            "mae": 1.765,
+            "rmse": 2.0286
+          },
+          "皇岗": {
+            "mae": 1.8484,
+            "rmse": 2.1668
+          },
+          "深圳湾": {
+            "mae": 1.8049,
+            "rmse": 2.0575
+          }
+        },
+        "slices": {
+          "morning_peak": {
+            "mae": 1.9227,
+            "rmse": 2.2912,
+            "sample_count": 128
+          },
+          "evening_peak": {
+            "mae": 1.8636,
+            "rmse": 2.1381,
+            "sample_count": 128
+          },
+          "off_peak": {
+            "mae": 1.7757,
+            "rmse": 2.0286,
+            "sample_count": 512
+          },
+          "rain": {
+            "mae": 1.9098,
+            "rmse": 2.1953,
+            "sample_count": 192
+          },
+          "clear": {
+            "mae": 1.7832,
+            "rmse": 2.0577,
+            "sample_count": 576
+          },
+          "non_holiday": {
+            "mae": 1.8149,
+            "rmse": 2.0929,
+            "sample_count": 768
+          }
+        }
+      },
+      "test": {
+        "overall": {
+          "mae": 2.2103,
+          "rmse": 2.7905,
+          "sample_count": 864
+        },
+        "by_port": {
+          "罗湖": {
+            "mae": 2.2194,
+            "rmse": 2.7726
+          },
+          "福田": {
+            "mae": 2.01,
+            "rmse": 2.4001
+          },
+          "皇岗": {
+            "mae": 2.523,
+            "rmse": 3.3611
+          },
+          "深圳湾": {
+            "mae": 2.0889,
+            "rmse": 2.5303
+          }
+        },
+        "slices": {
+          "morning_peak": {
+            "mae": 2.5435,
+            "rmse": 3.3944,
+            "sample_count": 144
+          },
+          "evening_peak": {
+            "mae": 2.3183,
+            "rmse": 2.935,
+            "sample_count": 144
+          },
+          "off_peak": {
+            "mae": 2.1,
+            "rmse": 2.578,
+            "sample_count": 576
+          },
+          "rain": {
+            "mae": 2.061,
+            "rmse": 2.383,
+            "sample_count": 288
+          },
+          "clear": {
+            "mae": 2.285,
+            "rmse": 2.9733,
+            "sample_count": 576
+          },
+          "holiday": {
+            "mae": 4.7228,
+            "rmse": 5.6346,
+            "sample_count": 96
+          },
+          "non_holiday": {
+            "mae": 1.8963,
+            "rmse": 2.1889,
+            "sample_count": 768
+          }
+        }
+      }
+    },
+    "ridge": {
+      "validation": {
+        "overall": {
+          "mae": 2.915,
+          "rmse": 3.6616,
+          "sample_count": 768
+        },
+        "by_port": {
+          "罗湖": {
+            "mae": 3.0699,
+            "rmse": 3.7937
+          },
+          "福田": {
+            "mae": 2.3511,
+            "rmse": 2.9212
+          },
+          "皇岗": {
+            "mae": 3.7027,
+            "rmse": 4.5774
+          },
+          "深圳湾": {
+            "mae": 2.5362,
+            "rmse": 3.1227
+          }
+        },
+        "slices": {
+          "morning_peak": {
+            "mae": 4.3022,
+            "rmse": 5.269,
+            "sample_count": 128
+          },
+          "evening_peak": {
+            "mae": 3.3061,
+            "rmse": 3.9959,
+            "sample_count": 128
+          },
+          "off_peak": {
+            "mae": 2.4704,
+            "rmse": 3.0297,
+            "sample_count": 512
+          },
+          "rain": {
+            "mae": 2.9988,
+            "rmse": 3.7839,
+            "sample_count": 192
+          },
+          "clear": {
+            "mae": 2.887,
+            "rmse": 3.6199,
+            "sample_count": 576
+          },
+          "non_holiday": {
+            "mae": 2.915,
+            "rmse": 3.6616,
+            "sample_count": 768
+          }
+        }
+      },
+      "test": {
+        "overall": {
+          "mae": 3.0475,
+          "rmse": 3.8682,
+          "sample_count": 864
+        },
+        "by_port": {
+          "罗湖": {
+            "mae": 3.2185,
+            "rmse": 3.98
+          },
+          "福田": {
+            "mae": 2.4992,
+            "rmse": 3.1213
+          },
+          "皇岗": {
+            "mae": 3.7664,
+            "rmse": 4.8262
+          },
+          "深圳湾": {
+            "mae": 2.7058,
+            "rmse": 3.3131
+          }
+        },
+        "slices": {
+          "morning_peak": {
+            "mae": 4.6014,
+            "rmse": 5.7267,
+            "sample_count": 144
+          },
+          "evening_peak": {
+            "mae": 3.4067,
+            "rmse": 4.1164,
+            "sample_count": 144
+          },
+          "off_peak": {
+            "mae": 2.5692,
+            "rmse": 3.1638,
+            "sample_count": 576
+          },
+          "rain": {
+            "mae": 3.0642,
+            "rmse": 3.9084,
+            "sample_count": 288
+          },
+          "clear": {
+            "mae": 3.0391,
+            "rmse": 3.8479,
+            "sample_count": 576
+          },
+          "holiday": {
+            "mae": 3.8169,
+            "rmse": 4.8744,
+            "sample_count": 96
+          },
+          "non_holiday": {
+            "mae": 2.9513,
+            "rmse": 3.7234,
+            "sample_count": 768
+          }
+        }
+      }
+    },
+    "hist_gradient_boosting": {
+      "validation": {
+        "overall": {
+          "mae": 0.4409,
+          "rmse": 0.5874,
+          "sample_count": 768
+        },
+        "by_port": {
+          "罗湖": {
+            "mae": 0.4413,
+            "rmse": 0.5902
+          },
+          "福田": {
+            "mae": 0.4424,
+            "rmse": 0.5882
+          },
+          "皇岗": {
+            "mae": 0.3782,
+            "rmse": 0.5025
+          },
+          "深圳湾": {
+            "mae": 0.5017,
+            "rmse": 0.6582
+          }
+        },
+        "slices": {
+          "morning_peak": {
+            "mae": 0.5424,
+            "rmse": 0.7038,
+            "sample_count": 128
+          },
+          "evening_peak": {
+            "mae": 0.3824,
+            "rmse": 0.5153,
+            "sample_count": 128
+          },
+          "off_peak": {
+            "mae": 0.4301,
+            "rmse": 0.5721,
+            "sample_count": 512
+          },
+          "rain": {
+            "mae": 0.5956,
+            "rmse": 0.7439,
+            "sample_count": 192
+          },
+          "clear": {
+            "mae": 0.3893,
+            "rmse": 0.5249,
+            "sample_count": 576
+          },
+          "non_holiday": {
+            "mae": 0.4409,
+            "rmse": 0.5874,
+            "sample_count": 768
+          }
+        }
+      },
+      "test": {
+        "overall": {
+          "mae": 0.519,
+          "rmse": 0.6881,
+          "sample_count": 864
+        },
+        "by_port": {
+          "罗湖": {
+            "mae": 0.5249,
+            "rmse": 0.7023
+          },
+          "福田": {
+            "mae": 0.5074,
+            "rmse": 0.6629
+          },
+          "皇岗": {
+            "mae": 0.4906,
+            "rmse": 0.678
+          },
+          "深圳湾": {
+            "mae": 0.553,
+            "rmse": 0.7082
+          }
+        },
+        "slices": {
+          "morning_peak": {
+            "mae": 0.6352,
+            "rmse": 0.8477,
+            "sample_count": 144
+          },
+          "evening_peak": {
+            "mae": 0.4865,
+            "rmse": 0.6746,
+            "sample_count": 144
+          },
+          "off_peak": {
+            "mae": 0.498,
+            "rmse": 0.6456,
+            "sample_count": 576
+          },
+          "rain": {
+            "mae": 0.541,
+            "rmse": 0.683,
+            "sample_count": 288
+          },
+          "clear": {
+            "mae": 0.508,
+            "rmse": 0.6907,
+            "sample_count": 576
+          },
+          "holiday": {
+            "mae": 0.9406,
+            "rmse": 1.1537,
+            "sample_count": 96
+          },
+          "non_holiday": {
+            "mae": 0.4663,
+            "rmse": 0.6052,
+            "sample_count": 768
+          }
+        }
+      },
+      "intervals": {
+        "coverage": 0.8542,
+        "mean_width": 1.9334,
+        "by_port": {
+          "罗湖": {
+            "coverage": 0.8287,
+            "mean_width": 1.8912
+          },
+          "福田": {
+            "coverage": 0.8565,
+            "mean_width": 1.9242
+          },
+          "皇岗": {
+            "coverage": 0.8194,
+            "mean_width": 1.6022
+          },
+          "深圳湾": {
+            "coverage": 0.912,
+            "mean_width": 2.3162
+          }
+        }
+      }
+    }
+  },
+  "permutation_importance": [
+    {
+      "feature": "port_huanggang",
+      "mean": 6.323359,
+      "standard_deviation": 0.152032
+    },
+    {
+      "feature": "hour_cos",
+      "mean": 2.670818,
+      "standard_deviation": 0.077273
+    },
+    {
+      "feature": "hour_sin",
+      "mean": 1.851455,
+      "standard_deviation": 0.028725
+    },
+    {
+      "feature": "port_luohu",
+      "mean": 1.454924,
+      "standard_deviation": 0.064943
+    },
+    {
+      "feature": "weekday_sin",
+      "mean": 1.155623,
+      "standard_deviation": 0.03345
+    },
+    {
+      "feature": "is_holiday",
+      "mean": 0.665157,
+      "standard_deviation": 0.025309
+    },
+    {
+      "feature": "port_futian",
+      "mean": 0.663769,
+      "standard_deviation": 0.023243
+    },
+    {
+      "feature": "weekday_cos",
+      "mean": 0.650561,
+      "standard_deviation": 0.015294
+    },
+    {
+      "feature": "is_rain",
+      "mean": 0.51171,
+      "standard_deviation": 0.017337
+    },
+    {
+      "feature": "port_shenzhen_bay",
+      "mean": 0.348637,
+      "standard_deviation": 0.012879
+    },
+    {
+      "feature": "is_weekend",
+      "mean": 0.129236,
+      "standard_deviation": 0.007722
+    }
+  ],
+  "promotion": {
+    "status": "eligible",
+    "overall_mae_improvement": 0.7652,
+    "minimum_required_improvement": 0.05,
+    "port_mae_delta_vs_best_baseline": {
+      "罗湖": -1.6945,
+      "福田": -1.5026,
+      "皇岗": -2.0324,
+      "深圳湾": -1.5359
+    },
+    "maximum_allowed_port_degradation": 1.0,
+    "interval_coverage": 0.8542,
+    "minimum_required_coverage": 0.85
+  },
+  "libraries": {
+    "python": "3.14.6",
+    "numpy": "2.5.1",
+    "scikit_learn": "1.9.0",
+    "joblib": "1.5.3"
+  },
+  "limitations": [
+    "模型只在确定性合成数据上训练和评估。",
+    "指标仅用于工程流水线参考，不代表真实口岸效果。",
+    "获得真实数据后必须重新划分训练、验证和测试集。"
+  ]
+}
