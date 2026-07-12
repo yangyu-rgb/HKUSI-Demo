@@ -30,7 +30,7 @@
 
 .metric {
   display: grid;
-  grid-template-columns: 70px 1fr 45px;
+  grid-template-columns: minmax(70px, 140px) 1fr 45px;
   align-items: center;
   gap: 8px;
   margin: 10px 0;
@@ -47,9 +47,11 @@
 .sources div { padding: 12px; border: 1px solid var(--line); border-radius: 10px; }
 .sources b, .sources span, .sources small { display: block; }
 .sources span, .sources small { margin-top: 4px; }
+.checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 18px; }
 
 @media (max-width: 760px) {
   .grid { grid-template-columns: 1fr; }
   .stats { grid-template-columns: 1fr; }
   .sources { grid-template-columns: 1fr; }
+  .checks { grid-template-columns: 1fr; }
 }

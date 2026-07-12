@@ -1,20 +1,69 @@
 {
-  "schema_version": 1,
-  "model_version": "synthetic-scenario-hgb-v2",
-  "generated_at": "2026-07-11T16:24:08+08:00",
-  "evaluation_scope": "synthetic_scenario_classroom_demo",
-  "synthetic_only": true,
+  "schema_version": 3,
+  "model_version": "public-traffic-scenario-hgb-v2.1",
+  "generated_at": "2026-07-12T12:10:00+08:00",
+  "evaluation_scope": "public_data_hybrid_classroom_demo",
+  "synthetic_only": false,
+  "target_scope": "public_feature_calibrated_synthetic_target",
+  "real_feature_sources": [
+    "hk_immd_daily_passenger_traffic"
+  ],
+  "calibration_version": "official-traffic-queue-crowd-v1",
   "dataset": {
-    "path": "data/history/scenario_wait_history_v2.csv",
-    "sha256": "c84ca85565bd2bec0c1a80e41679834c15ea4b820fa7ad9ed5fad2757b4f9dca",
-    "sample_count": 43008,
-    "start": "2025-01-01",
-    "end": "2025-08-12"
+    "path": "data/runtime/training_snapshots/scenario_wait_history_v2.csv",
+    "sha256": "9799c19ee87b84f12068c299a12f28ee4259c360ec6a486037433c9fae54a7fe",
+    "sample_count": 140160,
+    "start": "2024-07-12",
+    "end": "2026-07-11"
+  },
+  "source_snapshot": {
+    "path": "data/history/public_port_traffic_daily.csv",
+    "sha256": "b21e3b23c794d346c517397f2b124e24a56bf85bac6f1331780a182bcc82a3d2",
+    "source_id": "hk_immd_daily_passenger_traffic",
+    "start": "2021-01-01",
+    "end": "2026-07-11"
+  },
+  "data_audit": {
+    "passed": true,
+    "complete_dates": 730,
+    "warmup_days": 56,
+    "duplicate_keys": 0,
+    "missing_target_cells": 0,
+    "negative_counts": 0,
+    "future_rows_used": 0
+  },
+  "formula": {
+    "version": "public-traffic-scenario-formula-v2.1",
+    "coefficients": {
+      "traffic_slope": 0.35,
+      "traffic_pressure_bounds": [
+        0.6,
+        1.8
+      ],
+      "traffic_multiplier_bounds": [
+        0.85,
+        1.3
+      ],
+      "weather": {
+        "clear": 1.0,
+        "rain": 1.08,
+        "heavy_rain": 1.18,
+        "thunderstorm": 1.25
+      },
+      "event": {
+        "none": 1.0,
+        "low": 1.08,
+        "medium": 1.2,
+        "high": 1.38
+      }
+    }
   },
   "split": {
-    "train_end": "2025-06-05",
-    "validation_end": "2025-07-09",
-    "test_end": "2025-08-12"
+    "strategy": "chronological_70_15_15",
+    "train_end": "2025-12-03",
+    "validation_end": "2026-03-23",
+    "test_end": "2026-07-11",
+    "test_used_for_selection": false
   },
   "features": [
     "port_luohu",
@@ -33,67 +82,770 @@
     "weather_rain",
     "weather_heavy_rain",
     "weather_thunderstorm",
-    "event_impact"
+    "event_impact",
+    "traffic_pressure",
+    "traffic_available"
+  ],
+  "selection": {
+    "algorithm": "hist_gradient_boosting",
+    "parameters": {
+      "max_iter": 300,
+      "max_leaf_nodes": 15,
+      "learning_rate": 0.08,
+      "min_samples_leaf": 20,
+      "l2_regularization": 3.0
+    },
+    "rule": "最低验证 MAE；1%以内以产物大小决胜；测试集不参与选择",
+    "candidate_count": 25,
+    "minimum_validation_mae": 1.5554,
+    "selected_validation_mae": 1.5707
+  },
+  "candidate_leaderboard": [
+    {
+      "algorithm": "hist_gradient_boosting",
+      "parameters": {
+        "max_iter": 300,
+        "max_leaf_nodes": 31,
+        "learning_rate": 0.08,
+        "min_samples_leaf": 20,
+        "l2_regularization": 1.0
+      },
+      "validation": {
+        "sample_count": 21120,
+        "mae": 1.5554,
+        "rmse": 1.8517,
+        "r2": 0.9725,
+        "p90_absolute_error": 2.9236
+      },
+      "artifact_size_bytes": 1091432
+    },
+    {
+      "algorithm": "hist_gradient_boosting",
+      "parameters": {
+        "max_iter": 300,
+        "max_leaf_nodes": 31,
+        "learning_rate": 0.08,
+        "min_samples_leaf": 40,
+        "l2_regularization": 1.0
+      },
+      "validation": {
+        "sample_count": 21120,
+        "mae": 1.5563,
+        "rmse": 1.8525,
+        "r2": 0.9724,
+        "p90_absolute_error": 2.9274
+      },
+      "artifact_size_bytes": 1091432
+    },
+    {
+      "algorithm": "hist_gradient_boosting",
+      "parameters": {
+        "max_iter": 300,
+        "max_leaf_nodes": 31,
+        "learning_rate": 0.05,
+        "min_samples_leaf": 40,
+        "l2_regularization": 3.0
+      },
+      "validation": {
+        "sample_count": 21120,
+        "mae": 1.5588,
+        "rmse": 1.8588,
+        "r2": 0.9722,
+        "p90_absolute_error": 2.9289
+      },
+      "artifact_size_bytes": 1091432
+    },
+    {
+      "algorithm": "hist_gradient_boosting",
+      "parameters": {
+        "max_iter": 300,
+        "max_leaf_nodes": 31,
+        "learning_rate": 0.08,
+        "min_samples_leaf": 20,
+        "l2_regularization": 3.0
+      },
+      "validation": {
+        "sample_count": 21120,
+        "mae": 1.5592,
+        "rmse": 1.854,
+        "r2": 0.9724,
+        "p90_absolute_error": 2.9331
+      },
+      "artifact_size_bytes": 1015504
+    },
+    {
+      "algorithm": "hist_gradient_boosting",
+      "parameters": {
+        "max_iter": 300,
+        "max_leaf_nodes": 31,
+        "learning_rate": 0.05,
+        "min_samples_leaf": 20,
+        "l2_regularization": 3.0
+      },
+      "validation": {
+        "sample_count": 21120,
+        "mae": 1.5598,
+        "rmse": 1.8603,
+        "r2": 0.9722,
+        "p90_absolute_error": 2.9301
+      },
+      "artifact_size_bytes": 1091432
+    },
+    {
+      "algorithm": "hist_gradient_boosting",
+      "parameters": {
+        "max_iter": 300,
+        "max_leaf_nodes": 31,
+        "learning_rate": 0.05,
+        "min_samples_leaf": 20,
+        "l2_regularization": 1.0
+      },
+      "validation": {
+        "sample_count": 21120,
+        "mae": 1.5603,
+        "rmse": 1.8577,
+        "r2": 0.9723,
+        "p90_absolute_error": 2.9324
+      },
+      "artifact_size_bytes": 1091432
+    },
+    {
+      "algorithm": "hist_gradient_boosting",
+      "parameters": {
+        "max_iter": 300,
+        "max_leaf_nodes": 31,
+        "learning_rate": 0.08,
+        "min_samples_leaf": 40,
+        "l2_regularization": 3.0
+      },
+      "validation": {
+        "sample_count": 21120,
+        "mae": 1.5605,
+        "rmse": 1.8563,
+        "r2": 0.9723,
+        "p90_absolute_error": 2.9301
+      },
+      "artifact_size_bytes": 1091432
+    },
+    {
+      "algorithm": "hist_gradient_boosting",
+      "parameters": {
+        "max_iter": 300,
+        "max_leaf_nodes": 31,
+        "learning_rate": 0.05,
+        "min_samples_leaf": 40,
+        "l2_regularization": 1.0
+      },
+      "validation": {
+        "sample_count": 21120,
+        "mae": 1.561,
+        "rmse": 1.8601,
+        "r2": 0.9722,
+        "p90_absolute_error": 2.9369
+      },
+      "artifact_size_bytes": 1091432
+    },
+    {
+      "algorithm": "hist_gradient_boosting",
+      "parameters": {
+        "max_iter": 300,
+        "max_leaf_nodes": 15,
+        "learning_rate": 0.08,
+        "min_samples_leaf": 20,
+        "l2_regularization": 3.0
+      },
+      "validation": {
+        "sample_count": 21120,
+        "mae": 1.5707,
+        "rmse": 1.8746,
+        "r2": 0.9718,
+        "p90_absolute_error": 2.9668
+      },
+      "artifact_size_bytes": 553832
+    },
+    {
+      "algorithm": "hist_gradient_boosting",
+      "parameters": {
+        "max_iter": 300,
+        "max_leaf_nodes": 15,
+        "learning_rate": 0.08,
+        "min_samples_leaf": 40,
+        "l2_regularization": 3.0
+      },
+      "validation": {
+        "sample_count": 21120,
+        "mae": 1.5707,
+        "rmse": 1.8745,
+        "r2": 0.9718,
+        "p90_absolute_error": 2.9563
+      },
+      "artifact_size_bytes": 553832
+    },
+    {
+      "algorithm": "hist_gradient_boosting",
+      "parameters": {
+        "max_iter": 300,
+        "max_leaf_nodes": 15,
+        "learning_rate": 0.08,
+        "min_samples_leaf": 20,
+        "l2_regularization": 1.0
+      },
+      "validation": {
+        "sample_count": 21120,
+        "mae": 1.5711,
+        "rmse": 1.8758,
+        "r2": 0.9717,
+        "p90_absolute_error": 2.9552
+      },
+      "artifact_size_bytes": 553832
+    },
+    {
+      "algorithm": "hist_gradient_boosting",
+      "parameters": {
+        "max_iter": 300,
+        "max_leaf_nodes": 15,
+        "learning_rate": 0.08,
+        "min_samples_leaf": 40,
+        "l2_regularization": 1.0
+      },
+      "validation": {
+        "sample_count": 21120,
+        "mae": 1.5715,
+        "rmse": 1.8754,
+        "r2": 0.9717,
+        "p90_absolute_error": 2.9554
+      },
+      "artifact_size_bytes": 553832
+    },
+    {
+      "algorithm": "hist_gradient_boosting",
+      "parameters": {
+        "max_iter": 300,
+        "max_leaf_nodes": 15,
+        "learning_rate": 0.05,
+        "min_samples_leaf": 40,
+        "l2_regularization": 3.0
+      },
+      "validation": {
+        "sample_count": 21120,
+        "mae": 1.5878,
+        "rmse": 1.9086,
+        "r2": 0.9707,
+        "p90_absolute_error": 3.0053
+      },
+      "artifact_size_bytes": 553832
+    },
+    {
+      "algorithm": "hist_gradient_boosting",
+      "parameters": {
+        "max_iter": 300,
+        "max_leaf_nodes": 15,
+        "learning_rate": 0.05,
+        "min_samples_leaf": 20,
+        "l2_regularization": 3.0
+      },
+      "validation": {
+        "sample_count": 21120,
+        "mae": 1.5906,
+        "rmse": 1.9124,
+        "r2": 0.9706,
+        "p90_absolute_error": 3.0092
+      },
+      "artifact_size_bytes": 553832
+    },
+    {
+      "algorithm": "hist_gradient_boosting",
+      "parameters": {
+        "max_iter": 300,
+        "max_leaf_nodes": 15,
+        "learning_rate": 0.05,
+        "min_samples_leaf": 40,
+        "l2_regularization": 1.0
+      },
+      "validation": {
+        "sample_count": 21120,
+        "mae": 1.5907,
+        "rmse": 1.911,
+        "r2": 0.9707,
+        "p90_absolute_error": 3.0187
+      },
+      "artifact_size_bytes": 553832
+    },
+    {
+      "algorithm": "hist_gradient_boosting",
+      "parameters": {
+        "max_iter": 300,
+        "max_leaf_nodes": 15,
+        "learning_rate": 0.05,
+        "min_samples_leaf": 20,
+        "l2_regularization": 1.0
+      },
+      "validation": {
+        "sample_count": 21120,
+        "mae": 1.594,
+        "rmse": 1.9162,
+        "r2": 0.9705,
+        "p90_absolute_error": 3.0223
+      },
+      "artifact_size_bytes": 553832
+    },
+    {
+      "algorithm": "extra_trees",
+      "parameters": {
+        "n_estimators": 300,
+        "max_features": 1.0,
+        "min_samples_leaf": 4
+      },
+      "validation": {
+        "sample_count": 21120,
+        "mae": 1.6457,
+        "rmse": 2.0049,
+        "r2": 0.9677,
+        "p90_absolute_error": 3.1576
+      },
+      "artifact_size_bytes": 626524785
+    },
+    {
+      "algorithm": "extra_trees",
+      "parameters": {
+        "n_estimators": 300,
+        "max_features": 0.7,
+        "min_samples_leaf": 2
+      },
+      "validation": {
+        "sample_count": 21120,
+        "mae": 1.6514,
+        "rmse": 2.0112,
+        "r2": 0.9675,
+        "p90_absolute_error": 3.1991
+      },
+      "artifact_size_bytes": 1110596481
+    },
+    {
+      "algorithm": "extra_trees",
+      "parameters": {
+        "n_estimators": 300,
+        "max_features": 1.0,
+        "min_samples_leaf": 2
+      },
+      "validation": {
+        "sample_count": 21120,
+        "mae": 1.6564,
+        "rmse": 2.0189,
+        "r2": 0.9673,
+        "p90_absolute_error": 3.2338
+      },
+      "artifact_size_bytes": 1320413841
+    },
+    {
+      "algorithm": "extra_trees",
+      "parameters": {
+        "n_estimators": 300,
+        "max_features": 0.7,
+        "min_samples_leaf": 4
+      },
+      "validation": {
+        "sample_count": 21120,
+        "mae": 1.6652,
+        "rmse": 2.0426,
+        "r2": 0.9665,
+        "p90_absolute_error": 3.187
+      },
+      "artifact_size_bytes": 524092401
+    },
+    {
+      "algorithm": "extra_trees",
+      "parameters": {
+        "n_estimators": 300,
+        "max_features": 1.0,
+        "min_samples_leaf": 1
+      },
+      "validation": {
+        "sample_count": 21120,
+        "mae": 1.8382,
+        "rmse": 2.2795,
+        "r2": 0.9583,
+        "p90_absolute_error": 3.778
+      },
+      "artifact_size_bytes": 3829644513
+    },
+    {
+      "algorithm": "extra_trees",
+      "parameters": {
+        "n_estimators": 300,
+        "max_features": 0.7,
+        "min_samples_leaf": 1
+      },
+      "validation": {
+        "sample_count": 21120,
+        "mae": 1.8593,
+        "rmse": 2.3072,
+        "r2": 0.9572,
+        "p90_absolute_error": 3.82
+      },
+      "artifact_size_bytes": 3876830865
+    },
+    {
+      "algorithm": "ridge",
+      "parameters": {
+        "alpha": 10.0
+      },
+      "validation": {
+        "sample_count": 21120,
+        "mae": 4.188,
+        "rmse": 5.3827,
+        "r2": 0.7672,
+        "p90_absolute_error": 8.5323
+      },
+      "artifact_size_bytes": 705
+    },
+    {
+      "algorithm": "ridge",
+      "parameters": {
+        "alpha": 1.0
+      },
+      "validation": {
+        "sample_count": 21120,
+        "mae": 4.1885,
+        "rmse": 5.3828,
+        "r2": 0.7672,
+        "p90_absolute_error": 8.5343
+      },
+      "artifact_size_bytes": 705
+    },
+    {
+      "algorithm": "ridge",
+      "parameters": {
+        "alpha": 0.1
+      },
+      "validation": {
+        "sample_count": 21120,
+        "mae": 4.1886,
+        "rmse": 5.3828,
+        "r2": 0.7672,
+        "p90_absolute_error": 8.5343
+      },
+      "artifact_size_bytes": 705
+    }
   ],
   "metrics": {
     "validation": {
-      "sample_count": 6528,
-      "mae": 1.4938,
-      "rmse": 1.7826
+      "sample_count": 21120,
+      "mae": 1.5707,
+      "rmse": 1.8746,
+      "r2": 0.9718,
+      "p90_absolute_error": 2.9668
     },
     "test": {
-      "sample_count": 6528,
-      "mae": 1.5001,
-      "rmse": 1.7814
+      "sample_count": 21120,
+      "mae": 1.5637,
+      "rmse": 1.8845,
+      "r2": 0.9713,
+      "p90_absolute_error": 2.9253
     },
     "calendar_baseline_test": {
-      "sample_count": 6528,
-      "mae": 4.3511,
-      "rmse": 5.6178
+      "sample_count": 21120,
+      "mae": 4.629,
+      "rmse": 6.1059,
+      "r2": 0.699,
+      "p90_absolute_error": 9.5549
+    },
+    "traffic_ablation_test": {
+      "sample_count": 21120,
+      "mae": 1.9956,
+      "rmse": 2.6761,
+      "r2": 0.9422,
+      "p90_absolute_error": 3.9048,
+      "improvement_percent": 21.64
     },
     "test_slices": {
+      "port:罗湖": {
+        "sample_count": 5280,
+        "mae": 1.5713,
+        "rmse": 1.8882,
+        "r2": 0.9433,
+        "p90_absolute_error": 2.9674
+      },
+      "port:福田": {
+        "sample_count": 5280,
+        "mae": 1.5331,
+        "rmse": 1.8299,
+        "r2": 0.9108,
+        "p90_absolute_error": 2.8508
+      },
+      "port:皇岗": {
+        "sample_count": 5280,
+        "mae": 1.597,
+        "rmse": 1.9669,
+        "r2": 0.9652,
+        "p90_absolute_error": 2.9888
+      },
+      "port:深圳湾": {
+        "sample_count": 5280,
+        "mae": 1.5534,
+        "rmse": 1.8502,
+        "r2": 0.9161,
+        "p90_absolute_error": 2.8979
+      },
+      "direction:hong_kong_to_shenzhen": {
+        "sample_count": 10560,
+        "mae": 1.5313,
+        "rmse": 1.8289,
+        "r2": 0.9706,
+        "p90_absolute_error": 2.8687
+      },
+      "direction:shenzhen_to_hong_kong": {
+        "sample_count": 10560,
+        "mae": 1.5961,
+        "rmse": 1.9386,
+        "r2": 0.9718,
+        "p90_absolute_error": 2.9915
+      },
       "weather:clear": {
-        "sample_count": 1632,
-        "mae": 1.2862
+        "sample_count": 5280,
+        "mae": 1.3825,
+        "rmse": 1.6412,
+        "r2": 0.9674,
+        "p90_absolute_error": 2.5798
       },
       "weather:rain": {
-        "sample_count": 1536,
-        "mae": 1.3931
+        "sample_count": 5376,
+        "mae": 1.4655,
+        "rmse": 1.7319,
+        "r2": 0.9682,
+        "p90_absolute_error": 2.73
       },
       "weather:heavy_rain": {
-        "sample_count": 1632,
-        "mae": 1.6378
+        "sample_count": 5280,
+        "mae": 1.6352,
+        "rmse": 1.953,
+        "r2": 0.9713,
+        "p90_absolute_error": 3.0546
       },
       "weather:thunderstorm": {
-        "sample_count": 1728,
-        "mae": 1.667
+        "sample_count": 5184,
+        "mae": 1.7774,
+        "rmse": 2.1749,
+        "r2": 0.9687,
+        "p90_absolute_error": 3.3034
       },
       "event_impact:none": {
-        "sample_count": 1632,
-        "mae": 1.2956
+        "sample_count": 5280,
+        "mae": 1.3327,
+        "rmse": 1.5788,
+        "r2": 0.9669,
+        "p90_absolute_error": 2.4728
       },
       "event_impact:low": {
-        "sample_count": 1632,
-        "mae": 1.4057
+        "sample_count": 5280,
+        "mae": 1.4774,
+        "rmse": 1.7726,
+        "r2": 0.9665,
+        "p90_absolute_error": 2.7422
       },
       "event_impact:medium": {
-        "sample_count": 1632,
-        "mae": 1.5612
+        "sample_count": 5280,
+        "mae": 1.6034,
+        "rmse": 1.9174,
+        "r2": 0.9683,
+        "p90_absolute_error": 2.9609
       },
       "event_impact:high": {
-        "sample_count": 1632,
-        "mae": 1.7378
+        "sample_count": 5280,
+        "mae": 1.8414,
+        "rmse": 2.2124,
+        "r2": 0.9681,
+        "p90_absolute_error": 3.3947
+      },
+      "is_holiday:true": {
+        "sample_count": 1152,
+        "mae": 2.1763,
+        "rmse": 2.7732,
+        "r2": 0.9622,
+        "p90_absolute_error": 4.0972
+      },
+      "is_holiday:false": {
+        "sample_count": 19968,
+        "mae": 1.5284,
+        "rmse": 1.8201,
+        "r2": 0.9714,
+        "p90_absolute_error": 2.8715
+      },
+      "hour:00-05": {
+        "sample_count": 5280,
+        "mae": 1.5255,
+        "rmse": 1.8094,
+        "r2": 0.9579,
+        "p90_absolute_error": 2.8161
+      },
+      "hour:06-09": {
+        "sample_count": 3520,
+        "mae": 1.572,
+        "rmse": 1.9281,
+        "r2": 0.9759,
+        "p90_absolute_error": 3.0083
+      },
+      "hour:10-15": {
+        "sample_count": 5280,
+        "mae": 1.549,
+        "rmse": 1.8678,
+        "r2": 0.9665,
+        "p90_absolute_error": 2.9228
+      },
+      "hour:16-19": {
+        "sample_count": 3520,
+        "mae": 1.6178,
+        "rmse": 1.9596,
+        "r2": 0.9718,
+        "p90_absolute_error": 3.0316
+      },
+      "hour:20-23": {
+        "sample_count": 3520,
+        "mae": 1.5807,
+        "rmse": 1.8994,
+        "r2": 0.9618,
+        "p90_absolute_error": 2.9423
+      },
+      "traffic_pressure:q1": {
+        "sample_count": 6168,
+        "mae": 1.4895,
+        "rmse": 1.7697,
+        "r2": 0.9722,
+        "p90_absolute_error": 2.7761
+      },
+      "traffic_pressure:q2": {
+        "sample_count": 5616,
+        "mae": 1.4952,
+        "rmse": 1.7744,
+        "r2": 0.9666,
+        "p90_absolute_error": 2.8053
+      },
+      "traffic_pressure:q3": {
+        "sample_count": 4512,
+        "mae": 1.5677,
+        "rmse": 1.8669,
+        "r2": 0.9713,
+        "p90_absolute_error": 2.9575
+      },
+      "traffic_pressure:q4": {
+        "sample_count": 4824,
+        "mae": 1.7345,
+        "rmse": 2.1492,
+        "r2": 0.9708,
+        "p90_absolute_error": 3.2625
       }
     }
   },
+  "interval_calibration": {
+    "method": "per_port_validation_absolute_residual_q90",
+    "nominal_coverage_percent": 90,
+    "test_coverage_percent": 90.57,
+    "coverage_by_port_percent": {
+      "罗湖": 89.2,
+      "福田": 90.95,
+      "皇岗": 90.91,
+      "深圳湾": 91.23
+    },
+    "average_interval_width_minutes": 5.9383,
+    "residual_q90_by_port": {
+      "罗湖": 2.9245,
+      "福田": 2.9073,
+      "皇岗": 3.0577,
+      "深圳湾": 2.9872
+    }
+  },
+  "traffic_distribution": {
+    "q01": 0.5816,
+    "q50": 1.0239,
+    "q99": 1.9601,
+    "hard_bounds": [
+      0.6,
+      1.8
+    ]
+  },
+  "sensitivity": {
+    "grid_points": 80,
+    "violation_count": 0,
+    "violations": []
+  },
+  "promotion": {
+    "passed": true,
+    "checks": [
+      {
+        "name": "calendar_baseline_improvement",
+        "passed": true,
+        "actual": 66.22,
+        "required": ">=50%"
+      },
+      {
+        "name": "traffic_ablation_improvement",
+        "passed": true,
+        "actual": 21.64,
+        "required": ">=10%"
+      },
+      {
+        "name": "test_degradation",
+        "passed": true,
+        "actual": -0.45,
+        "required": "<=15%"
+      },
+      {
+        "name": "overall_interval_coverage",
+        "passed": true,
+        "actual": 90.57,
+        "required": "88-95%"
+      },
+      {
+        "name": "port_interval_coverage",
+        "passed": true,
+        "actual": {
+          "罗湖": 89.2,
+          "福田": 90.95,
+          "皇岗": 90.91,
+          "深圳湾": 91.23
+        },
+        "required": "each 85-96%"
+      },
+      {
+        "name": "worst_slice_mae",
+        "passed": true,
+        "actual": {
+          "slice": "is_holiday:true",
+          "mae": 2.1763
+        },
+        "required": "<=2.5"
+      },
+      {
+        "name": "sensitivity_monotonicity",
+        "passed": true,
+        "actual": 0,
+        "required": "0 violations"
+      },
+      {
+        "name": "data_audit",
+        "passed": true,
+        "actual": {
+          "passed": true,
+          "complete_dates": 730,
+          "warmup_days": 56,
+          "duplicate_keys": 0,
+          "missing_target_cells": 0,
+          "negative_counts": 0,
+          "future_rows_used": 0
+        },
+        "required": "passed"
+      }
+    ]
+  },
   "residual_q90_by_port": {
-    "罗湖": 2.7968,
-    "福田": 2.7175,
-    "皇岗": 2.8512,
-    "深圳湾": 2.7848
+    "罗湖": 2.9245,
+    "福田": 2.9073,
+    "皇岗": 3.0577,
+    "深圳湾": 2.9872
   },
   "limitations": [
-    "仅使用可解释合成场景标签。",
+    "真实官方客流作为特征，等待分钟仍为可解释生成标签。",
+    "15分钟官方等级与众包只在运行时校准，不进入离线 MAE。",
     "指标用于课堂演示，不代表真实口岸准确率。"
   ]
 }

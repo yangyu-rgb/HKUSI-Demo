@@ -319,3 +319,46 @@ def test_official_alignment_reports_categories_not_pseudo_minutes(tmp_path: Path
     assert report["sample_count"] == 12
     assert report["metric_type"] == "ordinal_category_only"
     assert "mae" not in report
+
+
+def test_public_calibration_uses_historical_traffic_and_decays_live_queue(
+    tmp_path: Path,
+) -> None:
+    clock = FrozenClock()
+    repository = DemoRepository(DATA_DIR, tmp_path / "calibration.db", clock)
+    registry = repository.external_data.get_registry()
+    fetched_at = FROZEN_NOW.astimezone(timezone.utc)
+    queue_payload = {
+        code: {"arrQueue": 2, "depQueue": 2}
+        for code in ("LWS", "LSC", "LMC", "SBC")
+    }
+    for source_id in ("hk_immd_queue_resident", "hk_immd_queue_visitor"):
+        source = source_by_id(registry, source_id)
+        repository.external_data.save_collection(
+            source=source,
+            fetched_at=fetched_at.isoformat(),
+            raw_hash=source_id * 3,
+            archive_path=f"{source_id}.json",
+            observations=normalize_queue_status(queue_payload, source, fetched_at, source_id * 3),
+        )
+    traffic_source = source_by_id(registry, "hk_immd_daily_passenger_traffic")
+    header = "Date,Control Point,Arrival / Departure,Hong Kong Residents,Mainland Visitors,Other Visitors,Total,\n"
+    text = header + "03-07-2026,Lo Wu,Departure,10,20,30,60,\n10-07-2026,Lo Wu,Departure,20,40,60,120,\n"
+    repository.external_data.save_collection(
+        source=traffic_source,
+        fetched_at=fetched_at.isoformat(),
+        raw_hash="traffic",
+        archive_path="traffic.csv",
+        observations=normalize_daily_traffic(text, traffic_source, fetched_at, "traffic"),
+    )
+
+    near = repository.external_data.calibration_context(
+        "luohu", "hong_kong_to_shenzhen", FROZEN_NOW, FROZEN_NOW + timedelta(minutes=30)
+    )
+    far = repository.external_data.calibration_context(
+        "luohu", "hong_kong_to_shenzhen", FROZEN_NOW, FROZEN_NOW + timedelta(hours=3)
+    )
+
+    assert near["traffic"]["available"] is True
+    assert near["queue"]["effective_weight"] > 0
+    assert far["queue"]["effective_weight"] == 0

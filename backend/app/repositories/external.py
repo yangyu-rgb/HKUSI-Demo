@@ -6,6 +6,7 @@ from hashlib import sha256
 from pathlib import Path
 import json
 import sqlite3
+from statistics import median
 
 from ..clock import Clock, as_hong_kong
 from ..exceptions import PersistenceError
@@ -254,6 +255,89 @@ class ExternalDataRepository:
             "resident_queue", "visitor_queue", "passenger_traffic"
         ))
         payload["status"] = "complete" if available == 3 else "partial" if available else "missing"
+        canonical = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+        payload["feature_version"] = sha256(canonical.encode()).hexdigest()[:16]
+        return payload
+
+    def calibration_context(
+        self,
+        port_id: str,
+        direction: str,
+        generated_at: datetime,
+        target_time: datetime,
+    ) -> dict:
+        """Build leakage-safe public traffic and live queue inputs for prediction."""
+        moment = generated_at.astimezone(timezone.utc)
+        snapshot = self.features_as_of(port_id, direction, moment)
+        try:
+            with self._connect() as connection:
+                rows = connection.execute(
+                    """SELECT observed_at, raw_value, revision_fetched_at
+                       FROM external_feature_revisions
+                       WHERE port_id = ? AND direction = ?
+                         AND traveler_category = 'total'
+                         AND metric_type = 'passenger_count'
+                         AND feature_available = 1
+                         AND revision_fetched_at <= ? AND observed_at <= ?
+                       ORDER BY observed_at DESC, revision_fetched_at DESC, id DESC""",
+                    (port_id, direction, moment.isoformat(), moment.isoformat()),
+                ).fetchall()
+        except sqlite3.Error as error:
+            raise PersistenceError() from error
+
+        by_date: dict[str, int] = {}
+        for row in rows:
+            date_key = as_hong_kong(datetime.fromisoformat(row["observed_at"])).date().isoformat()
+            by_date.setdefault(date_key, int(row["raw_value"]))
+        ordered = sorted(by_date.items(), reverse=True)
+        recent = ordered[:56]
+        target_weekday = as_hong_kong(target_time).weekday()
+        matching = [
+            value for day, value in ordered
+            if datetime.fromisoformat(day).weekday() == target_weekday
+        ][:8]
+        if recent:
+            baseline = float(median(value for _, value in recent))
+            expected = float(median(matching)) if matching else baseline
+            raw_pressure = expected / max(1.0, baseline)
+            pressure = max(0.6, min(1.8, raw_pressure))
+            traffic = {
+                "available": True,
+                "expected_count": round(expected),
+                "baseline_count": round(baseline),
+                "pressure": round(pressure, 4),
+                "raw_pressure": round(raw_pressure, 4),
+                "sample_count": len(matching) if matching else len(recent),
+                "source": "hk_immd_daily_passenger_traffic",
+                "latest_service_date": recent[0][0],
+            }
+        else:
+            traffic = {"available": False, "reason": "missing", "pressure": 1.0, "raw_pressure": 1.0}
+
+        horizon_minutes = max(0.0, (target_time - generated_at).total_seconds() / 60)
+        queue_items = [snapshot["resident_queue"], snapshot["visitor_queue"]]
+        available_queue = [item for item in queue_items if item.get("available")]
+        level_multipliers = {"normal": 0.92, "busy": 1.08, "very_busy": 1.25}
+        if available_queue:
+            multiplier = sum(level_multipliers[item["level"]] for item in available_queue) / len(available_queue)
+            age = max(float(item["age_minutes"]) for item in available_queue)
+            freshness_weight = max(0.0, 1 - age / QUEUE_MAX_AGE_MINUTES)
+            horizon_weight = max(0.0, 1 - horizon_minutes / 180.0)
+            effective_weight = freshness_weight * horizon_weight
+            queue = {
+                "available": True,
+                "resident_level": snapshot["resident_queue"].get("level"),
+                "visitor_level": snapshot["visitor_queue"].get("level"),
+                "age_minutes": round(age, 2),
+                "horizon_minutes": round(horizon_minutes, 2),
+                "freshness_weight": round(freshness_weight, 4),
+                "horizon_weight": round(horizon_weight, 4),
+                "effective_weight": round(effective_weight, 4),
+                "multiplier": round(multiplier, 4),
+            }
+        else:
+            queue = {"available": False, "reason": "missing_or_stale", "effective_weight": 0.0, "multiplier": 1.0}
+        payload = {"status": "complete" if traffic["available"] and queue["available"] else "partial" if traffic["available"] or queue["available"] else "missing", "traffic": traffic, "queue": queue, "snapshot": snapshot}
         canonical = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
         payload["feature_version"] = sha256(canonical.encode()).hexdigest()[:16]
         return payload

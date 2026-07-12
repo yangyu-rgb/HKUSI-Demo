@@ -18,6 +18,14 @@ export function RouteCard({
   recommended: boolean;
 }) {
   const factors = route.factors as Array<Record<string, unknown>>;
+  const official = (route.official_calibration ?? {}) as {
+    status?: string;
+    traffic?: { pressure?: number; expected_count?: number; baseline_count?: number; distribution?: { status?: string } };
+    queue?: { resident_level?: string | null; visitor_level?: string | null; effective_weight?: number; age_minutes?: number };
+    queue_adjusted_wait_minutes?: number;
+    crowdsource_adjustment_minutes?: number;
+    uncertainty_minutes?: number;
+  };
   return (
     <article className={`${styles.card} ${recommended ? styles.recommended : ""}`}>
       <div className={styles.header}>
@@ -51,6 +59,15 @@ export function RouteCard({
       <div className={styles.confidence}>
         90%预测区间 {route.confidence_interval[0]}–{route.confidence_interval[1]} 分钟
         {route.crowdsource_enhanced && ` · 已融合 ${route.crowdsource_count} 条众包数据`}
+      </div>
+      <div className={styles.confidence}>
+        官方数据 {official.status ?? "missing"} · 客流压力 {official.traffic?.pressure?.toFixed(2) ?? "—"}
+        {official.queue?.effective_weight
+          ? ` · 15分钟等级权重 ${Math.round(official.queue.effective_weight * 100)}%`
+          : " · 当前等级未参与"}
+        {official.traffic?.distribution?.status && official.traffic.distribution.status !== "in_distribution"
+          ? ` · 分布提示 ${official.traffic.distribution.status}`
+          : ""}
       </div>
       <details className={styles.factors}>
         <summary>查看预测依据</summary>

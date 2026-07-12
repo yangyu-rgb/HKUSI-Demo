@@ -27,13 +27,15 @@ backend/.venv/bin/python backend/scripts/collect_official_sources.py
 backend/.venv/bin/python backend/scripts/collect_official_sources.py --status
 ```
 
-不带 `--interval` 时执行一次。`collector.sh` 每分钟检查一次，但仍遵循登记表中各来源自己的 `refresh_seconds`，每日客流不会每 15 分钟重复处理。PID 与日志位于被 Git 忽略的 `data/runtime/`。`status` 不发起网络请求，并报告每个来源的新鲜度、24 小时预期/成功次数、完整率和最大采集缺口。
+不带 `--interval` 时执行一次。`start.sh` 默认启动同一采集循环；`collector.sh` 可独立管理。循环每分钟检查一次，但遵循各来源的 `refresh_seconds`，每日客流不会每15分钟重复处理。PID 与日志位于被 Git 忽略的 `data/runtime/`。
 
 原始 JSON/CSV 写入 `data/runtime/external_sources/<source>/<date>/`，SQLite 当前值区保存最新标准化结果，追加式修订区保存来源版本、首次已知时间、观察时间、哈希、口岸、方向、旅客类别、指标类型和值。相同内容保持幂等；已发布值发生修订时追加新版本而不覆盖历史证据。Demo 重置不删除真实来源归档。
 
 ## 点时特征与一致性评估
 
-正式预测按 `forecast_run.generated_at` 查询当时已经抓取、且观察时间不晚于该时刻的官方特征。居民/访客等级超过 30 分钟、每日客流超过 72 小时会标记为过期；缺失或过期只影响快照状态，不改变课堂模型输出。查询结果与短版本哈希冻结到每个口岸的 `features_json`，训练快照 schema v4 再导出这些冻结字段，因此后续官方修订不会产生未来信息泄漏。
+AI v2.1 的训练源由 `backend/scripts/export_public_traffic_snapshot.py` 从治理库导出为规范化日级快照；快照保存来源版本、原始哈希和首次已知时间。场景数据和模型二进制均在运行时重建，不把本机数据库当作可复现训练输入。
+
+正式预测按 `forecast_run.generated_at` 查询当时已经抓取且已经观察到的官方特征。AI v2.1 以最近56天客流中位数建立常态、最近8个相同星期建立目标日预期客流；居民/访客等级超过30分钟或目标超过三小时即不再校准。所有来源版本、压力和权重冻结到预测依据，后续修订不会产生未来信息泄漏。
 
 V2 readiness 还把 V1 统计等待映射到居民/访客各自的官方阈值，仅计算等级命中率、平均序数误差、混淆矩阵及口岸/方向/旅客/小时切片。该报告不把等级区间转成分钟，不计算分钟 MAE，也不增加训练标签数。
 

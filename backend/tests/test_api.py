@@ -242,7 +242,13 @@ def test_prediction_contract(client: TestClient) -> None:
     assert response.status_code == 200
     payload = response.json()
     assert payload["recommended_port_id"] == "shenzhen-bay"
-    assert payload["prediction_engine"] == "v2"
+    assert payload["prediction_engine"] == "v2_1_public_hybrid"
+    assert payload["ports"][0]["official_calibration"]["traffic"]["available"] is False
+    calibration = payload["ports"][0]["official_calibration"]
+    assert calibration["calibration_version"] == "official-traffic-queue-crowd-v1"
+    assert calibration["traffic"]["distribution"]["status"] == "in_distribution"
+    assert calibration["queue_adjusted_wait_minutes"] > 0
+    assert calibration["uncertainty_minutes"] > 0
     assert payload["scenario"]["weather"] == "clear"
     assert len(payload["ports"]) == 4
     assert {"latest_departure", "estimated_arrival", "buffer_minutes", "on_time"} <= set(
@@ -257,7 +263,7 @@ def test_prediction_contract(client: TestClient) -> None:
     ai_factor = next(
         factor
         for factor in payload["ports"][0]["factors"]
-        if factor["code"] == "ai_v2"
+        if factor["code"] == "ai_v2_1"
     )
     expected_calibrated = (
         ai_factor["value_minutes"] * (1 - crowd_factor["effective_weight"])
@@ -274,7 +280,7 @@ def test_prediction_contract(client: TestClient) -> None:
     assert stored["primary_wait_minutes"] == payload["ports"][0][
         "predicted_wait_time"
     ]
-    assert stored["prediction_engine"] == "v2"
+    assert stored["prediction_engine"] == "v2_1_public_hybrid"
     assert stored["scenario_version"] == payload["scenario"]["version"]
 
 

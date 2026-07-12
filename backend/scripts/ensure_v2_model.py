@@ -20,6 +20,10 @@ def main() -> None:
     runtime.mkdir(parents=True, exist_ok=True)
     subprocess.run([
         sys.executable,
+        str(BACKEND / "scripts/generate_v2_scenario_data.py"),
+    ], check=True)
+    subprocess.run([
+        sys.executable,
         str(BACKEND / "scripts/train_v2_scenario_model.py"),
         "--artifact", str(runtime / "wait_model_v2.joblib"),
         "--metadata", str(runtime / "wait_model_v2.generated.metadata.json"),

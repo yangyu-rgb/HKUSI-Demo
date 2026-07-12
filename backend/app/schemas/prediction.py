@@ -44,6 +44,48 @@ class RouteStep(BaseModel):
     cost: int
 
 
+class TrafficCalibration(BaseModel):
+    available: bool
+    reason: str | None = None
+    expected_count: int | None = None
+    baseline_count: int | None = None
+    pressure: float
+    raw_pressure: float
+    sample_count: int | None = None
+    source: str | None = None
+    latest_service_date: str | None = None
+    distribution: dict
+    model_embedded: bool
+    runtime_adjustment_minutes: float
+
+
+class QueueCalibration(BaseModel):
+    available: bool
+    reason: str | None = None
+    resident_level: str | None = None
+    visitor_level: str | None = None
+    age_minutes: float | None = None
+    horizon_minutes: float | None = None
+    freshness_weight: float | None = None
+    horizon_weight: float | None = None
+    effective_weight: float
+    multiplier: float
+    adjustment_minutes: float
+
+
+class OfficialCalibration(BaseModel):
+    status: str
+    feature_version: str
+    calibration_version: str
+    traffic: TrafficCalibration
+    queue: QueueCalibration
+    raw_model_wait_minutes: float
+    queue_adjusted_wait_minutes: float
+    crowdsource_adjustment_minutes: float
+    calibrated_wait_minutes: float
+    uncertainty_minutes: float
+
+
 class PortPrediction(BaseModel):
     port_id: str
     name: str
@@ -68,6 +110,7 @@ class PortPrediction(BaseModel):
     uncertainty_minutes: float
     prediction_engine: str
     scenario_delta_minutes: int
+    official_calibration: OfficialCalibration
 
 
 class PredictionQuery(BaseModel):

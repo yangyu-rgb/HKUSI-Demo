@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "source_id": "hk_immd_daily_passenger_traffic",
+  "source_url": "https://www.immd.gov.hk/opendata/eng/transport/immigration_clearance/statistics_on_daily_passenger_traffic.csv",
+  "attribution": "香港特别行政区政府入境事务处、DATA.GOV.HK",
+  "exported_at": "2026-07-12T03:47:46+00:00",
+  "path": "data/history/public_port_traffic_daily.csv",
+  "sha256": "b21e3b23c794d346c517397f2b124e24a56bf85bac6f1331780a182bcc82a3d2",
+  "row_count": 16144,
+  "complete_date_count": 2018,
+  "start": "2021-01-01",
+  "end": "2026-07-11",
+  "ports": [
+    "futian",
+    "huanggang",
+    "luohu",
+    "shenzhen-bay"
+  ],
+  "directions": [
+    "hong_kong_to_shenzhen",
+    "shenzhen_to_hong_kong"
+  ]
+}

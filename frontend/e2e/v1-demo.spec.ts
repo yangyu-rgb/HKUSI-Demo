@@ -41,7 +41,10 @@ test("口岸态势、V2 场景、双向规划、通知与模型实验室闭环",
   await expect(page.getByText("主预测已启用")).toBeVisible();
   await expect(page.getByText("仅限课堂场景模型", { exact: false })).toBeVisible();
   await expect(page.getByRole("heading", { name: "官方特征来源" })).toBeVisible();
-  await expect(page.getByText("计入分钟标签：0 条", { exact: false })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "最终模型选择" })).toBeVisible();
+  await expect(page.getByText("全部晋级门槛通过")).toBeVisible();
+  await expect(page.getByText("90.57%", { exact: true })).toBeVisible();
+  await expect(page.getByText("计入实测分钟标签：0 条", { exact: false })).toBeVisible();
   await expect(page.getByText("i口岸实时通关信息")).toBeVisible();
 });
 

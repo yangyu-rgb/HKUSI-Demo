@@ -377,7 +377,7 @@
         "tags": [
           "Demo 控制"
         ],
-        "summary": "获取 AI v2 合成场景模型状态",
+        "summary": "获取 AI v2.1 公开客流混合模型状态",
         "operationId": "get_v2_model_api_demo_v2_model_get",
         "responses": {
           "200": {
@@ -1258,7 +1258,7 @@
           "路线预测"
         ],
         "summary": "比较四个口岸的路线方案",
-        "description": "使用 AI V2 场景模型和确定性交通矩阵；模型不可用时自动降级。",
+        "description": "使用官方客流驱动的 AI V2.1、15分钟拥堵等级校准和确定性交通矩阵；模型或网络不可用时自动降级。",
         "operationId": "predict_api_predict_post",
         "requestBody": {
           "content": {
@@ -4275,6 +4275,62 @@
         ],
         "title": "ObservationSource"
       },
+      "OfficialCalibration": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "feature_version": {
+            "type": "string",
+            "title": "Feature Version"
+          },
+          "calibration_version": {
+            "type": "string",
+            "title": "Calibration Version"
+          },
+          "traffic": {
+            "$ref": "#/components/schemas/TrafficCalibration"
+          },
+          "queue": {
+            "$ref": "#/components/schemas/QueueCalibration"
+          },
+          "raw_model_wait_minutes": {
+            "type": "number",
+            "title": "Raw Model Wait Minutes"
+          },
+          "queue_adjusted_wait_minutes": {
+            "type": "number",
+            "title": "Queue Adjusted Wait Minutes"
+          },
+          "crowdsource_adjustment_minutes": {
+            "type": "number",
+            "title": "Crowdsource Adjustment Minutes"
+          },
+          "calibrated_wait_minutes": {
+            "type": "number",
+            "title": "Calibrated Wait Minutes"
+          },
+          "uncertainty_minutes": {
+            "type": "number",
+            "title": "Uncertainty Minutes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "feature_version",
+          "calibration_version",
+          "traffic",
+          "queue",
+          "raw_model_wait_minutes",
+          "queue_adjusted_wait_minutes",
+          "crowdsource_adjustment_minutes",
+          "calibrated_wait_minutes",
+          "uncertainty_minutes"
+        ],
+        "title": "OfficialCalibration"
+      },
       "PortPrediction": {
         "properties": {
           "port_id": {
@@ -4392,6 +4448,9 @@
           "scenario_delta_minutes": {
             "type": "integer",
             "title": "Scenario Delta Minutes"
+          },
+          "official_calibration": {
+            "$ref": "#/components/schemas/OfficialCalibration"
           }
         },
         "type": "object",
@@ -4418,7 +4477,8 @@
           "historical_sample_count",
           "uncertainty_minutes",
           "prediction_engine",
-          "scenario_delta_minutes"
+          "scenario_delta_minutes",
+          "official_calibration"
         ],
         "title": "PortPrediction"
       },
@@ -4730,6 +4790,111 @@
           "balanced"
         ],
         "title": "Priority"
+      },
+      "QueueCalibration": {
+        "properties": {
+          "available": {
+            "type": "boolean",
+            "title": "Available"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "resident_level": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Resident Level"
+          },
+          "visitor_level": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Visitor Level"
+          },
+          "age_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Age Minutes"
+          },
+          "horizon_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Horizon Minutes"
+          },
+          "freshness_weight": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Freshness Weight"
+          },
+          "horizon_weight": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Horizon Weight"
+          },
+          "effective_weight": {
+            "type": "number",
+            "title": "Effective Weight"
+          },
+          "multiplier": {
+            "type": "number",
+            "title": "Multiplier"
+          },
+          "adjustment_minutes": {
+            "type": "number",
+            "title": "Adjustment Minutes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "available",
+          "effective_weight",
+          "multiplier",
+          "adjustment_minutes"
+        ],
+        "title": "QueueCalibration"
       },
       "ReadinessHealthResponse": {
         "properties": {
@@ -5754,6 +5919,111 @@
         ],
         "title": "SubscriptionUpdate"
       },
+      "TrafficCalibration": {
+        "properties": {
+          "available": {
+            "type": "boolean",
+            "title": "Available"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "expected_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Count"
+          },
+          "baseline_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Count"
+          },
+          "pressure": {
+            "type": "number",
+            "title": "Pressure"
+          },
+          "raw_pressure": {
+            "type": "number",
+            "title": "Raw Pressure"
+          },
+          "sample_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sample Count"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source"
+          },
+          "latest_service_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Service Date"
+          },
+          "distribution": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Distribution"
+          },
+          "model_embedded": {
+            "type": "boolean",
+            "title": "Model Embedded"
+          },
+          "runtime_adjustment_minutes": {
+            "type": "number",
+            "title": "Runtime Adjustment Minutes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "available",
+          "pressure",
+          "raw_pressure",
+          "distribution",
+          "model_embedded",
+          "runtime_adjustment_minutes"
+        ],
+        "title": "TrafficCalibration"
+      },
       "TravelDirection": {
         "type": "string",
         "enum": [
@@ -5945,6 +6215,69 @@
             },
             "type": "array",
             "title": "Limitations"
+          },
+          "target_scope": {
+            "type": "string",
+            "title": "Target Scope"
+          },
+          "real_feature_sources": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Real Feature Sources"
+          },
+          "calibration_version": {
+            "type": "string",
+            "title": "Calibration Version"
+          },
+          "source_snapshot": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Source Snapshot"
+          },
+          "data_audit": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Data Audit"
+          },
+          "formula": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Formula"
+          },
+          "selection": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Selection"
+          },
+          "candidate_leaderboard": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Candidate Leaderboard"
+          },
+          "interval_calibration": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Interval Calibration"
+          },
+          "traffic_distribution": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Traffic Distribution"
+          },
+          "sensitivity": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Sensitivity"
+          },
+          "promotion": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Promotion"
           }
         },
         "type": "object",
@@ -5957,7 +6290,19 @@
           "split",
           "metrics",
           "features",
-          "limitations"
+          "limitations",
+          "target_scope",
+          "real_feature_sources",
+          "calibration_version",
+          "source_snapshot",
+          "data_audit",
+          "formula",
+          "selection",
+          "candidate_leaderboard",
+          "interval_calibration",
+          "traffic_distribution",
+          "sensitivity",
+          "promotion"
         ],
         "title": "V2ModelResponse"
       },

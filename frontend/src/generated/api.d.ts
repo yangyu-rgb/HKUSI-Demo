@@ -116,7 +116,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 获取 AI v2 合成场景模型状态 */
+        /** 获取 AI v2.1 公开客流混合模型状态 */
         get: operations["get_v2_model_api_demo_v2_model_get"];
         put?: never;
         post?: never;
@@ -331,7 +331,7 @@ export interface paths {
         put?: never;
         /**
          * 比较四个口岸的路线方案
-         * @description 使用 AI V2 场景模型和确定性交通矩阵；模型不可用时自动降级。
+         * @description 使用官方客流驱动的 AI V2.1、15分钟拥堵等级校准和确定性交通矩阵；模型或网络不可用时自动降级。
          */
         post: operations["predict_api_predict_post"];
         delete?: never;
@@ -1229,6 +1229,27 @@ export interface components {
          * @enum {string}
          */
         ObservationSource: "demo_seed" | "demo_entry" | "crowdsource_observation" | "partner" | "official";
+        /** OfficialCalibration */
+        OfficialCalibration: {
+            /** Status */
+            status: string;
+            /** Feature Version */
+            feature_version: string;
+            /** Calibration Version */
+            calibration_version: string;
+            traffic: components["schemas"]["TrafficCalibration"];
+            queue: components["schemas"]["QueueCalibration"];
+            /** Raw Model Wait Minutes */
+            raw_model_wait_minutes: number;
+            /** Queue Adjusted Wait Minutes */
+            queue_adjusted_wait_minutes: number;
+            /** Crowdsource Adjustment Minutes */
+            crowdsource_adjustment_minutes: number;
+            /** Calibrated Wait Minutes */
+            calibrated_wait_minutes: number;
+            /** Uncertainty Minutes */
+            uncertainty_minutes: number;
+        };
         /** PortPrediction */
         PortPrediction: {
             /** Port Id */
@@ -1289,6 +1310,7 @@ export interface components {
             prediction_engine: string;
             /** Scenario Delta Minutes */
             scenario_delta_minutes: number;
+            official_calibration: components["schemas"]["OfficialCalibration"];
         };
         /** PortStatus */
         PortStatus: {
@@ -1408,6 +1430,31 @@ export interface components {
          * @enum {string}
          */
         Priority: "fastest" | "cheapest" | "balanced";
+        /** QueueCalibration */
+        QueueCalibration: {
+            /** Available */
+            available: boolean;
+            /** Reason */
+            reason?: string | null;
+            /** Resident Level */
+            resident_level?: string | null;
+            /** Visitor Level */
+            visitor_level?: string | null;
+            /** Age Minutes */
+            age_minutes?: number | null;
+            /** Horizon Minutes */
+            horizon_minutes?: number | null;
+            /** Freshness Weight */
+            freshness_weight?: number | null;
+            /** Horizon Weight */
+            horizon_weight?: number | null;
+            /** Effective Weight */
+            effective_weight: number;
+            /** Multiplier */
+            multiplier: number;
+            /** Adjustment Minutes */
+            adjustment_minutes: number;
+        };
         /** ReadinessHealthResponse */
         ReadinessHealthResponse: {
             /** Status */
@@ -1806,6 +1853,35 @@ export interface components {
             routine: components["schemas"]["Routine"];
             alerts?: components["schemas"]["AlertPreferences"];
         };
+        /** TrafficCalibration */
+        TrafficCalibration: {
+            /** Available */
+            available: boolean;
+            /** Reason */
+            reason?: string | null;
+            /** Expected Count */
+            expected_count?: number | null;
+            /** Baseline Count */
+            baseline_count?: number | null;
+            /** Pressure */
+            pressure: number;
+            /** Raw Pressure */
+            raw_pressure: number;
+            /** Sample Count */
+            sample_count?: number | null;
+            /** Source */
+            source?: string | null;
+            /** Latest Service Date */
+            latest_service_date?: string | null;
+            /** Distribution */
+            distribution: {
+                [key: string]: unknown;
+            };
+            /** Model Embedded */
+            model_embedded: boolean;
+            /** Runtime Adjustment Minutes */
+            runtime_adjustment_minutes: number;
+        };
         /**
          * TravelDirection
          * @enum {string}
@@ -1890,6 +1966,48 @@ export interface components {
             features: string[];
             /** Limitations */
             limitations: string[];
+            /** Target Scope */
+            target_scope: string;
+            /** Real Feature Sources */
+            real_feature_sources: string[];
+            /** Calibration Version */
+            calibration_version: string;
+            /** Source Snapshot */
+            source_snapshot: {
+                [key: string]: unknown;
+            };
+            /** Data Audit */
+            data_audit: {
+                [key: string]: unknown;
+            };
+            /** Formula */
+            formula: {
+                [key: string]: unknown;
+            };
+            /** Selection */
+            selection: {
+                [key: string]: unknown;
+            };
+            /** Candidate Leaderboard */
+            candidate_leaderboard: {
+                [key: string]: unknown;
+            }[];
+            /** Interval Calibration */
+            interval_calibration: {
+                [key: string]: unknown;
+            };
+            /** Traffic Distribution */
+            traffic_distribution: {
+                [key: string]: unknown;
+            };
+            /** Sensitivity */
+            sensitivity: {
+                [key: string]: unknown;
+            };
+            /** Promotion */
+            promotion: {
+                [key: string]: unknown;
+            };
         };
         /** V2ReadinessCheck */
         V2ReadinessCheck: {

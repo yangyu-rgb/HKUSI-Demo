@@ -138,6 +138,18 @@ class DemoService:
             "metrics": metadata["metrics"],
             "features": metadata["features"],
             "limitations": metadata["limitations"],
+            "target_scope": metadata.get("target_scope", "synthetic_target"),
+            "real_feature_sources": metadata.get("real_feature_sources", []),
+            "calibration_version": metadata["calibration_version"],
+            "source_snapshot": metadata["source_snapshot"],
+            "data_audit": metadata["data_audit"],
+            "formula": metadata["formula"],
+            "selection": metadata["selection"],
+            "candidate_leaderboard": metadata["candidate_leaderboard"],
+            "interval_calibration": metadata["interval_calibration"],
+            "traffic_distribution": metadata["traffic_distribution"],
+            "sensitivity": metadata["sensitivity"],
+            "promotion": metadata["promotion"],
         }
 
     def get_audit_events(self, limit: int) -> dict:

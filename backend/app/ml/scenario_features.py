@@ -14,6 +14,7 @@ FEATURE_NAMES = (
     "is_weekend", "is_holiday",
     "weather_clear", "weather_rain", "weather_heavy_rain", "weather_thunderstorm",
     "event_impact",
+    "traffic_pressure", "traffic_available",
 )
 
 
@@ -25,6 +26,8 @@ def scenario_feature_vector(
     weather: str,
     is_holiday: bool,
     event_impact: str,
+    traffic_pressure: float = 1.0,
+    traffic_available: bool = False,
 ) -> list[float]:
     if port not in PORTS:
         raise ValueError(f"不支持的口岸：{port}")
@@ -44,4 +47,6 @@ def scenario_feature_vector(
         float(weekday >= 5), float(is_holiday),
         *[float(weather == item) for item in WEATHER_TYPES],
         EVENT_IMPACTS[event_impact],
+        max(0.6, min(1.8, float(traffic_pressure))),
+        float(traffic_available),
     ]

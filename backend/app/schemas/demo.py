@@ -51,6 +51,18 @@ class V2ModelResponse(BaseModel):
     metrics: dict
     features: list[str]
     limitations: list[str]
+    target_scope: str
+    real_feature_sources: list[str]
+    calibration_version: str
+    source_snapshot: dict
+    data_audit: dict
+    formula: dict
+    selection: dict
+    candidate_leaderboard: list[dict]
+    interval_calibration: dict
+    traffic_distribution: dict
+    sensitivity: dict
+    promotion: dict
 
 
 class V1ReadinessCheck(BaseModel):

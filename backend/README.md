@@ -21,7 +21,9 @@ app/
 
 AI v1 使用合成历史数据训练梯度提升等待时间回归模型，并按时间划分训练、验证和测试集。FastAPI 启动时会可选加载该模型，但仅作影子计算：用户看到的等待时间、路线推荐和 API 契约仍由统计模型决定。
 
-根目录 `start.sh` 会先运行 `scripts/ensure_v1_model.py` 和 `scripts/ensure_v2_model.py`。只有运行时二进制缺失或无法通过已跟踪元数据、特征与数据哈希校验时才重建被忽略的产物；AI v2 使用已跟踪的可解释合成场景数据，所有指标只用于课堂 Demo。
+根目录 `start.sh` 会先运行 `scripts/ensure_v1_model.py` 和 `scripts/ensure_v2_model.py`。V2.1 从已跟踪的规范化官方客流快照确定性生成最近730天、140,160条运行时场景数据，再校验或重建被忽略的模型二进制；干净克隆不依赖既有 SQLite。启动脚本同时管理非阻塞官方采集子进程。
+
+最终训练器比较 Ridge、ExtraTrees 和 HistGradientBoosting 共25组候选，只用验证集选择，测试集仅作最终报告；数据审计、日历基线改善、客流消融、测试退化、90%区间覆盖、最差切片和单调敏感性全部通过才允许加载。AI v1 已冻结为影子对照。
 
 ```bash
 pip install -r requirements-dev.txt
@@ -70,7 +72,7 @@ python scripts/validate_exact_wait_labels.py /path/to/candidate.csv
 
 持续采集建议从仓库根目录运行 `./collector.sh start`，并用 `./collector.sh status` 查看进程、来源新鲜度、24 小时成功次数/完整率和最大缺口；`stop`/`restart` 分别停止或重启。采集器将原始响应写入被 Git 忽略的 `data/runtime/external_sources/`，并把标准化特征、内容哈希、修订历史和运行结果写入 SQLite。
 
-每次正式预测只查询 `generated_at` 当时已经抓取且已经观察到的官方值，并把结果冻结到预测运行。训练快照 schema v3 导出该冻结值；后续来源修订不会改写历史运行。V1 预测值、路线排序和用户结果不读取这些字段。官方等级一致性报告只比较 `normal/busy/very_busy` 的序数类别，不生成伪分钟或分钟 MAE。官方等级和客流不会生成等待分钟标签；候选精确标签校验器也只读，不执行导入。
+每次正式预测只查询 `generated_at` 当时已经抓取且已经观察到的官方值，并把结果冻结到预测运行。AI v2.1 读取官方历史客流压力；新鲜的 `normal/busy/very_busy` 等级按数据年龄和三小时预测跨度衰减后校准分钟结果。等级不转换成固定分钟标签，后续来源修订也不会改写历史运行。
 
 ## 运行
 
