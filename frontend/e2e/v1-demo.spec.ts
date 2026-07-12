@@ -39,18 +39,24 @@ test("口岸态势、V2 场景、双向规划、通知与模型实验室闭环",
   await expect(page.getByRole("heading", { name: "AI 模型实验室" })).toBeVisible();
   await expect(page.getByText("可完整演示")).toBeVisible();
   await expect(page.getByText("主预测已启用")).toBeVisible();
-  await expect(page.getByText("仅限课堂场景模型", { exact: false })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "官方特征来源" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "技术版：最终等待怎样算" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "大白话：像天气预报一样逐步修正" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "最终模型选择" })).toBeVisible();
   await expect(page.getByText("全部晋级门槛通过")).toBeVisible();
-  await expect(page.getByText("90.57%", { exact: true })).toBeVisible();
-  await expect(page.getByText("计入实测分钟标签：0 条", { exact: false })).toBeVisible();
-  await expect(page.getByText("i口岸实时通关信息")).toBeVisible();
+  await expect(page.getByText("90.44%", { exact: true })).toBeVisible();
+  await expect(page.getByText("仅用于课堂 Demo，不收集现场真实训练数据")).toBeVisible();
+
+  await page.goto("/mobile");
+  await expect(page.getByRole("heading", { name: "现在走哪个口岸？" })).toBeVisible();
+  await expect(page.getByText("深圳官方快照 · 交叉核验")).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "移动快捷导航" })).toBeVisible();
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
 });
 
 
 test("主要页面没有严重可访问性问题", async ({ page }) => {
-  for (const route of ["/", "/planner", "/scenarios", "/crowdsource", "/alerts", "/business", "/model"]) {
+  for (const route of ["/", "/planner", "/scenarios", "/crowdsource", "/alerts", "/business", "/model", "/mobile"]) {
     await page.goto(route);
     await page.locator("main").waitFor();
     const result = await new AxeBuilder({ page })

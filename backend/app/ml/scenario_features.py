@@ -11,9 +11,7 @@ FEATURE_NAMES = (
     "port_luohu", "port_futian", "port_huanggang", "port_shenzhen_bay",
     "direction_hk_to_sz", "direction_sz_to_hk",
     "hour_sin", "hour_cos", "weekday_sin", "weekday_cos",
-    "is_weekend", "is_holiday",
-    "weather_clear", "weather_rain", "weather_heavy_rain", "weather_thunderstorm",
-    "event_impact",
+    "is_weekend",
     "traffic_pressure", "traffic_available",
 )
 
@@ -44,9 +42,7 @@ def scenario_feature_vector(
         *[float(direction == item) for item in DIRECTIONS],
         sin(2 * pi * hour / 24), cos(2 * pi * hour / 24),
         sin(2 * pi * weekday / 7), cos(2 * pi * weekday / 7),
-        float(weekday >= 5), float(is_holiday),
-        *[float(weather == item) for item in WEATHER_TYPES],
-        EVENT_IMPACTS[event_impact],
+        float(weekday >= 5),
         max(0.6, min(1.8, float(traffic_pressure))),
         float(traffic_available),
     ]

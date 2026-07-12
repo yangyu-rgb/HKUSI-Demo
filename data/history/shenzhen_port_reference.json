@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "purpose": "classroom_demo_cross_source_validation_only",
+  "provider": "深圳市人民政府口岸办公室",
+  "captured_at": "2026-07-12T16:00:00+08:00",
+  "notes": [
+    "公开统计仅用于核验香港主特征，不与香港客流相加。",
+    "不同记录可能为实测或官方预测，均保留 metric_type 和统计周期。",
+    "未抓取 i口岸小程序或未公开内部接口。"
+  ],
+  "records": [
+    {
+      "service_date": "2023-12-31",
+      "published_at": "2024-01-03",
+      "metric_type": "observed_daily_total",
+      "source_url": "https://ka.sz.gov.cn/ztzl/sgkafftg/xgxw/content/post_11084967.html",
+      "ports": {"luohu": 221500, "futian": 216600, "huanggang": 48700, "shenzhen-bay": 112400}
+    },
+    {
+      "service_date": "2024-05-01/2024-05-05",
+      "published_at": "2024-05-08",
+      "metric_type": "observed_period_daily_average",
+      "source_url": "https://ka.sz.gov.cn/ztzl/hgkacj/xgxw/content/post_11282732.html",
+      "ports": {"luohu": 179200, "futian": 158200, "huanggang": 36840, "shenzhen-bay": 94860}
+    },
+    {
+      "service_date": "2025-01-28/2025-02-04",
+      "published_at": "2025-01-26",
+      "metric_type": "official_forecast_daily_average",
+      "source_url": "https://ka.sz.gov.cn/ztzl/zxxd/xgzx/content/post_11983052.html",
+      "ports": {"luohu": 200000, "futian": 170000, "huanggang": 50000, "shenzhen-bay": 120000}
+    },
+    {
+      "service_date": "2026-01-01",
+      "published_at": "2025-12-30",
+      "metric_type": "official_forecast_daily_average",
+      "source_url": "https://ka.sz.gov.cn/szsrmzfkabgswzgkml/szsrmzfkabgswzgkml/qt/gzdt/content/post_12578064.html",
+      "ports": {"luohu": 240000, "futian": 230000, "shenzhen-bay": 180000}
+    }
+  ]
+}

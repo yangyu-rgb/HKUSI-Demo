@@ -52,16 +52,16 @@
       "id": "shenzhen_open_port_passenger_data",
       "name": "深圳市政府数据开放平台分口岸旅客数据",
       "provider": "深圳市人民政府口岸办公室",
-      "status": "candidate",
-      "usage": "candidate_passenger_volume_feature",
-      "kind": "unverified_candidate",
+      "status": "approved_feature_only",
+      "usage": "cross_source_validation_feature",
+      "kind": "tracked_official_web_snapshot",
       "collection_enabled": false,
-      "url": "https://opendata.sz.gov.cn/",
-      "source_version": "unverified",
+      "url": "https://ka.sz.gov.cn/data_index_chart/",
+      "source_version": "shenzhen-port-office-public-snapshot-v1",
       "refresh_seconds": 86400,
       "attribution": "深圳市政府数据开放平台、深圳市人民政府口岸办公室",
-      "terms_url": "https://opendata.sz.gov.cn/",
-      "reason": "尚需核验字段粒度、接口要求、历史范围和许可。"
+      "terms_url": "https://ka.sz.gov.cn/bqbh/content/post_2289093.html",
+      "reason": "官方网页公开统计已固化为课堂核验快照；只比较标准化压力和区间，不与香港客流相加。"
     },
     {
       "id": "shenzhen_iport",

@@ -160,7 +160,7 @@ class WaitForecastService:
             report
             for report in reports
             if report["port"] == port_name and report["used_for_prediction"]
-        ][-3:]
+        ][-1:]
         crowd_mean = quality_weighted_wait(active_reports) if active_reports else None
         horizon_minutes = max(0.0, (target - current).total_seconds() / 60)
         if active_reports:

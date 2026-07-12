@@ -1,7 +1,6 @@
 export const queryKeys = {
   demoContext: ["demo-context"] as const,
   modelShadowSummary: ["model-shadow-summary"] as const,
-  v2Readiness: ["v2-readiness"] as const,
   v1Model: ["v1-model"] as const,
   v1Readiness: ["v1-readiness"] as const,
   demoPersonas: ["demo-personas"] as const,

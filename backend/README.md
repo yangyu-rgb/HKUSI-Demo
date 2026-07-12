@@ -21,7 +21,7 @@ app/
 
 AI v1 使用合成历史数据训练梯度提升等待时间回归模型，并按时间划分训练、验证和测试集。FastAPI 启动时会可选加载该模型，但仅作影子计算：用户看到的等待时间、路线推荐和 API 契约仍由统计模型决定。
 
-根目录 `start.sh` 会先运行 `scripts/ensure_v1_model.py` 和 `scripts/ensure_v2_model.py`。V2.1 从已跟踪的规范化官方客流快照确定性生成最近730天、140,160条运行时场景数据，再校验或重建被忽略的模型二进制；干净克隆不依赖既有 SQLite。启动脚本同时管理非阻塞官方采集子进程。
+根目录 `start.sh` 会先运行 `scripts/ensure_v1_model.py` 和 `scripts/ensure_v2_model.py`。V2.2 从已跟踪的规范化香港官方客流快照确定性生成最近730天、140,160条运行时基础数据，再校验或重建被忽略的模型二进制；干净克隆不依赖既有 SQLite、现场标签或网络采集。
 
 最终训练器比较 Ridge、ExtraTrees 和 HistGradientBoosting 共25组候选，只用验证集选择，测试集仅作最终报告；数据审计、日历基线改善、客流消融、测试退化、90%区间覆盖、最差切片和单调敏感性全部通过才允许加载。AI v1 已冻结为影子对照。
 
@@ -52,27 +52,20 @@ python scripts/train_wait_model.py
 
 `GET /api/demo/v1-readiness` 汇总双向路线矩阵、本地 Provider、SQLite、Demo 身份、AI v1 产物和通知适配器状态；`GET /api/health/live` 与 `GET /api/health/ready` 可供本地运行探测。所有写请求记录请求 ID、身份、组织、路径和状态码，并返回基础安全响应头。
 
-每个正式预测还会生成稳定的 `forecast_run_id`。众包提交可带上 `forecast_run_id` 与 `forecast_port_id`，并记录方向、通关类型、等待起止时间、真实现场声明、来源和建模同意；只有真实、已授权、高质量、未过期且尚无标签的反馈才会写入实际等待标签。旧数据库会进行保守的增量迁移，迁移前的反馈默认视为 Demo 数据。运行以下命令可将标签导出为被 Git 忽略的 CSV 与元数据，并包含数据哈希、时间范围、时间切分、来源和 V2 就绪度：
-
-```bash
-python scripts/export_training_snapshot.py
-```
-
-`GET /api/demo/v2-readiness` 也返回相同的在线检查。当前阈值要求至少 200 条真实授权标签、四个口岸、21 个日期、8 个小时切片、可用的时间分区和关键本地输入；同时返回被隔离反馈、真实来源和分布风险。200 条只允许启动受控实验，不代表 672 个口岸—日期—小时组合已完整覆盖；真实 Provider 与真实运营回测未完成前仍不能生产晋级。
+每个正式预测仍生成稳定的 `forecast_run_id`，众包可关联该运行以演示反馈前后的变化。公开 API 不再接收真实现场、建模同意或训练标签字段；反馈只参与当前课堂校准，最多30%，随新鲜度和预测距离衰减。旧数据库字段仅作本地兼容，不进入公开响应或训练流程。
 
 ## 官方特征采集
 
-`data/sources/official_sources.json` 登记外部来源的审批状态、用途、条款和刷新周期。当前只启用香港入境处居民/访客口岸拥堵等级及每日客流；深圳开放数据仍是候选，i口岸在获得书面授权前保持阻断。
+`data/sources/official_sources.json` 登记外部来源、用途和条款。香港入境处每日客流是主特征；深圳市口岸办公开统计固化为核验快照；i口岸内部接口保持阻断。
 
 ```bash
 python scripts/collect_official_sources.py
 python scripts/collect_official_sources.py --status
-python scripts/validate_exact_wait_labels.py /path/to/candidate.csv
 ```
 
-持续采集建议从仓库根目录运行 `./collector.sh start`，并用 `./collector.sh status` 查看进程、来源新鲜度、24 小时成功次数/完整率和最大缺口；`stop`/`restart` 分别停止或重启。采集器将原始响应写入被 Git 忽略的 `data/runtime/external_sources/`，并把标准化特征、内容哈希、修订历史和运行结果写入 SQLite。
+维护者可选择运行 `collector.sh` 更新香港缓存，但这不属于课堂运行链路。`start.sh` 只使用仓库快照，确保断网演示稳定。
 
-每次正式预测只查询 `generated_at` 当时已经抓取且已经观察到的官方值，并把结果冻结到预测运行。AI v2.1 读取官方历史客流压力；新鲜的 `normal/busy/very_busy` 等级按数据年龄和三小时预测跨度衰减后校准分钟结果。等级不转换成固定分钟标签，后续来源修订也不会改写历史运行。
+每次正式预测保存所用输入版本。AI v2.2 读取香港官方历史客流压力；新鲜的 `normal/busy/very_busy` 等级按数据年龄和三小时预测跨度衰减后校准分钟结果，深圳快照只核验区间。等级不转换成真实分钟标签。
 
 ## 运行
 

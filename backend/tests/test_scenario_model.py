@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parents[2]
 METADATA = ROOT / "data/models/wait_model_v2.metadata.json"
 
 
-def test_v2_artifact_loads_and_scenario_has_directional_effect() -> None:
+def test_v2_artifact_loads_and_leaves_scenario_to_transparent_runtime_layer() -> None:
     model = ScenarioWaitModel.load_optional()
     assert model.status.available is True
     common = {
@@ -23,7 +23,7 @@ def test_v2_artifact_loads_and_scenario_has_directional_effect() -> None:
     baseline = model.predict(**common, weather="clear", is_holiday=False, event_impact="none")
     severe = model.predict(**common, weather="heavy_rain", is_holiday=True, event_impact="high")
     assert baseline is not None and severe is not None
-    assert severe[0] > baseline[0] + 8
+    assert severe[0] == baseline[0]
 
 
 def test_v2_loader_fails_closed_when_artifact_is_missing(tmp_path) -> None:

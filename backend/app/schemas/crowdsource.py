@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field
 
 from .common import (
     CrossingChannel,
@@ -21,14 +21,6 @@ class CrowdsourceReport(BaseModel):
     forecast_port_id: str | None = None
     direction: TravelDirection = TravelDirection.HONG_KONG_TO_SHENZHEN
     channel: CrossingChannel = CrossingChannel.TRAVELLER
-    is_real_observation: bool = False
-    training_consent: bool = False
-
-    @model_validator(mode="after")
-    def validate_training_consent(self) -> "CrowdsourceReport":
-        if self.training_consent and not self.is_real_observation:
-            raise ValueError("只有明确声明的实际现场反馈才能授权用于模型训练")
-        return self
 
 
 class CrowdsourceRecord(CrowdsourceReport):
@@ -40,9 +32,6 @@ class CrowdsourceRecord(CrowdsourceReport):
     expires_at: datetime
     used_for_prediction: bool
     source_type: ObservationSource
-    wait_started_at: datetime | None = None
-    wait_ended_at: datetime | None = None
-    eligible_for_v2_label: bool
 
 
 class CrowdsourceFeedResponse(BaseModel):
@@ -54,7 +43,7 @@ class ForecastFeedbackLink(BaseModel):
     forecast_run_id: str
     forecast_port_id: str
     linked: bool
-    labeled: bool
+    calibration_linked: bool
     reason: str | None = None
 
 

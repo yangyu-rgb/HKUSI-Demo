@@ -157,6 +157,8 @@ def test_crowdsource_weight_decays_for_longer_horizons(repository, clock) -> Non
     )
 
     assert current_crowd["effective_weight"] > future_crowd["effective_weight"]
+    assert current_crowd["effective_weight"] <= 0.30
+    assert future_crowd["effective_weight"] >= 0.19
 
 
 def test_holiday_calendar_is_used_and_explained(repository, clock) -> None:

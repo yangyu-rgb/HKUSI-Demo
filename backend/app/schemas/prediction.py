@@ -73,13 +73,33 @@ class QueueCalibration(BaseModel):
     adjustment_minutes: float
 
 
+class ShenzhenValidation(BaseModel):
+    available: bool
+    provider: str | None = None
+    purpose: str | None = None
+    source_url: str | None = None
+    published_at: str | None = None
+    metric_type: str | None = None
+    reference_count: int | None = None
+    baseline_count: int | None = None
+    pressure: float | None = None
+    hong_kong_pressure: float | None = None
+    agreement_percent: float | None = None
+    uncertainty_multiplier: float
+    snapshot_sha256: str | None = None
+    point_prediction_adjustment_minutes: float
+    reason: str
+
+
 class OfficialCalibration(BaseModel):
     status: str
     feature_version: str
     calibration_version: str
     traffic: TrafficCalibration
     queue: QueueCalibration
+    shenzhen_validation: ShenzhenValidation
     raw_model_wait_minutes: float
+    scenario_adjusted_wait_minutes: float
     queue_adjusted_wait_minutes: float
     crowdsource_adjustment_minutes: float
     calibrated_wait_minutes: float

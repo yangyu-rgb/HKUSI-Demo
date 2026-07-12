@@ -1,4 +1,4 @@
-"""Generate deterministic AI v2.1 labels from a tracked official traffic snapshot."""
+"""Generate deterministic AI v2.2 base labels from a tracked official traffic snapshot."""
 
 from argparse import ArgumentParser
 from datetime import datetime
@@ -24,7 +24,7 @@ WEATHERS = ("clear", "rain", "heavy_rain", "thunderstorm")
 IMPACTS = ("none", "low", "medium", "high")
 WEATHER_FACTOR = {"clear": 1.0, "rain": 1.08, "heavy_rain": 1.18, "thunderstorm": 1.25}
 EVENT_FACTOR = {"none": 1.0, "low": 1.08, "medium": 1.20, "high": 1.38}
-FORMULA_VERSION = "public-traffic-scenario-formula-v2.1"
+FORMULA_VERSION = "public-traffic-transparent-base-formula-v2.2"
 
 
 def parse_args():
@@ -56,13 +56,11 @@ def wait_minutes(*, port_index: int, base: int, peak: int, moment: datetime, dir
     morning = math.exp(-((moment.hour - morning_center) ** 2) / 3.0)
     evening = math.exp(-((moment.hour - evening_center) ** 2) / 4.5)
     weekend = 0.9 if moment.weekday() >= 5 else 1.0
-    holiday_factor = 1.24 if holiday else 1.0
     direction_factor = 1.07 if direction == "shenzhen_to_hong_kong" and moment.hour >= 16 else 1.0
-    interaction = 1.04 if impact != "none" and weather in {"heavy_rain", "thunderstorm"} else 1.0
     noise = random.Random(f"{FORMULA_VERSION}-{moment.isoformat()}-{port_index}-{direction}-{weather}-{impact}").uniform(-2.2, 2.2)
     traffic_factor = max(0.85, min(1.30, 1 + 0.35 * (traffic_pressure - 1)))
     value = base + peak * morning + peak * 0.72 * evening + noise
-    return max(2, round(value * weekend * holiday_factor * direction_factor * WEATHER_FACTOR[weather] * EVENT_FACTOR[impact] * interaction * traffic_factor))
+    return max(2, round(value * weekend * direction_factor * traffic_factor))
 
 
 def main() -> None:
@@ -115,7 +113,7 @@ def main() -> None:
         "dataset": {"path": output_label, "sha256": digest, "sample_count": row_count, "start": selected_dates[0], "end": selected_dates[-1]},
         "source_snapshot": {"path": snapshot_label, "sha256": snapshot_metadata["sha256"], "source_id": snapshot_metadata["source_id"], "start": snapshot_metadata["start"], "end": snapshot_metadata["end"]},
         "audit": {"passed": True, "complete_dates": len(selected_dates), "warmup_days": WARMUP_DAYS, "duplicate_keys": 0, "missing_target_cells": 0, "negative_counts": 0, "future_rows_used": 0},
-        "coefficients": {"traffic_slope": 0.35, "traffic_pressure_bounds": [0.6, 1.8], "traffic_multiplier_bounds": [0.85, 1.30], "weather": WEATHER_FACTOR, "event": EVENT_FACTOR},
+        "coefficients": {"traffic_slope": 0.35, "traffic_pressure_bounds": [0.6, 1.8], "traffic_multiplier_bounds": [0.85, 1.30], "scenario_factors_applied_at_runtime": True},
     }
     args.metadata.write_text(json.dumps(metadata, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"generated={args.output}\nmetadata={args.metadata}\nrows={row_count}")

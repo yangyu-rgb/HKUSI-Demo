@@ -42,7 +42,7 @@ class ScenarioWaitModel:
                 return cls.unavailable("metadata_version_mismatch")
             if (
                 metadata.get("features") != list(FEATURE_NAMES)
-                or metadata.get("target_scope") != "public_feature_calibrated_synthetic_target"
+                or metadata.get("target_scope") != "public_feature_transparent_base_target"
                 or metadata.get("evaluation_scope") != "public_data_hybrid_classroom_demo"
                 or metadata.get("promotion", {}).get("passed") is not True
                 or metadata.get("split", {}).get("test_used_for_selection") is not False

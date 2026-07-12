@@ -9,9 +9,6 @@ BACKEND_PYTHON="${BACKEND_DIR}/.venv/bin/python"
 
 BACKEND_PID=""
 FRONTEND_PID=""
-COLLECTOR_PID=""
-COLLECTOR_MANAGED=""
-COLLECTOR_PID_FILE="${ROOT_DIR}/data/runtime/official-collector.pid"
 
 log() {
   printf '[CrossBorder AI] %s\n' "$1"
@@ -35,15 +32,8 @@ cleanup() {
   if [[ -n "${FRONTEND_PID}" ]] && kill -0 "${FRONTEND_PID}" 2>/dev/null; then
     kill "${FRONTEND_PID}" 2>/dev/null || true
   fi
-  if [[ -n "${COLLECTOR_MANAGED}" && -n "${COLLECTOR_PID}" ]] && kill -0 "${COLLECTOR_PID}" 2>/dev/null; then
-    kill "${COLLECTOR_PID}" 2>/dev/null || true
-  fi
-
   [[ -z "${BACKEND_PID}" ]] || wait "${BACKEND_PID}" 2>/dev/null || true
   [[ -z "${FRONTEND_PID}" ]] || wait "${FRONTEND_PID}" 2>/dev/null || true
-  [[ -z "${COLLECTOR_MANAGED}" || -z "${COLLECTOR_PID}" ]] || wait "${COLLECTOR_PID}" 2>/dev/null || true
-  [[ -z "${COLLECTOR_MANAGED}" ]] || rm -f "${COLLECTOR_PID_FILE}"
-
   if [[ -n "${BACKEND_PID}" || -n "${FRONTEND_PID}" ]]; then
     log "Services stopped."
   fi
@@ -87,17 +77,6 @@ if [[ ! -d "${FRONTEND_DIR}/node_modules" ]] || ! (
 fi
 
 mkdir -p "${ROOT_DIR}/data/runtime"
-if [[ -f "${COLLECTOR_PID_FILE}" ]] && COLLECTOR_PID="$(<"${COLLECTOR_PID_FILE}")" && [[ "${COLLECTOR_PID}" =~ ^[0-9]+$ ]] && kill -0 "${COLLECTOR_PID}" 2>/dev/null; then
-  log "Using existing official data collector (PID ${COLLECTOR_PID})"
-else
-  rm -f "${COLLECTOR_PID_FILE}"
-  log "Starting non-blocking official data collector (15-minute queue / daily traffic schedules)"
-  "${BACKEND_PYTHON}" -u "${BACKEND_DIR}/scripts/collect_official_sources.py" --interval 60 \
-    >>"${ROOT_DIR}/data/runtime/official-collector.log" 2>&1 &
-  COLLECTOR_PID=$!
-  COLLECTOR_MANAGED=1
-  printf '%s\n' "${COLLECTOR_PID}" >"${COLLECTOR_PID_FILE}"
-fi
 
 log "Starting backend at http://127.0.0.1:8000"
 (
@@ -116,7 +95,7 @@ FRONTEND_PID=$!
 printf '\n'
 log "Platform ready: http://127.0.0.1:5173"
 log "API documentation: http://127.0.0.1:8000/docs"
-log "Official data collector: PID ${COLLECTOR_PID} (network failures use cached data)"
+log "Official inputs: reproducible repository snapshots (no live collector required)"
 log "Press Ctrl+C to stop both services."
 printf '\n'
 

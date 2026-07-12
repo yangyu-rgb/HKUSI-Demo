@@ -16,8 +16,9 @@ AI_V2_DATASET_PATH = RUNTIME_DIR / "training_snapshots" / "scenario_wait_history
 AI_V2_DATASET_METADATA_PATH = RUNTIME_DIR / "training_snapshots" / "scenario_wait_history_v2.metadata.json"
 AI_V2_TRAFFIC_SNAPSHOT_PATH = DATA_DIR / "history" / "public_port_traffic_daily.csv"
 AI_V2_TRAFFIC_METADATA_PATH = DATA_DIR / "history" / "public_port_traffic_daily.metadata.json"
-AI_V2_MODEL_VERSION = "public-traffic-scenario-hgb-v2.1"
-AI_V2_SCHEMA_VERSION = 3
+SHENZHEN_REFERENCE_PATH = DATA_DIR / "history" / "shenzhen_port_reference.json"
+AI_V2_MODEL_VERSION = "public-traffic-transparent-hgb-v2.2"
+AI_V2_SCHEMA_VERSION = 4
 DEFAULT_SAFETY_BUFFER_MINUTES = 10
 MIN_TARGET_LEAD_MINUTES = 15
 MAX_TARGET_HORIZON_HOURS = 24 * 14
@@ -33,8 +34,8 @@ REPORT_QUALITY_MEDIUM_THRESHOLD = 60
 # Interpretable statistical demo configuration.
 HISTORY_RECENCY_HALF_LIFE_DAYS = 28
 HISTORY_ADJACENT_HOUR_WEIGHT = 0.5
-CROWDSOURCE_MAX_WEIGHT = 0.15
-CROWDSOURCE_HORIZON_DECAY_MINUTES = 90
+CROWDSOURCE_MAX_WEIGHT = 0.30
+CROWDSOURCE_HORIZON_DECAY_MINUTES = 720
 CONFIDENCE_LEVEL = 0.90
 MIN_STANDARD_DEVIATION_MINUTES = 3.0
 TREND_UNCERTAINTY_FACTOR = 0.35
@@ -44,6 +45,20 @@ EVENT_IMPACT_MULTIPLIERS = {
     "high": 1.20,
 }
 MAX_COMBINED_EVENT_MULTIPLIER = 1.35
+SCENARIO_WEATHER_MULTIPLIERS = {
+    "clear": 1.0,
+    "rain": 1.08,
+    "heavy_rain": 1.18,
+    "thunderstorm": 1.25,
+}
+SCENARIO_HOLIDAY_MULTIPLIER = 1.24
+SCENARIO_EVENT_MULTIPLIERS = {
+    "none": 1.0,
+    "low": 1.08,
+    "medium": 1.20,
+    "high": 1.38,
+}
+SCENARIO_MAX_MULTIPLIER = 2.10
 RISK_MEDIUM_THRESHOLD_PERCENT = 15
 RISK_HIGH_THRESHOLD_PERCENT = 35
 MODEL_VERSION = "time-weighted-statistical-demo-v2"

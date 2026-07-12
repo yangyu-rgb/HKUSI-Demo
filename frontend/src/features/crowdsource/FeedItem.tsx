@@ -38,10 +38,7 @@ export function FeedItem({ report }: { report: CrowdsourceReport }) {
             有效至 {formatClock(report.expires_at)}
             {!report.used_for_prediction && " · 不参与预测"}
           </small>
-          <small>
-            {report.is_real_observation ? "真实现场" : "演示数据"}
-            {report.eligible_for_v2_label ? " · V2 标签候选" : " · 不进入 V2 快照"}
-          </small>
+          <small>课堂演示反馈 · 不进入训练数据</small>
         </div>
       </div>
     </article>

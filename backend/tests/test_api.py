@@ -48,21 +48,11 @@ def test_v1_model_personas_and_readiness(client: TestClient) -> None:
     assert ready_health.status_code == 200
 
 
-def test_v2_readiness_separates_official_features_from_minute_labels(
+def test_real_label_readiness_is_retired_for_classroom_demo(
     client: TestClient,
 ) -> None:
     response = client.get("/api/demo/v2-readiness")
-
-    assert response.status_code == 200
-    payload = response.json()
-    assert payload["label_count"] == 0
-    assert payload["external_data"]["minute_labels_from_official_features"] == 0
-    assert len(payload["external_data"]["sources"]) == 5
-    assert next(
-        source
-        for source in payload["external_data"]["sources"]
-        if source["id"] == "shenzhen_iport"
-    )["status"] == "blocked"
+    assert response.status_code == 404
 
 
 def test_reverse_direction_prediction(client: TestClient) -> None:
@@ -242,13 +232,15 @@ def test_prediction_contract(client: TestClient) -> None:
     assert response.status_code == 200
     payload = response.json()
     assert payload["recommended_port_id"] == "shenzhen-bay"
-    assert payload["prediction_engine"] == "v2_1_public_hybrid"
+    assert payload["prediction_engine"] == "v2_2_transparent_hybrid"
     assert payload["ports"][0]["official_calibration"]["traffic"]["available"] is False
     calibration = payload["ports"][0]["official_calibration"]
-    assert calibration["calibration_version"] == "official-traffic-queue-crowd-v1"
+    assert calibration["calibration_version"] == "transparent-scenario-official-shenzhen-crowd-v2"
     assert calibration["traffic"]["distribution"]["status"] == "in_distribution"
     assert calibration["queue_adjusted_wait_minutes"] > 0
     assert calibration["uncertainty_minutes"] > 0
+    assert calibration["shenzhen_validation"]["available"] is True
+    assert calibration["shenzhen_validation"]["point_prediction_adjustment_minutes"] == 0
     assert payload["scenario"]["weather"] == "clear"
     assert len(payload["ports"]) == 4
     assert {"latest_departure", "estimated_arrival", "buffer_minutes", "on_time"} <= set(
@@ -263,7 +255,7 @@ def test_prediction_contract(client: TestClient) -> None:
     ai_factor = next(
         factor
         for factor in payload["ports"][0]["factors"]
-        if factor["code"] == "ai_v2_1"
+        if factor["code"] == "ai_v2_2_base"
     )
     expected_calibrated = (
         ai_factor["value_minutes"] * (1 - crowd_factor["effective_weight"])
@@ -280,7 +272,7 @@ def test_prediction_contract(client: TestClient) -> None:
     assert stored["primary_wait_minutes"] == payload["ports"][0][
         "predicted_wait_time"
     ]
-    assert stored["prediction_engine"] == "v2_1_public_hybrid"
+    assert stored["prediction_engine"] == "v2_2_transparent_hybrid"
     assert stored["scenario_version"] == payload["scenario"]["version"]
 
 
@@ -314,7 +306,7 @@ def test_scenario_override_changes_v2_prediction_and_can_reset(client: TestClien
     assert changed["scenario"]["is_override"] is True
     baseline_bay = next(item for item in baseline["ports"] if item["port_id"] == "shenzhen-bay")
     changed_bay = next(item for item in changed["ports"] if item["port_id"] == "shenzhen-bay")
-    assert changed_bay["predicted_wait_time"] > baseline_bay["predicted_wait_time"]
+    assert changed_bay["predicted_wait_time"] >= baseline_bay["predicted_wait_time"] + 8
     assert changed_bay["scenario_delta_minutes"] > 0
     assert changed["recommended_port_id"] != "shenzhen-bay"
 
@@ -665,7 +657,7 @@ def test_model_shadow_summary_reports_prediction_observations(client: TestClient
     assert len(payload["ports"]) == 4
 
 
-def test_high_quality_feedback_creates_labeled_forecast_observation(
+def test_classroom_feedback_links_calibration_without_training_label(
     client: TestClient,
 ) -> None:
     prediction = client.post(
@@ -698,30 +690,21 @@ def test_high_quality_feedback_creates_labeled_forecast_observation(
             "forecast_port_id": port["id"],
             "direction": "hong_kong_to_shenzhen",
             "channel": "traveller",
-            "is_real_observation": True,
-            "training_consent": True,
-            "comment": "关联预测的高质量实际等待反馈",
+            "comment": "关联预测的课堂校准反馈",
         },
     )
 
     assert report.status_code == 200
     assert report.json()["forecast_feedback"]["linked"] is True
-    assert report.json()["forecast_feedback"]["labeled"] is True
-    assert report.json()["report"]["source_type"] == "crowdsource_observation"
-    assert report.json()["report"]["eligible_for_v2_label"] is True
+    assert report.json()["forecast_feedback"]["calibration_linked"] is True
+    assert report.json()["report"]["source_type"] == "demo_entry"
+    assert "is_real_observation" not in report.json()["report"]
+    assert "training_consent" not in report.json()["report"]
     labels = client.app.state.repository.list_labeled_forecast_rows()
-    assert len(labels) == 1
-    assert labels[0]["forecast_run_id"] == forecast_run_id
-    assert labels[0]["observed_wait_minutes"] == port["current_wait"]
-
-    readiness = client.get("/api/demo/v2-readiness")
-    assert readiness.status_code == 200
-    assert readiness.json()["label_count"] == 1
-    assert readiness.json()["excluded_feedback_count"] == 0
-    assert readiness.json()["experiment_ready"] is False
+    assert labels == []
 
 
-def test_demo_feedback_is_linked_but_excluded_from_v2_labels(
+def test_demo_feedback_link_explains_classroom_only_use(
     client: TestClient,
 ) -> None:
     prediction = client.post(
@@ -748,15 +731,41 @@ def test_demo_feedback_is_linked_but_excluded_from_v2_labels(
 
     assert report.status_code == 200
     assert report.json()["forecast_feedback"]["linked"] is True
-    assert report.json()["forecast_feedback"]["labeled"] is False
-    assert "演示反馈" in report.json()["forecast_feedback"]["reason"]
-    readiness = client.get("/api/demo/v2-readiness").json()
-    assert readiness["label_count"] == 0
-    assert readiness["linked_feedback_count"] == 1
-    assert readiness["excluded_feedback_count"] == 1
+    assert report.json()["forecast_feedback"]["calibration_linked"] is True
+    assert "不进入训练数据" in report.json()["forecast_feedback"]["reason"]
 
 
-def test_training_consent_requires_real_observation(client: TestClient) -> None:
+def test_latest_classroom_feedback_has_visible_prediction_effect(
+    client: TestClient,
+) -> None:
+    query = {
+        "origin_id": "hku",
+        "destination_id": "nanshan-tech",
+        "target_time": "2026-07-10T09:30:00+08:00",
+        "preferences": {"priority": "balanced"},
+    }
+    before = client.post("/api/predict", json=query).json()
+    route = before["ports"][0]
+    reported_wait = route["predicted_wait_time"] + 20
+    crowd_level = "low" if reported_wait < 18 else "medium" if reported_wait < 35 else "high"
+    submitted = client.post(
+        "/api/crowdsource/report",
+        json={
+            "user_id": "visible-impact-user",
+            "port": route["name"],
+            "actual_wait_time": reported_wait,
+            "crowd_level": crowd_level,
+        },
+    )
+    assert submitted.status_code == 200
+
+    after = client.post("/api/predict", json=query).json()
+    changed = next(item for item in after["ports"] if item["port_id"] == route["port_id"])
+    assert changed["predicted_wait_time"] >= route["predicted_wait_time"] + 5
+    assert changed["official_calibration"]["crowdsource_adjustment_minutes"] >= 4.5
+
+
+def test_retired_training_fields_are_not_exposed(client: TestClient) -> None:
     response = client.post(
         "/api/crowdsource/report",
         json={
@@ -767,8 +776,9 @@ def test_training_consent_requires_real_observation(client: TestClient) -> None:
         },
     )
 
-    assert response.status_code == 422
-    assert response.json()["error"]["code"] == "VALIDATION_ERROR"
+    assert response.status_code == 200
+    assert "training_consent" not in response.json()["report"]
+    assert "is_real_observation" not in response.json()["report"]
 
 
 def test_demo_end_to_end_flow_and_reset(client: TestClient) -> None:

@@ -14,6 +14,7 @@ const navigation = [
   { to: "/alerts", label: "智能提醒" },
   { to: "/business", label: "企业方案" },
   { to: "/model", label: "AI 模型" },
+  { to: "/mobile", label: "手机版" },
 ];
 
 
@@ -68,7 +69,7 @@ export function AppLayout() {
               <option value={persona.id} key={persona.id}>{persona.name}</option>
             ))}
           </select>
-          <span className={styles.demoChip}>Simulated Data</span>
+          <span className={styles.demoChip}>Classroom Demo</span>
           <button onClick={handleReset} disabled={reset.isPending}>重置</button>
         </div>
       </header>
@@ -78,7 +79,7 @@ export function AppLayout() {
       <Outlet />
       <footer className={styles.footer}>
         <strong>CrossBorder AI</strong>
-        <span>SIUS2612 Topic 2 · Hong Kong live clock · Simulated border data</span>
+        <span>SIUS2612 Topic 2 · 香港官方主特征 · 深圳官方快照核验 · 非现场实测</span>
       </footer>
     </>
   );

@@ -1,4 +1,4 @@
-import { useModelShadowSummary, useV1Model, useV1Readiness, useV2Model, useV2Readiness } from "../features/demo/useDemo";
+import { useModelShadowSummary, useV1Model, useV1Readiness, useV2Model } from "../features/demo/useDemo";
 import { PageSkeleton } from "../shared/components/PageSkeleton";
 import styles from "./ModelPage.module.css";
 
@@ -20,12 +20,11 @@ export function ModelPage() {
   const model = useV1Model();
   const readiness = useV1Readiness();
   const shadow = useModelShadowSummary();
-  const v2 = useV2Readiness();
   const v2Model = useV2Model();
-  if (model.isPending || readiness.isPending || shadow.isPending || v2.isPending || v2Model.isPending) {
+  if (model.isPending || readiness.isPending || shadow.isPending || v2Model.isPending) {
     return <PageSkeleton cards={3} />;
   }
-  if (!model.data || !readiness.data || !shadow.data || !v2.data || !v2Model.data) {
+  if (!model.data || !readiness.data || !shadow.data || !v2Model.data) {
     return <main className="page"><p className="formError">模型状态暂时不可用。</p></main>;
   }
   const metrics = model.data.metrics as unknown as Record<string, { test: MetricSummary }>;
@@ -43,19 +42,19 @@ export function ModelPage() {
       <div className="pageIntro">
         <span className="sectionKicker">AI model lab</span>
         <h1>AI 模型实验室</h1>
-        <p>展示由官方公开客流驱动的 V2.1 混合模型、实时拥堵校准和 V1 影子对照。</p>
+        <p>展示由香港官方客流驱动、深圳官方快照核验的 V2.2 透明校准模型。</p>
       </div>
       <section className={styles.grid}>
         <article className={styles.panel}>
-          <h2>AI V2.1 公开数据混合模型</h2>
+          <h2>AI V2.2 透明校准模型</h2>
           <strong className={v2Model.data.artifact_available ? styles.ready : styles.blocked}>{v2Model.data.artifact_available ? "主预测已启用" : "已自动降级"}</strong>
           <div className={styles.stats}>
             <div><strong>{Number(v2Model.data.dataset.sample_count)}</strong><span>公开客流校准样本</span></div>
             <div><strong>{String((v2Model.data.metrics as Record<string, { mae: number }>).test.mae)}</strong><span>时间切分测试 MAE</span></div>
-            <div><strong>{v2Model.data.features.length}</strong><span>场景特征</span></div>
+            <div><strong>{v2Model.data.features.length}</strong><span>基础模型特征</span></div>
             <div><strong>{v2Metrics.traffic_ablation_test?.improvement_percent ?? "—"}%</strong><span>客流特征改善</span></div>
           </div>
-          <small>真实官方客流、天气、事件、方向和时间共同进入模型；等待分钟目标仍为课堂 Demo 估算。</small>
+          <small>基础模型只学习口岸、方向、时间和香港官方客流；天气、事件、官方状态和众包在模型后透明校准。</small>
         </article>
         <article className={styles.panel}>
           <h2>最终模型选择</h2>
@@ -122,40 +121,19 @@ export function ModelPage() {
             <p key={port.port_id}>{port.port_name} · 平均绝对差 {port.average_absolute_difference_minutes ?? "—"} 分钟</p>
           ))}
         </article>
-        <article className={styles.panel}>
-          <h2>生产研究边界</h2>
-          <p>{v2.data.label_count}/200 条真实授权标签；当前{v2.data.experiment_ready ? "可开展真实数据实验" : "仅限课堂场景模型"}。</p>
-          <p>该门槛不阻止公开数据增强的课堂模型，但继续阻止生产准确率声明。</p>
+        <article className={`${styles.panel} ${styles.wide}`}>
+          <h2>技术版：最终等待怎样算</h2>
+          <p><code>B = HGB(口岸、方向、时间、星期、香港客流压力)</code></p>
+          <p><code>S = B × min(2.10, 天气系数 × 节假日系数 × 事件系数)</code></p>
+          <p><code>Q = S × [1 + 官方权重 × (拥堵等级系数 − 1)]</code></p>
+          <p><code>P = Q × (1 − W) + 最新有效众包值 × W</code>，其中 <code>W ≤ 30%</code>。</p>
+          <small>深圳公开快照不与香港客流相加；两侧不一致时只扩大预测区间并显示警告。</small>
         </article>
         <article className={`${styles.panel} ${styles.wide}`}>
-          <h2>官方特征来源</h2>
-          <div className={styles.stats}>
-            <div><strong>{v2.data.external_data.feature_observation_count}</strong><span>可用特征观测</span></div>
-            <div><strong>{v2.data.external_data.ports.length}/4</strong><span>口岸覆盖</span></div>
-            <div><strong>{v2.data.external_data.success_rate_percent ?? "—"}%</strong><span>采集成功率</span></div>
-          </div>
-          <p>
-            官方拥堵等级与客流直接参与运行时特征和校准；计入实测分钟标签：
-            {v2.data.external_data.minute_labels_from_official_features} 条。
-          </p>
-          <p>
-            点时快照完整率：{v2.data.external_data.forecast_snapshot_coverage_percent ?? "—"}% ·
-            官方等级一致率：{String(v2.data.external_data.alignment.agreement_percent ?? "—")}%
-          </p>
-          <div className={styles.sources}>
-            {v2.data.external_data.sources.map((source) => (
-              <div key={source.id}>
-                <b>{source.name}</b>
-                <span>
-                  {source.status} · {source.freshness_status} · {source.observation_count} 条观测
-                  {source.completeness_24h_percent !== null
-                    ? ` · 24h ${source.completeness_24h_percent}%`
-                    : ""}
-                </span>
-                <small>{source.reason}</small>
-              </div>
-            ))}
-          </div>
+          <h2>大白话：像天气预报一样逐步修正</h2>
+          <p>AI 先根据过去同口岸、同方向、相近时间和客流找一个“底数”；暴雨、节假日和突发事件再按公开系数把底数调高；最新官方拥堵状态和同学输入的 Demo 反馈继续纠正；最后比较四条路线的总时间、费用和迟到风险。</p>
+          <p>香港数据负责主要计算，深圳市口岸办公开数据负责“对答案”。两边差得越大，系统越保守地放宽区间，而不会把同一批旅客算两次。</p>
+          <strong className={styles.ready}>仅用于课堂 Demo，不收集现场真实训练数据</strong>
         </article>
       </section>
     </main>

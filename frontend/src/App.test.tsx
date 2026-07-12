@@ -274,12 +274,8 @@ describe("application routes", () => {
     expect(await screen.findByText("高可信 95分")).toBeInTheDocument();
     expect(screen.getByText("有效至 09:10")).toBeInTheDocument();
 
-    const realObservation = screen.getByLabelText("这是我刚完成通关后的真实现场反馈");
-    const trainingConsent = screen.getByLabelText("同意将去标识化记录用于后续模型训练与评估");
-    expect(trainingConsent).toBeDisabled();
-    fireEvent.click(realObservation);
-    expect(trainingConsent).not.toBeDisabled();
-    fireEvent.click(trainingConsent);
+    expect(screen.getByText("课堂 Demo 数据")).toBeInTheDocument();
+    expect(screen.getByText(/最多以30%权重影响当前预测/)).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText(/实际等待/), { target: { value: "14" } });
     fireEvent.click(screen.getByRole("button", { name: "提交反馈" }));
@@ -290,8 +286,8 @@ describe("application routes", () => {
       ([input, init]) => String(input).endsWith("/api/crowdsource/report") && init?.method === "POST",
     );
     const reportBody = JSON.parse(String(reportCall?.[1]?.body));
-    expect(reportBody.is_real_observation).toBe(true);
-    expect(reportBody.training_consent).toBe(true);
+    expect(reportBody.is_real_observation).toBeUndefined();
+    expect(reportBody.training_consent).toBeUndefined();
     expect(reportBody.direction).toBe("hong_kong_to_shenzhen");
     expect(reportBody.channel).toBe("traveller");
   });

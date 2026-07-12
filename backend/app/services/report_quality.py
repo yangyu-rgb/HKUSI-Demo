@@ -52,19 +52,10 @@ def evaluate_report(report: dict, port: dict, current_time: datetime) -> dict:
     )
     expires_at = effective_at + timedelta(minutes=REPORT_EXPIRY_MINUTES)
     freshness = max(0.0, 1 - age_minutes / REPORT_EXPIRY_MINUTES)
-    if report.get("is_real_observation"):
-        # A real observation must not be rewarded for agreeing with the simulated
-        # baseline. Its explicit timing metadata is the wait-duration evidence.
-        wait_evidence = (
-            1.0
-            if report.get("wait_started_at") and report.get("wait_ended_at")
-            else 0.5
-        )
-    else:
-        wait_evidence = _wait_consistency(
-            report["actual_wait_time"],
-            port["current_wait"],
-        )
+    wait_evidence = _wait_consistency(
+        report["actual_wait_time"],
+        port["current_wait"],
+    )
     score = round(
         100
         * (
@@ -89,13 +80,6 @@ def evaluate_report(report: dict, port: dict, current_time: datetime) -> dict:
         time_label = "刚刚"
     else:
         time_label = f"{floor(age_minutes)}分钟前"
-    eligible_for_v2_label = (
-        active
-        and quality_level == "high"
-        and bool(report.get("is_real_observation"))
-        and bool(report.get("training_consent"))
-        and bool(report.get("forecast_run_id"))
-    )
     return {
         **report,
         "time_label": time_label,
@@ -103,7 +87,6 @@ def evaluate_report(report: dict, port: dict, current_time: datetime) -> dict:
         "quality_level": quality_level,
         "expires_at": expires_at,
         "used_for_prediction": active and score >= REPORT_MIN_PREDICTION_SCORE,
-        "eligible_for_v2_label": eligible_for_v2_label,
         "_active": active,
         "_age_minutes": age_minutes,
     }
@@ -128,7 +111,13 @@ def public_report(report: dict) -> dict:
     return {
         key: value
         for key, value in report.items()
-        if not key.startswith("_")
+        if not key.startswith("_") and key not in {
+            "is_real_observation",
+            "training_consent",
+            "wait_started_at",
+            "wait_ended_at",
+            "eligible_for_v2_label",
+        }
     }
 
 

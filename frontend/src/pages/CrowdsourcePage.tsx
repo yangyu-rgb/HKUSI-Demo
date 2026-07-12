@@ -31,8 +31,6 @@ export function CrowdsourcePage() {
   const [channel, setChannel] = useState<NonNullable<ReportInput["channel"]>>(
     "traveller",
   );
-  const [isRealObservation, setIsRealObservation] = useState(false);
-  const [trainingConsent, setTrainingConsent] = useState(false);
   const forecastRunId = searchParams.get("forecast_run_id");
   const forecastPortId = searchParams.get("forecast_port_id");
   const forecastDirection = searchParams.get("direction");
@@ -71,8 +69,6 @@ export function CrowdsourcePage() {
       forecast_port_id: forecastPortId,
       direction,
       channel,
-      is_real_observation: isRealObservation,
-      training_consent: isRealObservation && trainingConsent,
     });
     if (submitted) {
       await realtime.refresh();
@@ -99,7 +95,7 @@ export function CrowdsourcePage() {
         <form className={styles.form} onSubmit={handleSubmit}>
           {forecastRunId && forecastPortId && (
             <p className={styles.forecastLink}>
-              本次反馈将关联到路线预测；只有真实现场、明确同意且质量达标的数据才可能成为 V2 标签。
+              本次反馈将关联到路线预测并用于课堂校准，但不会被收集为真实训练标签。
             </p>
           )}
           <div className={styles.formRow}>
@@ -167,27 +163,8 @@ export function CrowdsourcePage() {
             </div>
           </label>
           <div className={styles.dataGovernance}>
-            <label>
-              <input
-                type="checkbox"
-                checked={isRealObservation}
-                onChange={(event) => {
-                  setIsRealObservation(event.target.checked);
-                  if (!event.target.checked) setTrainingConsent(false);
-                }}
-              />
-              <span>这是我刚完成通关后的真实现场反馈</span>
-            </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={trainingConsent}
-                disabled={!isRealObservation}
-                onChange={(event) => setTrainingConsent(event.target.checked)}
-              />
-              <span>同意将去标识化记录用于后续模型训练与评估</span>
-            </label>
-            <small>未勾选的反馈仍可用于 Demo 校准，但会与真实训练标签严格隔离。</small>
+            <strong>课堂 Demo 数据</strong>
+            <small>反馈最多以30%权重影响当前预测，随新鲜度和预测距离衰减；项目不收集现场真实训练标签。</small>
           </div>
           <label>
             <span>补充说明</span>

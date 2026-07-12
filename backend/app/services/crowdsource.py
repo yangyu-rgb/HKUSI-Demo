@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from math import ceil
 
 from ..config import REPORT_DUPLICATE_WINDOW_MINUTES
@@ -111,49 +111,25 @@ class CrowdsourceService:
             "comment": report.comment or "现场通关反馈",
             "direction": report.direction,
             "channel": report.channel,
-            "is_real_observation": report.is_real_observation,
-            "training_consent": report.training_consent,
-            "source_type": (
-                "crowdsource_observation"
-                if report.is_real_observation
-                else "demo_entry"
-            ),
-            "wait_started_at": (
-                now - timedelta(minutes=report.actual_wait_time)
-            ).isoformat(),
-            "wait_ended_at": now.isoformat(),
+            "is_real_observation": False,
+            "training_consent": False,
+            "source_type": "demo_entry",
+            "wait_started_at": None,
+            "wait_ended_at": None,
         }
         stored = self._repository.add_report(record)
         evaluated = evaluate_report(stored, port, now)
         record = public_report(evaluated)
-        record["eligible_for_v2_label"] = (
-            record["used_for_prediction"]
-            and record["quality_level"] == "high"
-            and record["is_real_observation"]
-            and record["training_consent"]
-            and bool(report.forecast_run_id)
-        )
         forecast_feedback = None
         if report.forecast_run_id:
-            if not record["is_real_observation"]:
-                label_rejection_reason = "演示反馈已保留关联，但不作为真实训练标签"
-            elif not record["training_consent"]:
-                label_rejection_reason = "未获得建模同意，已保留关联但不作为训练标签"
-            elif not (
-                record["used_for_prediction"]
-                and record["quality_level"] == "high"
-            ):
-                label_rejection_reason = "反馈质量不足，已保留关联但不作为训练标签"
-            else:
-                label_rejection_reason = None
             link = self._repository.link_feedback_to_forecast(
                 report_id=record["id"],
                 forecast_run_id=report.forecast_run_id,
                 port_id=forecast_port_id,
                 actual_wait_minutes=record["actual_wait_time"],
                 quality_score=record["quality_score"],
-                eligible_for_label=record["eligible_for_v2_label"],
-                ineligibility_reason=label_rejection_reason,
+                eligible_for_label=False,
+                ineligibility_reason="课堂 Demo 只用于当前预测校准，不收集训练标签",
             )
             assert link is not None
             record["forecast_run_id"] = report.forecast_run_id
@@ -161,7 +137,9 @@ class CrowdsourceService:
             forecast_feedback = {
                 "forecast_run_id": report.forecast_run_id,
                 "forecast_port_id": forecast_port_id,
-                **link,
+                "linked": bool(link["linked"]),
+                "calibration_linked": bool(link["linked"]),
+                "reason": "已关联本次课堂预测校准，不进入训练数据。",
             }
         points = {
             "high": 10,

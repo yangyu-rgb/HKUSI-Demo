@@ -116,7 +116,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** 获取 AI v2.1 公开客流混合模型状态 */
+        /** 获取 AI v2.2 透明校准课堂模型状态 */
         get: operations["get_v2_model_api_demo_v2_model_get"];
         put?: never;
         post?: never;
@@ -169,23 +169,6 @@ export interface paths {
         };
         /** 获取 AI v1 影子观测汇总 */
         get: operations["get_model_shadow_summary_api_demo_model_shadow_summary_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/demo/v2-readiness": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** 获取 V2 模型训练与晋级就绪度 */
-        get: operations["get_v2_readiness_api_demo_v2_readiness_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -837,16 +820,6 @@ export interface components {
             direction: components["schemas"]["TravelDirection"];
             /** @default traveller */
             channel: components["schemas"]["CrossingChannel"];
-            /**
-             * Is Real Observation
-             * @default false
-             */
-            is_real_observation: boolean;
-            /**
-             * Training Consent
-             * @default false
-             */
-            training_consent: boolean;
             /** Id */
             id: string;
             /**
@@ -867,12 +840,6 @@ export interface components {
             /** Used For Prediction */
             used_for_prediction: boolean;
             source_type: components["schemas"]["ObservationSource"];
-            /** Wait Started At */
-            wait_started_at?: string | null;
-            /** Wait Ended At */
-            wait_ended_at?: string | null;
-            /** Eligible For V2 Label */
-            eligible_for_v2_label: boolean;
         };
         /** CrowdsourceReport */
         CrowdsourceReport: {
@@ -899,16 +866,6 @@ export interface components {
             direction: components["schemas"]["TravelDirection"];
             /** @default traveller */
             channel: components["schemas"]["CrossingChannel"];
-            /**
-             * Is Real Observation
-             * @default false
-             */
-            is_real_observation: boolean;
-            /**
-             * Training Consent
-             * @default false
-             */
-            training_consent: boolean;
         };
         /** CrowdsourceSubmitResponse */
         CrowdsourceSubmitResponse: {
@@ -1026,106 +983,6 @@ export interface components {
         ErrorResponse: {
             error: components["schemas"]["ErrorBody"];
         };
-        /** ExternalDataReadiness */
-        ExternalDataReadiness: {
-            /** Sources */
-            sources: components["schemas"]["ExternalSourceReadiness"][];
-            /** Official Observation Count */
-            official_observation_count: number;
-            /** Feature Observation Count */
-            feature_observation_count: number;
-            /** Ports */
-            ports: components["schemas"]["ExternalPortCoverage"][];
-            /** Directions */
-            directions: components["schemas"]["ExternalDirectionCoverage"][];
-            /** Distinct Dates */
-            distinct_dates: number;
-            /** Hour Slices */
-            hour_slices: number;
-            /** Last Observed At */
-            last_observed_at?: string | null;
-            /** Collection Runs */
-            collection_runs: number;
-            /** Successful Runs */
-            successful_runs: number;
-            /** Failed Runs */
-            failed_runs: number;
-            /** Success Rate Percent */
-            success_rate_percent?: number | null;
-            /** Forecast Snapshot Total */
-            forecast_snapshot_total: number;
-            /** Forecast Snapshot Complete */
-            forecast_snapshot_complete: number;
-            /** Forecast Snapshot Coverage Percent */
-            forecast_snapshot_coverage_percent?: number | null;
-            /** Minute Labels From Official Features */
-            minute_labels_from_official_features: number;
-            /** Alignment */
-            alignment: {
-                [key: string]: unknown;
-            };
-        };
-        /** ExternalDirectionCoverage */
-        ExternalDirectionCoverage: {
-            /** Direction */
-            direction: string;
-            /** Observation Count */
-            observation_count: number;
-        };
-        /** ExternalPortCoverage */
-        ExternalPortCoverage: {
-            /** Port Id */
-            port_id: string;
-            /** Observation Count */
-            observation_count: number;
-        };
-        /** ExternalSourceReadiness */
-        ExternalSourceReadiness: {
-            /** Id */
-            id: string;
-            /** Name */
-            name: string;
-            /** Provider */
-            provider: string;
-            /** Status */
-            status: string;
-            /** Usage */
-            usage: string;
-            /** Kind */
-            kind: string;
-            /** Collection Enabled */
-            collection_enabled: boolean;
-            /** Url */
-            url: string;
-            /** Source Version */
-            source_version: string;
-            /** Refresh Seconds */
-            refresh_seconds: number;
-            /** Traveler Category */
-            traveler_category?: string | null;
-            /** Attribution */
-            attribution: string;
-            /** Terms Url */
-            terms_url: string;
-            /** Reason */
-            reason: string;
-            /** Observation Count */
-            observation_count: number;
-            /** Last Fetched At */
-            last_fetched_at?: string | null;
-            /** Age Minutes */
-            age_minutes?: number | null;
-            /** Freshness Status */
-            freshness_status: string;
-            /** Expected Runs 24H */
-            expected_runs_24h: number;
-            /** Successful Runs 24H */
-            successful_runs_24h: number;
-            /** Completeness 24H Percent */
-            completeness_24h_percent?: number | null;
-            /** Max Gap Minutes 24H */
-            max_gap_minutes_24h?: number | null;
-        };
         /** ForecastFeedbackLink */
         ForecastFeedbackLink: {
             /** Forecast Run Id */
@@ -1134,8 +991,8 @@ export interface components {
             forecast_port_id: string;
             /** Linked */
             linked: boolean;
-            /** Labeled */
-            labeled: boolean;
+            /** Calibration Linked */
+            calibration_linked: boolean;
             /** Reason */
             reason?: string | null;
         };
@@ -1239,8 +1096,11 @@ export interface components {
             calibration_version: string;
             traffic: components["schemas"]["TrafficCalibration"];
             queue: components["schemas"]["QueueCalibration"];
+            shenzhen_validation: components["schemas"]["ShenzhenValidation"];
             /** Raw Model Wait Minutes */
             raw_model_wait_minutes: number;
+            /** Scenario Adjusted Wait Minutes */
+            scenario_adjusted_wait_minutes: number;
             /** Queue Adjusted Wait Minutes */
             queue_adjusted_wait_minutes: number;
             /** Crowdsource Adjustment Minutes */
@@ -1710,6 +1570,39 @@ export interface components {
             /** Ports */
             ports: components["schemas"]["ShadowObservationPortSummary"][];
         };
+        /** ShenzhenValidation */
+        ShenzhenValidation: {
+            /** Available */
+            available: boolean;
+            /** Provider */
+            provider?: string | null;
+            /** Purpose */
+            purpose?: string | null;
+            /** Source Url */
+            source_url?: string | null;
+            /** Published At */
+            published_at?: string | null;
+            /** Metric Type */
+            metric_type?: string | null;
+            /** Reference Count */
+            reference_count?: number | null;
+            /** Baseline Count */
+            baseline_count?: number | null;
+            /** Pressure */
+            pressure?: number | null;
+            /** Hong Kong Pressure */
+            hong_kong_pressure?: number | null;
+            /** Agreement Percent */
+            agreement_percent?: number | null;
+            /** Uncertainty Multiplier */
+            uncertainty_multiplier: number;
+            /** Snapshot Sha256 */
+            snapshot_sha256?: string | null;
+            /** Point Prediction Adjustment Minutes */
+            point_prediction_adjustment_minutes: number;
+            /** Reason */
+            reason: string;
+        };
         /** SubscriptionEvaluationListResponse */
         SubscriptionEvaluationListResponse: {
             /** Evaluations */
@@ -2008,73 +1901,6 @@ export interface components {
             promotion: {
                 [key: string]: unknown;
             };
-        };
-        /** V2ReadinessCheck */
-        V2ReadinessCheck: {
-            /** Name */
-            name: string;
-            /** Actual */
-            actual: number;
-            /** Required */
-            required: number;
-            /** Passed */
-            passed: boolean;
-        };
-        /** V2ReadinessLabelSource */
-        V2ReadinessLabelSource: {
-            /** Source Type */
-            source_type: string;
-            /** Label Count */
-            label_count: number;
-        };
-        /** V2ReadinessPort */
-        V2ReadinessPort: {
-            /** Port Id */
-            port_id: string;
-            /** Label Count */
-            label_count: number;
-        };
-        /** V2ReadinessResponse */
-        V2ReadinessResponse: {
-            /** Experiment Ready */
-            experiment_ready: boolean;
-            /** Production Promotion Ready */
-            production_promotion_ready: boolean;
-            /** Label Count */
-            label_count: number;
-            /** Linked Feedback Count */
-            linked_feedback_count: number;
-            /** Excluded Feedback Count */
-            excluded_feedback_count: number;
-            /** Label Sources */
-            label_sources: components["schemas"]["V2ReadinessLabelSource"][];
-            /** Ports */
-            ports: components["schemas"]["V2ReadinessPort"][];
-            /** Distinct Dates */
-            distinct_dates: number;
-            /** Hour Slices */
-            hour_slices: number;
-            /** Data Versions */
-            data_versions: string[];
-            /** Statistical Mae Minutes */
-            statistical_mae_minutes?: number | null;
-            /** Shadow Mae Minutes */
-            shadow_mae_minutes?: number | null;
-            /** Shadow Labeled Count */
-            shadow_labeled_count: number;
-            /** Time Split */
-            time_split: {
-                [key: string]: unknown;
-            };
-            /** Checks */
-            checks: components["schemas"]["V2ReadinessCheck"][];
-            /** Data Sources */
-            data_sources: components["schemas"]["DataSourceStatus"][];
-            /** Coverage Warnings */
-            coverage_warnings: string[];
-            /** Production Blockers */
-            production_blockers: string[];
-            external_data: components["schemas"]["ExternalDataReadiness"];
         };
         /**
          * Weekday
@@ -2612,62 +2438,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ShadowObservationSummaryResponse"];
-                };
-            };
-            /** @description 请求的资源不存在 */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description 请求与当前状态冲突 */
-            409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description 领域规则或请求参数验证失败 */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-            /** @description 内部服务或持久化错误 */
-            500: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ErrorResponse"];
-                };
-            };
-        };
-    };
-    get_v2_readiness_api_demo_v2_readiness_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description 请求成功 */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["V2ReadinessResponse"];
                 };
             };
             /** @description 请求的资源不存在 */

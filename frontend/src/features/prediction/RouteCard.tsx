@@ -22,6 +22,9 @@ export function RouteCard({
     status?: string;
     traffic?: { pressure?: number; expected_count?: number; baseline_count?: number; distribution?: { status?: string } };
     queue?: { resident_level?: string | null; visitor_level?: string | null; effective_weight?: number; age_minutes?: number };
+    shenzhen_validation?: { available?: boolean; agreement_percent?: number | null; uncertainty_multiplier?: number; reason?: string };
+    raw_model_wait_minutes?: number;
+    scenario_adjusted_wait_minutes?: number;
     queue_adjusted_wait_minutes?: number;
     crowdsource_adjustment_minutes?: number;
     uncertainty_minutes?: number;
@@ -70,7 +73,19 @@ export function RouteCard({
           : ""}
       </div>
       <details className={styles.factors}>
-        <summary>查看预测依据</summary>
+        <summary>查看完整计算过程</summary>
+        <p>
+          AI基础 {official.raw_model_wait_minutes ?? "—"} 分 →
+          场景校准 {official.scenario_adjusted_wait_minutes ?? "—"} 分 →
+          官方等级 {official.queue_adjusted_wait_minutes ?? "—"} 分 →
+          众包 {official.crowdsource_adjustment_minutes !== undefined && official.crowdsource_adjustment_minutes >= 0 ? "+" : ""}{official.crowdsource_adjustment_minutes ?? "—"} 分 →
+          最终 {route.predicted_wait_time} 分
+        </p>
+        <p>
+          深圳核验：{official.shenzhen_validation?.available
+            ? `两侧压力一致度 ${official.shenzhen_validation.agreement_percent}% · 区间系数 ×${official.shenzhen_validation.uncertainty_multiplier}`
+            : official.shenzhen_validation?.reason ?? "暂无快照"}
+        </p>
         <ul>
           {factors.map((factor, index) => (
             <li key={`${String(factor.code)}-${index}`}>
@@ -83,6 +98,7 @@ export function RouteCard({
               )}
               <span>
                 {factor.value_minutes !== undefined && `${String(factor.value_minutes)}分钟`}
+                {factor.value_multiplier !== undefined && `系数×${String(factor.value_multiplier)}`}
                 {factor.effective_weight !== undefined && ` · 权重${Math.round(Number(factor.effective_weight) * 100)}%`}
                 {factor.average_quality_score !== undefined && ` · 平均质量${String(factor.average_quality_score)}分`}
                 {factor.detail !== undefined && `${

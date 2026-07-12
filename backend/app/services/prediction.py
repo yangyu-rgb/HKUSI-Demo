@@ -15,11 +15,17 @@ from ..config import (
     MODEL_VERSION,
     RISK_HIGH_THRESHOLD_PERCENT,
     RISK_MEDIUM_THRESHOLD_PERCENT,
+    SCENARIO_EVENT_MULTIPLIERS,
+    SCENARIO_HOLIDAY_MULTIPLIER,
+    SCENARIO_MAX_MULTIPLIER,
+    SCENARIO_WEATHER_MULTIPLIERS,
+    SHENZHEN_REFERENCE_PATH,
 )
 from ..exceptions import DomainValidationError, ErrorCode
 from ..repositories import DemoRepository
 from ..ml.shadow import ShadowWaitModel
 from ..ml.scenario_model import ScenarioWaitModel
+from ..ml.shenzhen_reference import cross_source_validation
 from ..schemas.common import Priority
 from ..schemas.prediction import PredictionPreferences, PredictionRequest
 from .wait_forecast import WaitForecastService
@@ -70,6 +76,20 @@ class PredictionService:
         return self._repository.get_locations()
 
     @staticmethod
+    def _scenario_multiplier(scenario: dict, event_impact: str) -> tuple[float, dict]:
+        weather = SCENARIO_WEATHER_MULTIPLIERS[scenario["weather"]]
+        holiday = SCENARIO_HOLIDAY_MULTIPLIER if scenario["is_holiday"] else 1.0
+        event = SCENARIO_EVENT_MULTIPLIERS[event_impact]
+        raw = weather * holiday * event
+        return min(SCENARIO_MAX_MULTIPLIER, raw), {
+            "weather": weather,
+            "holiday": holiday,
+            "event": event,
+            "raw": raw,
+            "cap": SCENARIO_MAX_MULTIPLIER,
+        }
+
+    @staticmethod
     def _risk_probability(
         predicted_wait: float,
         sigma: float,
@@ -117,6 +137,7 @@ class PredictionService:
         scenario_delta = 0
         scenario = prediction_inputs["scenario"]
         event_impact, active_event_names = self._active_event_impact(scenario, port["name"], direction, target_time)
+        scenario_multiplier, scenario_components = self._scenario_multiplier(scenario, event_impact)
         try:
             official = self._repository.external_data.calibration_context(
                 port["id"], direction, current_time, target_time
@@ -142,6 +163,7 @@ class PredictionService:
         traffic["runtime_adjustment_minutes"] = 0.0
         queue["adjustment_minutes"] = 0.0
         raw_model_value = predicted_value
+        scenario_adjusted_value = predicted_value
         queue_adjusted_value = predicted_value
         crowdsource_adjustment = 0.0
         if self._scenario_model is not None:
@@ -150,16 +172,12 @@ class PredictionService:
                 weather=scenario["weather"], is_holiday=scenario["is_holiday"], event_impact=event_impact,
                 traffic_pressure=traffic_pressure, traffic_available=traffic.get("available", False),
             )
-            default_result = self._scenario_model.predict(
-                port=port["name"], direction=direction, timestamp=target_time,
-                weather="clear", is_holiday=False, event_impact="none",
-                traffic_pressure=traffic_pressure, traffic_available=traffic.get("available", False),
-            )
             if v2_result is not None:
                 raw_v2_value, residual_q90 = v2_result
                 raw_model_value = raw_v2_value
                 traffic["model_embedded"] = True
-                queue_adjusted_value = raw_v2_value * (
+                scenario_adjusted_value = raw_v2_value * scenario_multiplier
+                queue_adjusted_value = scenario_adjusted_value * (
                     1 + float(queue.get("effective_weight", 0.0))
                     * (float(queue.get("multiplier", 1.0)) - 1)
                 )
@@ -171,29 +189,27 @@ class PredictionService:
                         queue_adjusted_value * (1 - crowd_weight)
                         + crowd_mean * crowd_weight
                     )
-                queue["adjustment_minutes"] = round(queue_adjusted_value - raw_v2_value, 4)
+                queue["adjustment_minutes"] = round(queue_adjusted_value - scenario_adjusted_value, 4)
                 crowdsource_adjustment = predicted_value - queue_adjusted_value
                 calibration_delta = abs(predicted_value - raw_v2_value)
                 base_sigma = max(1.0, residual_q90 / 1.645)
                 sigma = (base_sigma ** 2 + (calibration_delta * 0.25) ** 2) ** 0.5
-                prediction_engine = "v2_1_public_hybrid"
-                if default_result is not None:
-                    default_value = default_result[0]
-                    default_value *= 1 + float(queue.get("effective_weight", 0.0)) * (float(queue.get("multiplier", 1.0)) - 1)
-                    if crowd_mean is not None:
-                        default_value = (
-                            default_value * (1 - crowd_weight)
-                            + crowd_mean * crowd_weight
-                        )
-                    scenario_delta = round(predicted_value - default_value)
+                prediction_engine = "v2_2_transparent_hybrid"
+                default_value = raw_v2_value * (1 + float(queue.get("effective_weight", 0.0)) * (float(queue.get("multiplier", 1.0)) - 1))
+                if crowd_mean is not None:
+                    default_value = default_value * (1 - crowd_weight) + crowd_mean * crowd_weight
+                scenario_delta = round(predicted_value - default_value)
                 estimate["factors"] = [
                     {
-                        "code": "ai_v2_1",
-                        "label": "AI V2.1 公开客流预测",
+                        "code": "ai_v2_2_base",
+                        "label": "AI V2.2 基础等待",
                         "value_minutes": round(raw_v2_value, 1),
                         "calibrated_value_minutes": round(predicted_value, 1),
-                        "detail": f"客流压力 {traffic_pressure:.2f} · {scenario['weather']} · {'节假日' if scenario['is_holiday'] else '普通日期'} · 事件强度 {event_impact}",
+                        "detail": f"口岸、方向、时间与香港官方客流压力 {traffic_pressure:.2f}",
                     },
+                    {"code": "scenario_weather", "label": "天气透明校准", "value_multiplier": scenario_components["weather"], "value_minutes": round(raw_v2_value * (scenario_components["weather"] - 1), 1), "detail": scenario["weather"]},
+                    {"code": "scenario_holiday", "label": "节假日透明校准", "value_multiplier": scenario_components["holiday"], "value_minutes": round(raw_v2_value * scenario_components["weather"] * (scenario_components["holiday"] - 1), 1), "detail": "节假日" if scenario["is_holiday"] else "普通日期"},
+                    {"code": "scenario_event", "label": "突发事件透明校准", "value_multiplier": scenario_components["event"], "value_minutes": round(scenario_adjusted_value - raw_v2_value * scenario_components["weather"] * scenario_components["holiday"], 1), "detail": f"{event_impact} · {'、'.join(active_event_names) if active_event_names else '无活动事件'}"},
                     {"code": "official_traffic", "label": "官方历史客流压力", "detail": (f"预计 {traffic.get('expected_count')} 人 / 常态 {traffic.get('baseline_count')} 人" if traffic.get("available") else "官方客流不可用，使用中性压力")},
                     {"code": "official_queue", "label": "官方15分钟拥堵校准", "effective_weight": queue.get("effective_weight", 0.0), "detail": (f"居民 {queue.get('resident_level') or '—'} · 访客 {queue.get('visitor_level') or '—'}" if queue.get("available") else "等级缺失或过期，未参与计算")},
                     {"code": "scenario_delta", "label": "相对默认场景变化", "value_minutes": scenario_delta, "detail": "与同一口岸、方向和时间的晴天无事件场景比较"},
@@ -206,8 +222,9 @@ class PredictionService:
             raw_model_value = float(estimate["uncalibrated_value"])
             traffic_adjusted = raw_model_value * traffic_multiplier
             traffic["runtime_adjustment_minutes"] = round(traffic_adjusted - raw_model_value, 4)
-            queue_adjusted_value = traffic_adjusted * (1 + float(queue.get("effective_weight", 0.0)) * (float(queue.get("multiplier", 1.0)) - 1))
-            queue["adjustment_minutes"] = round(queue_adjusted_value - traffic_adjusted, 4)
+            scenario_adjusted_value = traffic_adjusted * scenario_multiplier
+            queue_adjusted_value = scenario_adjusted_value * (1 + float(queue.get("effective_weight", 0.0)) * (float(queue.get("multiplier", 1.0)) - 1))
+            queue["adjustment_minutes"] = round(queue_adjusted_value - scenario_adjusted_value, 4)
             crowd_mean = estimate["crowdsource_mean"]
             crowd_weight = estimate["crowdsource_weight"]
             predicted_value = queue_adjusted_value
@@ -217,16 +234,34 @@ class PredictionService:
             calibration_delta = abs(predicted_value - raw_model_value)
             sigma = (sigma ** 2 + (calibration_delta * 0.25) ** 2) ** 0.5
             estimate["factors"] = [
+                {"code": "scenario_formula", "label": "课堂场景透明校准", "value_multiplier": scenario_multiplier, "value_minutes": round(scenario_adjusted_value - traffic_adjusted, 1), "detail": f"天气×节假日×事件，上限 {SCENARIO_MAX_MULTIPLIER:.2f}"},
                 {"code": "official_traffic", "label": "官方历史客流压力", "detail": f"压力 {traffic_pressure:.2f} · 统计降级校准"},
                 {"code": "official_queue", "label": "官方15分钟拥堵校准", "effective_weight": queue.get("effective_weight", 0.0), "detail": "缺失或过期时权重为0"},
             ] + estimate["factors"]
+        shenzhen_validation = cross_source_validation(
+            SHENZHEN_REFERENCE_PATH,
+            port_name=port["name"],
+            hong_kong_pressure=traffic_pressure,
+        )
+        sigma *= float(shenzhen_validation["uncertainty_multiplier"])
+        estimate["factors"].append({
+            "code": "shenzhen_cross_check",
+            "label": "深圳官方快照交叉核验",
+            "effective_weight": 0.0,
+            "detail": (
+                f"两侧压力一致度 {shenzhen_validation['agreement_percent']}%，只调整区间、不重复相加"
+                if shenzhen_validation["available"] else shenzhen_validation["reason"]
+            ),
+        })
         official_calibration = {
             "status": official["status"],
             "feature_version": official["feature_version"],
             "calibration_version": self._scenario_model.calibration_version if self._scenario_model and self._scenario_model.calibration_version else "official-traffic-queue-crowd-v1",
             "traffic": traffic,
             "queue": queue,
+            "shenzhen_validation": shenzhen_validation,
             "raw_model_wait_minutes": round(raw_model_value, 2),
+            "scenario_adjusted_wait_minutes": round(scenario_adjusted_value, 2),
             "queue_adjusted_wait_minutes": round(queue_adjusted_value, 2),
             "crowdsource_adjustment_minutes": round(crowdsource_adjustment, 2),
             "calibrated_wait_minutes": round(predicted_value, 2),
@@ -668,11 +703,11 @@ class PredictionService:
             "max_budget": request.preferences.max_budget,
             "direction": direction,
         }
-        prediction_engine = "v2_1_public_hybrid" if all(item["prediction_engine"] == "v2_1_public_hybrid" for item in predictions) else "statistical_fallback"
+        prediction_engine = "v2_2_transparent_hybrid" if all(item["prediction_engine"] == "v2_2_transparent_hybrid" for item in predictions) else "statistical_fallback"
         scenario_status = self._scenario_model.status if self._scenario_model else None
-        effective_model_version = scenario_status.model_version if prediction_engine == "v2_1_public_hybrid" and scenario_status else MODEL_VERSION
-        if prediction_engine != "v2_1_public_hybrid":
-            warnings.append("AI V2.1 公开客流模型不可用，已自动使用可解释统计模型并保留官方校准。")
+        effective_model_version = scenario_status.model_version if prediction_engine == "v2_2_transparent_hybrid" and scenario_status else MODEL_VERSION
+        if prediction_engine != "v2_2_transparent_hybrid":
+            warnings.append("AI V2.2 透明校准模型不可用，已自动使用可解释统计模型并保留公开校准。")
         if any(item["official_calibration"]["queue"].get("effective_weight", 0) == 0 for item in predictions):
             warnings.append("部分口岸的15分钟官方拥堵等级缺失、过期或超出三小时影响范围。")
         if any(item["official_calibration"]["traffic"]["distribution"].get("status") not in {"in_distribution", "unknown"} for item in predictions):
@@ -702,7 +737,7 @@ class PredictionService:
             "generated_at": current_time,
             "model_version": effective_model_version,
             "confidence_level": CONFIDENCE_LEVEL,
-            "demo_notice": "结果使用官方公开客流与15分钟拥堵等级校准；等待分钟仍为课堂 Demo 估算，不是实测通关时间。",
+            "demo_notice": "结果使用香港官方客流、深圳官方快照核验和透明场景/众包校准；等待分钟仍为课堂 Demo 估算，不是实测通关时间。",
             "data_sources": prediction_inputs["data_sources"],
             "data_version": prediction_inputs["data_version"],
             "direction": direction,

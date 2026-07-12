@@ -9,7 +9,6 @@ from ..schemas.demo import (
     AuditEventListResponse,
     DemoResetResponse,
     ShadowObservationSummaryResponse,
-    V2ReadinessResponse,
 )
 from ..exceptions import PermissionDeniedError
 from ..services import DemoService
@@ -54,7 +53,7 @@ def get_v1_model(
     return service.get_v1_model()
 
 
-@router.get("/v2-model", response_model=V2ModelResponse, summary="获取 AI v2.1 公开客流混合模型状态")
+@router.get("/v2-model", response_model=V2ModelResponse, summary="获取 AI v2.2 透明校准课堂模型状态")
 def get_v2_model(service: DemoService = Depends(get_demo_service)) -> dict:
     return service.get_v2_model()
 
@@ -95,18 +94,6 @@ def get_model_shadow_summary(
     service: DemoService = Depends(get_demo_service),
 ) -> dict:
     return service.get_model_shadow_summary()
-
-
-@router.get(
-    "/v2-readiness",
-    response_model=V2ReadinessResponse,
-    summary="获取 V2 模型训练与晋级就绪度",
-    response_description="请求成功",
-)
-def get_v2_readiness(
-    service: DemoService = Depends(get_demo_service),
-) -> dict:
-    return service.get_v2_readiness()
 
 
 @router.post(

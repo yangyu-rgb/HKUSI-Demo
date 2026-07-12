@@ -70,21 +70,6 @@ def test_quality_weighting_reduces_low_quality_influence() -> None:
     assert weighted < simple_average
 
 
-def test_real_observation_quality_does_not_reward_simulator_agreement() -> None:
-    real_report = {
-        **report(wait=90, crowd_level="high"),
-        "is_real_observation": True,
-        "training_consent": True,
-        "wait_started_at": "2026-07-10T06:15:00+08:00",
-        "wait_ended_at": "2026-07-10T07:45:00+08:00",
-    }
-
-    evaluated = evaluate_report(real_report, FUTIAN, SCENARIO_TIME)
-
-    assert evaluated["quality_score"] == 100
-    assert evaluated["quality_level"] == "high"
-
-
 def test_duplicate_report_returns_conflict(client: TestClient) -> None:
     payload = {
         "user_id": "duplicate-user",

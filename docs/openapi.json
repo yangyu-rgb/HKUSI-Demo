@@ -377,7 +377,7 @@
         "tags": [
           "Demo 控制"
         ],
-        "summary": "获取 AI v2.1 公开客流混合模型状态",
+        "summary": "获取 AI v2.2 透明校准课堂模型状态",
         "operationId": "get_v2_model_api_demo_v2_model_get",
         "responses": {
           "200": {
@@ -581,67 +581,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ShadowObservationSummaryResponse"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "请求的资源不存在",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "409": {
-            "description": "请求与当前状态冲突",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "领域规则或请求参数验证失败",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "内部服务或持久化错误",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/demo/v2-readiness": {
-      "get": {
-        "tags": [
-          "Demo 控制"
-        ],
-        "summary": "获取 V2 模型训练与晋级就绪度",
-        "operationId": "get_v2_readiness_api_demo_v2_readiness_get",
-        "responses": {
-          "200": {
-            "description": "请求成功",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/V2ReadinessResponse"
                 }
               }
             }
@@ -3250,16 +3189,6 @@
             "$ref": "#/components/schemas/CrossingChannel",
             "default": "traveller"
           },
-          "is_real_observation": {
-            "type": "boolean",
-            "title": "Is Real Observation",
-            "default": false
-          },
-          "training_consent": {
-            "type": "boolean",
-            "title": "Training Consent",
-            "default": false
-          },
           "id": {
             "type": "string",
             "title": "Id"
@@ -3293,34 +3222,6 @@
           },
           "source_type": {
             "$ref": "#/components/schemas/ObservationSource"
-          },
-          "wait_started_at": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Wait Started At"
-          },
-          "wait_ended_at": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Wait Ended At"
-          },
-          "eligible_for_v2_label": {
-            "type": "boolean",
-            "title": "Eligible For V2 Label"
           }
         },
         "type": "object",
@@ -3335,8 +3236,7 @@
           "quality_level",
           "expires_at",
           "used_for_prediction",
-          "source_type",
-          "eligible_for_v2_label"
+          "source_type"
         ],
         "title": "CrowdsourceRecord"
       },
@@ -3397,16 +3297,6 @@
           "channel": {
             "$ref": "#/components/schemas/CrossingChannel",
             "default": "traveller"
-          },
-          "is_real_observation": {
-            "type": "boolean",
-            "title": "Is Real Observation",
-            "default": false
-          },
-          "training_consent": {
-            "type": "boolean",
-            "title": "Training Consent",
-            "default": false
           }
         },
         "type": "object",
@@ -3703,313 +3593,6 @@
         ],
         "title": "ErrorResponse"
       },
-      "ExternalDataReadiness": {
-        "properties": {
-          "sources": {
-            "items": {
-              "$ref": "#/components/schemas/ExternalSourceReadiness"
-            },
-            "type": "array",
-            "title": "Sources"
-          },
-          "official_observation_count": {
-            "type": "integer",
-            "title": "Official Observation Count"
-          },
-          "feature_observation_count": {
-            "type": "integer",
-            "title": "Feature Observation Count"
-          },
-          "ports": {
-            "items": {
-              "$ref": "#/components/schemas/ExternalPortCoverage"
-            },
-            "type": "array",
-            "title": "Ports"
-          },
-          "directions": {
-            "items": {
-              "$ref": "#/components/schemas/ExternalDirectionCoverage"
-            },
-            "type": "array",
-            "title": "Directions"
-          },
-          "distinct_dates": {
-            "type": "integer",
-            "title": "Distinct Dates"
-          },
-          "hour_slices": {
-            "type": "integer",
-            "title": "Hour Slices"
-          },
-          "last_observed_at": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Last Observed At"
-          },
-          "collection_runs": {
-            "type": "integer",
-            "title": "Collection Runs"
-          },
-          "successful_runs": {
-            "type": "integer",
-            "title": "Successful Runs"
-          },
-          "failed_runs": {
-            "type": "integer",
-            "title": "Failed Runs"
-          },
-          "success_rate_percent": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Success Rate Percent"
-          },
-          "forecast_snapshot_total": {
-            "type": "integer",
-            "title": "Forecast Snapshot Total"
-          },
-          "forecast_snapshot_complete": {
-            "type": "integer",
-            "title": "Forecast Snapshot Complete"
-          },
-          "forecast_snapshot_coverage_percent": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Forecast Snapshot Coverage Percent"
-          },
-          "minute_labels_from_official_features": {
-            "type": "integer",
-            "title": "Minute Labels From Official Features"
-          },
-          "alignment": {
-            "additionalProperties": true,
-            "type": "object",
-            "title": "Alignment"
-          }
-        },
-        "type": "object",
-        "required": [
-          "sources",
-          "official_observation_count",
-          "feature_observation_count",
-          "ports",
-          "directions",
-          "distinct_dates",
-          "hour_slices",
-          "collection_runs",
-          "successful_runs",
-          "failed_runs",
-          "forecast_snapshot_total",
-          "forecast_snapshot_complete",
-          "minute_labels_from_official_features",
-          "alignment"
-        ],
-        "title": "ExternalDataReadiness"
-      },
-      "ExternalDirectionCoverage": {
-        "properties": {
-          "direction": {
-            "type": "string",
-            "title": "Direction"
-          },
-          "observation_count": {
-            "type": "integer",
-            "title": "Observation Count"
-          }
-        },
-        "type": "object",
-        "required": [
-          "direction",
-          "observation_count"
-        ],
-        "title": "ExternalDirectionCoverage"
-      },
-      "ExternalPortCoverage": {
-        "properties": {
-          "port_id": {
-            "type": "string",
-            "title": "Port Id"
-          },
-          "observation_count": {
-            "type": "integer",
-            "title": "Observation Count"
-          }
-        },
-        "type": "object",
-        "required": [
-          "port_id",
-          "observation_count"
-        ],
-        "title": "ExternalPortCoverage"
-      },
-      "ExternalSourceReadiness": {
-        "properties": {
-          "id": {
-            "type": "string",
-            "title": "Id"
-          },
-          "name": {
-            "type": "string",
-            "title": "Name"
-          },
-          "provider": {
-            "type": "string",
-            "title": "Provider"
-          },
-          "status": {
-            "type": "string",
-            "title": "Status"
-          },
-          "usage": {
-            "type": "string",
-            "title": "Usage"
-          },
-          "kind": {
-            "type": "string",
-            "title": "Kind"
-          },
-          "collection_enabled": {
-            "type": "boolean",
-            "title": "Collection Enabled"
-          },
-          "url": {
-            "type": "string",
-            "title": "Url"
-          },
-          "source_version": {
-            "type": "string",
-            "title": "Source Version"
-          },
-          "refresh_seconds": {
-            "type": "integer",
-            "title": "Refresh Seconds"
-          },
-          "traveler_category": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Traveler Category"
-          },
-          "attribution": {
-            "type": "string",
-            "title": "Attribution"
-          },
-          "terms_url": {
-            "type": "string",
-            "title": "Terms Url"
-          },
-          "reason": {
-            "type": "string",
-            "title": "Reason"
-          },
-          "observation_count": {
-            "type": "integer",
-            "title": "Observation Count"
-          },
-          "last_fetched_at": {
-            "anyOf": [
-              {
-                "type": "string",
-                "format": "date-time"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Last Fetched At"
-          },
-          "age_minutes": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Age Minutes"
-          },
-          "freshness_status": {
-            "type": "string",
-            "title": "Freshness Status"
-          },
-          "expected_runs_24h": {
-            "type": "integer",
-            "title": "Expected Runs 24H"
-          },
-          "successful_runs_24h": {
-            "type": "integer",
-            "title": "Successful Runs 24H"
-          },
-          "completeness_24h_percent": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Completeness 24H Percent"
-          },
-          "max_gap_minutes_24h": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Max Gap Minutes 24H"
-          }
-        },
-        "type": "object",
-        "required": [
-          "id",
-          "name",
-          "provider",
-          "status",
-          "usage",
-          "kind",
-          "collection_enabled",
-          "url",
-          "source_version",
-          "refresh_seconds",
-          "attribution",
-          "terms_url",
-          "reason",
-          "observation_count",
-          "freshness_status",
-          "expected_runs_24h",
-          "successful_runs_24h"
-        ],
-        "title": "ExternalSourceReadiness"
-      },
       "ForecastFeedbackLink": {
         "properties": {
           "forecast_run_id": {
@@ -4024,9 +3607,9 @@
             "type": "boolean",
             "title": "Linked"
           },
-          "labeled": {
+          "calibration_linked": {
             "type": "boolean",
-            "title": "Labeled"
+            "title": "Calibration Linked"
           },
           "reason": {
             "anyOf": [
@@ -4045,7 +3628,7 @@
           "forecast_run_id",
           "forecast_port_id",
           "linked",
-          "labeled"
+          "calibration_linked"
         ],
         "title": "ForecastFeedbackLink"
       },
@@ -4295,9 +3878,16 @@
           "queue": {
             "$ref": "#/components/schemas/QueueCalibration"
           },
+          "shenzhen_validation": {
+            "$ref": "#/components/schemas/ShenzhenValidation"
+          },
           "raw_model_wait_minutes": {
             "type": "number",
             "title": "Raw Model Wait Minutes"
+          },
+          "scenario_adjusted_wait_minutes": {
+            "type": "number",
+            "title": "Scenario Adjusted Wait Minutes"
           },
           "queue_adjusted_wait_minutes": {
             "type": "number",
@@ -4323,7 +3913,9 @@
           "calibration_version",
           "traffic",
           "queue",
+          "shenzhen_validation",
           "raw_model_wait_minutes",
+          "scenario_adjusted_wait_minutes",
           "queue_adjusted_wait_minutes",
           "crowdsource_adjustment_minutes",
           "calibrated_wait_minutes",
@@ -5565,6 +5157,155 @@
         ],
         "title": "ShadowObservationSummaryResponse"
       },
+      "ShenzhenValidation": {
+        "properties": {
+          "available": {
+            "type": "boolean",
+            "title": "Available"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider"
+          },
+          "purpose": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Purpose"
+          },
+          "source_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Url"
+          },
+          "published_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Published At"
+          },
+          "metric_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metric Type"
+          },
+          "reference_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reference Count"
+          },
+          "baseline_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Baseline Count"
+          },
+          "pressure": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pressure"
+          },
+          "hong_kong_pressure": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hong Kong Pressure"
+          },
+          "agreement_percent": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agreement Percent"
+          },
+          "uncertainty_multiplier": {
+            "type": "number",
+            "title": "Uncertainty Multiplier"
+          },
+          "snapshot_sha256": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Snapshot Sha256"
+          },
+          "point_prediction_adjustment_minutes": {
+            "type": "number",
+            "title": "Point Prediction Adjustment Minutes"
+          },
+          "reason": {
+            "type": "string",
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "available",
+          "uncertainty_multiplier",
+          "point_prediction_adjustment_minutes",
+          "reason"
+        ],
+        "title": "ShenzhenValidation"
+      },
       "SubscriptionEvaluationListResponse": {
         "properties": {
           "evaluations": {
@@ -6305,206 +6046,6 @@
           "promotion"
         ],
         "title": "V2ModelResponse"
-      },
-      "V2ReadinessCheck": {
-        "properties": {
-          "name": {
-            "type": "string",
-            "title": "Name"
-          },
-          "actual": {
-            "type": "integer",
-            "title": "Actual"
-          },
-          "required": {
-            "type": "integer",
-            "title": "Required"
-          },
-          "passed": {
-            "type": "boolean",
-            "title": "Passed"
-          }
-        },
-        "type": "object",
-        "required": [
-          "name",
-          "actual",
-          "required",
-          "passed"
-        ],
-        "title": "V2ReadinessCheck"
-      },
-      "V2ReadinessLabelSource": {
-        "properties": {
-          "source_type": {
-            "type": "string",
-            "title": "Source Type"
-          },
-          "label_count": {
-            "type": "integer",
-            "title": "Label Count"
-          }
-        },
-        "type": "object",
-        "required": [
-          "source_type",
-          "label_count"
-        ],
-        "title": "V2ReadinessLabelSource"
-      },
-      "V2ReadinessPort": {
-        "properties": {
-          "port_id": {
-            "type": "string",
-            "title": "Port Id"
-          },
-          "label_count": {
-            "type": "integer",
-            "title": "Label Count"
-          }
-        },
-        "type": "object",
-        "required": [
-          "port_id",
-          "label_count"
-        ],
-        "title": "V2ReadinessPort"
-      },
-      "V2ReadinessResponse": {
-        "properties": {
-          "experiment_ready": {
-            "type": "boolean",
-            "title": "Experiment Ready"
-          },
-          "production_promotion_ready": {
-            "type": "boolean",
-            "title": "Production Promotion Ready"
-          },
-          "label_count": {
-            "type": "integer",
-            "title": "Label Count"
-          },
-          "linked_feedback_count": {
-            "type": "integer",
-            "title": "Linked Feedback Count"
-          },
-          "excluded_feedback_count": {
-            "type": "integer",
-            "title": "Excluded Feedback Count"
-          },
-          "label_sources": {
-            "items": {
-              "$ref": "#/components/schemas/V2ReadinessLabelSource"
-            },
-            "type": "array",
-            "title": "Label Sources"
-          },
-          "ports": {
-            "items": {
-              "$ref": "#/components/schemas/V2ReadinessPort"
-            },
-            "type": "array",
-            "title": "Ports"
-          },
-          "distinct_dates": {
-            "type": "integer",
-            "title": "Distinct Dates"
-          },
-          "hour_slices": {
-            "type": "integer",
-            "title": "Hour Slices"
-          },
-          "data_versions": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Data Versions"
-          },
-          "statistical_mae_minutes": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Statistical Mae Minutes"
-          },
-          "shadow_mae_minutes": {
-            "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Shadow Mae Minutes"
-          },
-          "shadow_labeled_count": {
-            "type": "integer",
-            "title": "Shadow Labeled Count"
-          },
-          "time_split": {
-            "additionalProperties": true,
-            "type": "object",
-            "title": "Time Split"
-          },
-          "checks": {
-            "items": {
-              "$ref": "#/components/schemas/V2ReadinessCheck"
-            },
-            "type": "array",
-            "title": "Checks"
-          },
-          "data_sources": {
-            "items": {
-              "$ref": "#/components/schemas/DataSourceStatus"
-            },
-            "type": "array",
-            "title": "Data Sources"
-          },
-          "coverage_warnings": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Coverage Warnings"
-          },
-          "production_blockers": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array",
-            "title": "Production Blockers"
-          },
-          "external_data": {
-            "$ref": "#/components/schemas/ExternalDataReadiness"
-          }
-        },
-        "type": "object",
-        "required": [
-          "experiment_ready",
-          "production_promotion_ready",
-          "label_count",
-          "linked_feedback_count",
-          "excluded_feedback_count",
-          "label_sources",
-          "ports",
-          "distinct_dates",
-          "hour_slices",
-          "data_versions",
-          "shadow_labeled_count",
-          "time_split",
-          "checks",
-          "data_sources",
-          "coverage_warnings",
-          "production_blockers",
-          "external_data"
-        ],
-        "title": "V2ReadinessResponse"
       },
       "Weekday": {
         "type": "string",

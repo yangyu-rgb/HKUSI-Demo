@@ -19,8 +19,8 @@ export function useCrowdsource() {
     mutationFn: submitCrowdsourceReport,
     onSuccess: async (result) => {
       const feedbackMessage = result.forecast_feedback
-        ? result.forecast_feedback.labeled
-          ? "已关联本次预测并写入高质量实际等待标签。"
+        ? result.forecast_feedback.calibration_linked
+          ? "已关联本次课堂预测校准，不进入训练数据。"
           : result.forecast_feedback.reason
         : "";
       setMessage(
