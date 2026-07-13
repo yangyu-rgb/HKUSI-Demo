@@ -6,6 +6,11 @@
   border-bottom: 1px solid #edf2ef;
 }
 
+.item { border-color: var(--line); }
+.low { color: var(--teal); background: rgba(85,215,193,.1); }
+.medium { color: var(--warning); background: rgba(255,196,107,.1); }
+.high { color: var(--danger); background: rgba(255,131,117,.1); }
+
 .item:last-child {
   border-bottom: 0;
 }
@@ -82,3 +87,9 @@
   color: #a53e35;
   background: #fde4e1;
 }
+
+.item { border-color: var(--line); }
+.avatar.low, .quality.high { color: var(--teal); background: rgba(85,215,193,.1); }
+.avatar.medium, .quality.medium { color: var(--warning); background: rgba(255,196,107,.1); }
+.avatar.high, .quality.low { color: var(--danger); background: rgba(255,131,117,.1); }
+.item p { color: var(--muted); }

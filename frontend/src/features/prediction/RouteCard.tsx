@@ -13,11 +13,12 @@ const RISK_LABELS: Record<RiskLevel, string> = {
 export function RouteCard({
   route,
   recommended,
+  onShowCalculation,
 }: {
   route: PortPrediction;
   recommended: boolean;
+  onShowCalculation: (trigger: HTMLButtonElement) => void;
 }) {
-  const factors = route.factors as Array<Record<string, unknown>>;
   const official = (route.official_calibration ?? {}) as {
     status?: string;
     traffic?: { pressure?: number; expected_count?: number; baseline_count?: number; distribution?: { status?: string } };
@@ -72,45 +73,14 @@ export function RouteCard({
           ? ` · 分布提示 ${official.traffic.distribution.status}`
           : ""}
       </div>
-      <details className={styles.factors}>
-        <summary>查看完整计算过程</summary>
-        <p>
-          AI基础 {official.raw_model_wait_minutes ?? "—"} 分 →
-          场景校准 {official.scenario_adjusted_wait_minutes ?? "—"} 分 →
-          官方等级 {official.queue_adjusted_wait_minutes ?? "—"} 分 →
-          众包 {official.crowdsource_adjustment_minutes !== undefined && official.crowdsource_adjustment_minutes >= 0 ? "+" : ""}{official.crowdsource_adjustment_minutes ?? "—"} 分 →
-          最终 {route.predicted_wait_time} 分
-        </p>
-        <p>
-          深圳核验：{official.shenzhen_validation?.available
-            ? `两侧压力一致度 ${official.shenzhen_validation.agreement_percent}% · 区间系数 ×${official.shenzhen_validation.uncertainty_multiplier}`
-            : official.shenzhen_validation?.reason ?? "暂无快照"}
-        </p>
-        <ul>
-          {factors.map((factor, index) => (
-            <li key={`${String(factor.code)}-${index}`}>
-              <strong>{String(factor.label ?? factor.code)}</strong>
-              {factor.effective_weight !== undefined && (
-                <i
-                  className={styles.factorBar}
-                  style={{ width: `${Math.max(4, Math.min(100, Number(factor.effective_weight) * 100))}%` }}
-                />
-              )}
-              <span>
-                {factor.value_minutes !== undefined && `${String(factor.value_minutes)}分钟`}
-                {factor.value_multiplier !== undefined && `系数×${String(factor.value_multiplier)}`}
-                {factor.effective_weight !== undefined && ` · 权重${Math.round(Number(factor.effective_weight) * 100)}%`}
-                {factor.average_quality_score !== undefined && ` · 平均质量${String(factor.average_quality_score)}分`}
-                {factor.detail !== undefined && `${
-                  factor.value_minutes !== undefined || factor.effective_weight !== undefined
-                    ? " · "
-                    : ""
-                }${String(factor.detail)}`}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </details>
+      <button
+        className={styles.calculationButton}
+        type="button"
+        onClick={(event) => onShowCalculation(event.currentTarget)}
+      >
+        查看完整计算过程
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" /></svg>
+      </button>
       <div className={styles.steps}>
         {route.route.steps.map((step, index) => (
           <div className={styles.step} key={`${step.mode}-${step.label}`}>

@@ -20,13 +20,13 @@
 
 .header h3 {
   margin: 3px 0 0;
-  font-size: 17px;
+  font-size: 19px;
 }
 
 .header p {
   margin: 2px 0 0;
   color: var(--muted);
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .badge {
@@ -68,11 +68,11 @@
 }
 
 .feasibility strong {
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .feasibility span {
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .onTime {
@@ -102,55 +102,41 @@
 
 .metrics span {
   color: var(--muted);
-  font-size: 8px;
+  font-size: 10px;
 }
 
 .metrics strong {
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .confidence {
   min-height: 33px;
   color: var(--teal-dark);
-  font-size: 9px;
+  font-size: 11px;
   line-height: 1.5;
 }
 
-.factors {
-  margin: 8px 0 12px;
-  color: var(--muted);
-  font-size: 9px;
-}
-
-.factors summary {
-  cursor: pointer;
+.calculationButton {
+  min-height: 44px;
+  width: 100%;
+  margin: 9px 0 14px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   color: var(--teal-dark);
-  font-weight: 700;
+  background: #edf6f2;
+  border: 1px solid #cae1d7;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 750;
+  transition: background 180ms ease, border-color 180ms ease;
 }
 
-.factors ul {
-  margin: 8px 0 0;
-  padding: 9px 12px 9px 24px;
-  background: #f5f8f6;
-  border-radius: 8px;
-}
-
-.factors li {
-  margin: 5px 0;
-}
-
-.factors li span {
-  display: block;
-  margin-top: 2px;
-}
-
-.factorBar {
-  display: block;
-  height: 4px;
-  margin-top: 4px;
-  background: var(--teal);
-  border-radius: 999px;
-}
+.calculationButton:hover { background: #e2f2eb; border-color: #8db9a6; }
+.calculationButton:focus-visible { outline: 3px solid var(--lime); outline-offset: 2px; }
+.calculationButton svg { width: 17px; fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
 
 .steps {
   margin-top: 12px;
@@ -182,12 +168,12 @@
 }
 
 .step strong {
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .step small {
   color: var(--muted);
-  font-size: 8px;
+  font-size: 10px;
 }
 
 .routeAlert,
@@ -200,8 +186,19 @@
   font-size: 8px;
 }
 
+.card { background: #101010; }
+.recommended { border-color: rgba(255,255,255,.66); box-shadow: 0 14px 34px rgba(255,255,255,.05); }
+.risk.low, .onTime { color: var(--teal); background: rgba(85,215,193,.1); }
+.risk.medium, .routeAlert { color: var(--warning); background: rgba(255,196,107,.1); }
+.risk.high, .late, .budgetAlert { color: var(--danger); background: rgba(255,131,117,.1); }
+.metrics div { background: #181818; }
+.calculationButton { color: white; background: #191919; border-color: var(--line); font-weight: 600; }
+.calculationButton:hover { background: #232323; border-color: #555; }
+
 .budgetAlert {
   margin: 0 0 10px;
   color: #a23f36;
   background: #fde8e5;
 }
+
+.budgetAlert { color: var(--danger); background: rgba(255,131,117,.1); }

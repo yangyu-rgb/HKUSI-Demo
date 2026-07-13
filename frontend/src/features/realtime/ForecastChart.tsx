@@ -14,7 +14,7 @@ import type { RealtimeResponse } from "./types";
 import styles from "./ForecastChart.module.css";
 
 
-const COLORS = ["#087f70", "#4d7cfe", "#e5685a", "#d28a24"];
+const COLORS = ["#f5f5f5", "#55d7c1", "#ffc46b", "#ff8375"];
 
 
 export function ForecastChart({ data }: { data: RealtimeResponse }) {
@@ -46,13 +46,13 @@ export function ForecastChart({ data }: { data: RealtimeResponse }) {
       <div className={styles.chart}>
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={chartData} margin={{ top: 12, right: 24, left: 0, bottom: 5 }}>
-            <ReferenceArea y1={0} y2={18} fill="#dff3ea" fillOpacity={0.55} />
-            <ReferenceArea y1={18} y2={35} fill="#fff0c9" fillOpacity={0.42} />
-            <ReferenceArea y1={35} y2={yMax} fill="#f9dcd7" fillOpacity={0.38} />
-            <CartesianGrid strokeDasharray="3 4" stroke="#d6e3de" vertical={false} />
-            <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#657772" }} />
-            <YAxis width={44} domain={[0, yMax]} unit="分" tick={{ fontSize: 10, fill: "#657772" }} />
-            <Tooltip formatter={(value, name) => [Array.isArray(value) ? `${value[0]}–${value[1]} 分钟` : `${value} 分钟`, name]} contentStyle={{ borderRadius: 12, borderColor: "#cdded8", boxShadow: "0 12px 32px rgba(16,63,57,.12)" }} />
+            <ReferenceArea y1={0} y2={18} fill="#55d7c1" fillOpacity={0.07} />
+            <ReferenceArea y1={18} y2={35} fill="#ffc46b" fillOpacity={0.06} />
+            <ReferenceArea y1={35} y2={yMax} fill="#ff8375" fillOpacity={0.055} />
+            <CartesianGrid strokeDasharray="3 4" stroke="rgba(255,255,255,.1)" vertical={false} />
+            <XAxis dataKey="time" tick={{ fontSize: 10, fill: "#8e8e8e" }} />
+            <YAxis width={44} domain={[0, yMax]} unit="分" tick={{ fontSize: 10, fill: "#8e8e8e" }} />
+            <Tooltip formatter={(value, name) => [Array.isArray(value) ? `${value[0]}–${value[1]} 分钟` : `${value} 分钟`, name]} contentStyle={{ color: "#f5f5f5", background: "#111", borderRadius: 12, borderColor: "rgba(255,255,255,.16)", boxShadow: "0 16px 40px rgba(0,0,0,.4)" }} />
             <Area type="monotone" dataKey={`${selectedPort.name}区间`} stroke="none" fill={selectedColor} fillOpacity={0.13} activeDot={false} legendType="none" />
             {data.ports.map((port, index) => <Line key={port.id} type="monotone" dataKey={port.name} stroke={COLORS[index]} strokeWidth={port.id === selectedPort.id ? 4 : 2} strokeOpacity={port.id === selectedPort.id ? 1 : 0.3} dot={{ r: port.id === selectedPort.id ? 5 : 3, fill: COLORS[index], strokeWidth: 0 }} activeDot={{ r: 7 }} />)}
           </ComposedChart>

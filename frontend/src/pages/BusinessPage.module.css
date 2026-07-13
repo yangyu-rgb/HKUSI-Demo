@@ -321,3 +321,12 @@
     min-width: 620px;
   }
 }
+
+.editor, .result, .history, .shadowSummary, .readinessSummary { background: #0f0f0f; border: 1px solid var(--line); }
+.editorHeading p { color: var(--muted); }
+.remove, .add, .history button { color: #ddd; background: #171717; border-color: var(--line); }
+.shadowStats div, .shadowPorts span { background: #171717; }
+.checkPassed { color: var(--teal); background: rgba(85,215,193,.1); }
+.checkPending { color: var(--warning); background: rgba(255,196,107,.1); }
+.table { background: #0b0b0b; border: 1px solid var(--line); }
+.tableHeader { background: #151515; }

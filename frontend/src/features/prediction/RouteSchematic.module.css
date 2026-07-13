@@ -37,7 +37,7 @@
 }
 
 .accessLine { stroke: #54b7a5; }
-.onwardLine { stroke: #4d7cfe; }
+.onwardLine { stroke: #ffc46b; }
 
 .originNode,
 .destinationNode {
@@ -94,3 +94,9 @@
     min-width: 620px;
   }
 }
+
+.panel { background: #101010; }
+.originNode, .destinationNode { fill: #171717; stroke: white; }
+.portNode { fill: white; stroke: #555; }
+.nodeCode { fill: white; }.portCode { fill: #050505; }
+.wait { fill: var(--teal); }

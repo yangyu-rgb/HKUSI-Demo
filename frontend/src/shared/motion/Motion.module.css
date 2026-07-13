@@ -1,0 +1,32 @@
+.fadeIn {
+  opacity: 0;
+  transition-property: opacity;
+  transition-timing-function: ease;
+}
+
+.visible { opacity: 1; }
+
+.character {
+  display: inline-block;
+  opacity: 0;
+  transform: translateX(-18px);
+  transition: opacity 500ms ease, transform 500ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.characterVisible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.line { display: block; }
+
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 800ms ease, transform 800ms cubic-bezier(.22, 1, .36, 1);
+}
+
+.revealVisible {
+  opacity: 1;
+  transform: translateY(0);
+}

@@ -1,16 +1,17 @@
-import type { Dispatch, FormEvent, SetStateAction } from "react";
+import type { FormEvent } from "react";
 import type {
   LocationsResponse,
   PredictionQueryInput,
   Priority,
 } from "./types";
+import { LocationCombobox } from "./LocationCombobox";
 import styles from "./PlannerForm.module.css";
 
 
 type Props = {
   locations: LocationsResponse;
   query: PredictionQueryInput;
-  setQuery: Dispatch<SetStateAction<PredictionQueryInput>>;
+  setQuery: (query: PredictionQueryInput) => void;
   predicting: boolean;
   minTargetTime: string;
   maxTargetTime: string;
@@ -64,30 +65,8 @@ export function PlannerForm({
           ))}
         </select>
       </label>
-      <label>
-        <span>出发地</span>
-        <select
-          required
-          value={query.origin_id}
-          onChange={(event) => setQuery({ ...query, origin_id: event.target.value })}
-        >
-          {origins.map((location) => (
-            <option value={location.id} key={location.id}>{location.name}</option>
-          ))}
-        </select>
-      </label>
-      <label>
-        <span>目的地</span>
-        <select
-          required
-          value={query.destination_id}
-          onChange={(event) => setQuery({ ...query, destination_id: event.target.value })}
-        >
-          {destinations.map((location) => (
-            <option value={location.id} key={location.id}>{location.name}</option>
-          ))}
-        </select>
-      </label>
+      <LocationCombobox label="出发地" value={query.origin_id} options={origins} onChange={(origin_id) => setQuery({ ...query, origin_id })} />
+      <LocationCombobox label="目的地" value={query.destination_id} options={destinations} onChange={(destination_id) => setQuery({ ...query, destination_id })} />
       <label>
         <span>最迟到达</span>
         <input

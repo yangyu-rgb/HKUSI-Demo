@@ -1,14 +1,21 @@
+import { useState } from "react";
 import { PlannerForm } from "../features/prediction/PlannerForm";
+import { CalculationModal } from "../features/prediction/CalculationModal";
 import { Link } from "react-router-dom";
 import { RouteCard } from "../features/prediction/RouteCard";
 import { RouteSchematic } from "../features/prediction/RouteSchematic";
 import { usePrediction } from "../features/prediction/usePrediction";
+import type { PortPrediction } from "../features/prediction/types";
 import { ErrorState } from "../shared/components/PageState";
 import { PageSkeleton } from "../shared/components/PageSkeleton";
 import styles from "./PlannerPage.module.css";
 
 
 export function PlannerPage() {
+  const [calculation, setCalculation] = useState<{
+    route: PortPrediction;
+    trigger: HTMLButtonElement;
+  } | null>(null);
   const {
     locations,
     context,
@@ -19,6 +26,7 @@ export function PlannerPage() {
     predicting,
     error,
     runPrediction,
+    clearPrediction,
   } = usePrediction();
 
   if (loading) {
@@ -69,6 +77,7 @@ export function PlannerPage() {
                   通关后反馈实际等待
                 </Link>
               )}
+              <button className={styles.clearButton} type="button" onClick={clearPrediction}>清除方案</button>
             </div>
             {prediction.warnings.map((warning) => (
               <p className={styles.warning} key={warning}>{warning}</p>
@@ -85,13 +94,28 @@ export function PlannerPage() {
                 <RouteCard
                   route={route}
                   recommended={route.port_id === prediction.recommended_port_id}
+                  onShowCalculation={(trigger) => setCalculation({ route, trigger })}
                   key={route.port_id}
                 />
               ))}
             </div>
           </div>
         )}
+        {!prediction && (
+          <section className={styles.emptyState} aria-live="polite">
+            <span>01</span>
+            <div><h2>选择通勤条件，生成你的四口岸方案</h2><p>目前还没有预测结果。确认出发地、目的地和最迟到达时间后，点击“生成 AI 建议”。</p></div>
+            <div className={styles.emptySteps}><b>选择固定地点</b><i>→</i><b>设定到达要求</b><i>→</i><b>比较四个口岸</b></div>
+          </section>
+        )}
       </section>
+      {calculation && (
+        <CalculationModal
+          route={calculation.route}
+          trigger={calculation.trigger}
+          onClose={() => setCalculation(null)}
+        />
+      )}
     </main>
   );
 }

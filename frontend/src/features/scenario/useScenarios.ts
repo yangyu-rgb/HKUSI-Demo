@@ -6,7 +6,10 @@ import { compareScenarios, fetchScenarios, resetScenarios, restoreScenario, save
 export function useScenarios() {
   const client = useQueryClient();
   const scenarios = useQuery({ queryKey: queryKeys.scenarios, queryFn: fetchScenarios });
-  const invalidate = () => client.invalidateQueries({ queryKey: queryKeys.scenarios });
+  const invalidate = () => Promise.all([
+    client.invalidateQueries({ queryKey: queryKeys.scenarios }),
+    client.invalidateQueries({ queryKey: queryKeys.realtime }),
+  ]);
   const save = useMutation({ mutationFn: ({ date, payload }: { date: string; payload: ScenarioWrite }) => saveScenario(date, payload), onSuccess: invalidate });
   const restore = useMutation({ mutationFn: restoreScenario, onSuccess: invalidate });
   const reset = useMutation({ mutationFn: resetScenarios, onSuccess: invalidate });

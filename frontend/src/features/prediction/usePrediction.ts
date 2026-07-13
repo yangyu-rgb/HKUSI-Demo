@@ -38,7 +38,6 @@ export function usePrediction() {
     };
     initialized.current = true;
     setQuery(initialQuery);
-    setSubmittedQuery(initialQuery);
   }, [context.data]);
   const prediction = useQuery({
     queryKey: queryKeys.prediction(submittedQuery),
@@ -54,19 +53,27 @@ export function usePrediction() {
     }
   }
 
+  function updateQuery(nextQuery: PredictionQueryInput) {
+    setQuery(nextQuery);
+    setSubmittedQuery(null);
+  }
+
+  function clearPrediction() {
+    setSubmittedQuery(null);
+  }
+
   const requestError = locations.error ?? context.error ?? prediction.error;
-  const loading = locations.isPending
-    || context.isPending
-    || (!requestError && (!submittedQuery || prediction.isPending));
+  const loading = locations.isPending || context.isPending;
   return {
     locations: locations.data ?? null,
     context: context.data ?? null,
     prediction: prediction.data ?? null,
     query,
-    setQuery,
+    setQuery: updateQuery,
     loading,
-    predicting: prediction.isFetching && !prediction.isPending,
+    predicting: prediction.isFetching,
     error: requestError ? userFacingError(requestError) : "",
     runPrediction,
+    clearPrediction,
   };
 }

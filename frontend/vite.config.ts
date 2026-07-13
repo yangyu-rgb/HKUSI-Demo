@@ -15,7 +15,6 @@ export default defineConfig({
         "src/features/auth/session.ts",
         "src/features/auth/RequireAccess.tsx",
         "src/features/crowdsource/FeedItem.tsx",
-        "src/features/realtime/PortSituationMap.tsx",
         "src/pages/OperationsPage.tsx",
         "src/pages/LoginPage.tsx",
         "src/pages/PricingPage.tsx",

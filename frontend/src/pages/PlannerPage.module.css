@@ -5,6 +5,15 @@
   border-radius: 26px;
 }
 
+.planner { background: #0d0d0d; border-color: var(--line); }
+.summary { background: #090909; border: 1px solid var(--line); }
+.summary > span, .summary p, .summary small { color: var(--muted); }
+.summary h2 { color: white; font-weight: 500; }
+.feedbackLink { color: #050505; background: white; }
+.emptyState { background: #101010; border-color: #3a3a3a; }
+.emptySteps { color: #d1d1d1; }
+.warning { color: #ffd79b; background: rgba(255,196,107,.09); border: 1px solid rgba(255,196,107,.18); }
+
 .panel {
   padding: 34px 38px 30px;
 }
@@ -63,6 +72,14 @@
   text-decoration: none;
 }
 
+.clearButton { grid-column:3;width:fit-content;margin-top:8px;padding:7px 10px;color:#d8e8e4;background:transparent;border:1px solid rgba(255,255,255,.24);border-radius:8px;cursor:pointer;font-size:10px;font-weight:700; }
+.clearButton:hover { color:white;border-color:rgba(255,255,255,.5); }
+
+.emptyState { margin:0 17px 17px;padding:30px 32px;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:18px;background:rgba(255,255,255,.74);border:1px dashed #b8d2c7;border-radius:18px; }
+.emptyState>span { width:52px;height:52px;display:grid;place-items:center;color:var(--teal);background:var(--mint);border-radius:16px;font-size:13px;font-weight:900; }
+.emptyState h2 { margin:0 0 7px;font-size:20px; }.emptyState p { margin:0;color:var(--muted);font-size:12px;line-height:1.6; }
+.emptySteps { grid-column:2;display:flex;align-items:center;gap:10px;color:var(--teal-dark);font-size:10px; }.emptySteps i { color:#89a69e;font-style:normal; }
+
 .warning {
   margin: 0 0 12px;
   padding: 10px 13px;
@@ -110,7 +127,20 @@
     grid-column: 1;
   }
 
+  .clearButton { grid-column:1; }
+
   .routeGrid {
     grid-template-columns: 1fr;
   }
+
+  .emptyState { margin-inline:10px;padding:24px 20px;grid-template-columns:1fr; }.emptyState>span { display:none; }.emptySteps { grid-column:1;overflow-x:auto;white-space:nowrap; }
 }
+
+.planner { background: #0d0d0d; border-color: var(--line); }
+.summary { background: #090909; border: 1px solid var(--line); }
+.summary > span, .summary p, .summary small { color: var(--muted); }
+.summary h2 { color: white; font-weight: 500; }
+.feedbackLink { color: #050505; background: white; }
+.emptyState { background: #101010; border-color: #3a3a3a; }
+.emptySteps { color: #d1d1d1; }
+.warning { color: #ffd79b; background: rgba(255,196,107,.09); border: 1px solid rgba(255,196,107,.18); }

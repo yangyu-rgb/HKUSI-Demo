@@ -6,3 +6,23 @@
 .modal { position: fixed; z-index: 100; inset: 0; padding: 18px; display: grid; place-items: center; background: rgba(7,31,28,.72); backdrop-filter: blur(8px); }.modal > div { width: min(100%, 480px); padding: 30px; position: relative; background: white; border-radius: 20px; box-shadow: 0 30px 90px rgba(0,0,0,.3); }.modal h2 { margin: 0; }.modal > div > p { color: var(--muted); font-size: 11px; }.close { position: absolute; right: 18px; top: 15px; border: 0; background: transparent; font-size: 23px; cursor: pointer; }.modal dl { margin: 24px 0; display: grid; gap: 10px; }.modal dl div { display: flex; justify-content: space-between; padding-bottom: 10px; border-bottom: 1px solid var(--line); }.modal dt { color: var(--muted); }.modal dd { margin: 0; font-weight: 800; }.confirm { width: 100%; min-height: 48px; color: #143e38; background: var(--lime); border: 0; border-radius: 11px; cursor: pointer; font-weight: 800; }
 @media (max-width: 850px) { .plans { grid-template-columns: 1fr; }.plans .highlighted { transform: none; }.businessCase { grid-template-columns: 1fr; } }.businessCase > div:last-child { grid-template-columns: repeat(3,1fr); }
 @media (max-width: 560px) { .page { padding: 0 14px; }.current { align-items: flex-start; flex-direction: column; }.businessCase > div:last-child { grid-template-columns: 1fr; } }
+
+.hero { background: #090909; border-bottom: 1px solid var(--line); }
+.hero :global(.sectionKicker) { color: var(--teal); }
+.hero p { color: var(--muted); }
+.cycle { background: #141414; border: 1px solid var(--line); }
+.cycle button { color: #aaa; }
+.cycle .active { color: #050505; background: white; font-weight: 600; }
+.current { background: #101010; border-color: var(--line); }
+.current button { background: #151515; border-color: rgba(255,131,117,.25); }
+.guestNotice { color: #ffd99e; background: rgba(255,196,107,.08); border-color: rgba(255,196,107,.18); }
+.plans article, .businessCase { background: #101010; }
+.plans .highlighted { color: #050505; background: white; border-color: white; box-shadow: 0 30px 80px rgba(255,255,255,.08); }
+.plans .highlighted p, .plans .highlighted ul, .plans .highlighted small { color: #5d5d5d; }
+.plans article > button { color: #050505; background: white; font-weight: 600; }
+.highlighted > button { color: white !important; background: #050505 !important; }
+.businessCase article { background: #171717; }
+.modal { background: rgba(0,0,0,.78); }
+.modal > div { background: #101010; border: 1px solid var(--line); }
+.close { color: white; }
+.confirm { color: #050505; background: white; font-weight: 600; }

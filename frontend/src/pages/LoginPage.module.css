@@ -13,3 +13,18 @@
 @media (max-width: 850px) { .screen { grid-template-columns: 1fr; }.story { min-height: 520px; }.loginPanel { width: 100%; } }
 @media (max-width: 520px) { .story { min-height: 440px; padding: 30px 22px; }.story h1 { font-size: 38px; }.proof article { padding: 13px; }.personas em { display: none; }.loginPanel { padding: 35px 18px; } }
 
+.screen { background: #050505; }
+.story { background: #0a0a0a; border-right: 1px solid var(--line); }
+.story::after { border-color: rgba(255,255,255,.025); }
+.brand > b { color: #050505; background: white; }
+.brand strong, .story h1, .loginPanel h2 { font-weight: 500; }
+.brand small, .story p, .boundary { color: var(--muted); }
+.kicker { color: var(--teal); font-weight: 600; }
+.proof strong { color: white; font-weight: 500; }
+.proof span { color: #aaa; }
+.personas button { color: var(--ink); background: #101010; }
+.personas button > i { color: #050505; background: white; }
+.personas .selected { border-color: rgba(255,255,255,.65); box-shadow: 0 0 0 3px rgba(255,255,255,.07); }
+.personas .selected u { color: white; font-weight: 600; }
+.enter { color: #050505; background: white; font-weight: 600; }
+.oauth button { color: #777; background: #0b0b0b; border-color: #333; }

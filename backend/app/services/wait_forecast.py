@@ -67,8 +67,9 @@ class WaitForecastService:
 
         input_context = self._repository.get_prediction_input_context(target)
         weather = input_context["weather"]
-        weather_records = [record for record in hour_records if record["weather"] == weather]
-        comparable = weather_records if len(weather_records) >= 6 else hour_records
+        weather_multiplier = CALIBRATION_POLICY.scenario_weather_multipliers[weather]
+        clear_records = [record for record in hour_records if record["weather"] == "clear"]
+        comparable = clear_records if len(clear_records) >= 6 else hour_records
 
         target_is_holiday = input_context["is_holiday"]
         holiday_records = [
@@ -95,18 +96,24 @@ class WaitForecastService:
             values.append(float(record["wait_minutes"]))
             weights.append(recency_weight * hour_weight)
 
-        mean = _weighted_mean(values, weights)
+        raw_mean = _weighted_mean(values, weights)
         variance = _weighted_mean(
-            [(value - mean) ** 2 for value in values],
+            [(value - raw_mean) ** 2 for value in values],
             weights,
         )
         return {
-            "value": mean,
-            "standard_deviation": max(sqrt(variance), MIN_STANDARD_DEVIATION_MINUTES),
+            "value": raw_mean * weather_multiplier,
+            "raw_value": raw_mean,
+            "weather": weather,
+            "weather_multiplier": weather_multiplier,
+            "standard_deviation": (
+                max(sqrt(variance), MIN_STANDARD_DEVIATION_MINUTES)
+                * weather_multiplier
+            ),
             "sample_count": len(values),
             "bucket": (
                 f"{'节假日' if target_is_holiday else ('工作日' if weekday_group else '周末')} "
-                f"{target.hour:02d}:00±1h · {weather}"
+                f"{target.hour:02d}:00±1h · 晴朗历史基线 × {weather} {weather_multiplier:.2f}"
             ),
             "is_holiday": target_is_holiday,
         }
@@ -194,6 +201,19 @@ class WaitForecastService:
             }
         ]
         factors[0]["calibration_policy_version"] = CALIBRATION_POLICY.version
+        if baseline["weather_multiplier"] != 1.0:
+            factors.append(
+                {
+                    "code": "scenario_weather",
+                    "label": "场景天气透明校准",
+                    "value_multiplier": baseline["weather_multiplier"],
+                    "value_minutes": round(
+                        baseline["value"] - baseline["raw_value"],
+                        1,
+                    ),
+                    "detail": baseline["weather"],
+                }
+            )
         if baseline["is_holiday"]:
             factors.append(
                 {

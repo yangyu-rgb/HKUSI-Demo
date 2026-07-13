@@ -2,7 +2,8 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 
-test.beforeEach(async ({ request }) => {
+test.beforeEach(async ({ request, page }) => {
+  await page.route("**/*.mp4", (route) => route.abort());
   const response = await request.post("http://127.0.0.1:8000/api/demo/reset", {
     headers: { "X-Demo-Persona-ID": "demo-user" },
   });
@@ -16,11 +17,13 @@ test("口岸态势、V2 场景、双向规划、通知与模型实验室闭环",
   await page.getByRole("button", { name: /Demo 操作员/ }).click();
   await page.getByRole("button", { name: /进入 CrossBorder AI/ }).click();
   await page.goto("/");
+  await expect(page.getByRole("heading", { name: "提前看见口岸等待， 选择更稳的跨境路线。" })).toBeVisible();
+  await expect(page.locator('img[src="/hero-city-poster.jpg"]')).toBeVisible();
   await expect(page.getByRole("heading", { name: "四口岸动态态势" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "深港口岸态势地图" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "四条过关路线流动压力" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "香港—深圳四口岸实时流线" })).toBeVisible();
   await expect(page.locator("canvas")).toBeVisible();
-  await page.getByRole("button", { name: /福田口岸，当前等待/ }).press("Enter");
+  await page.getByRole("button", { name: /福田口岸/ }).press("Enter");
+  await expect(page.getByRole("button", { name: /福田口岸/ })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("heading", { name: "未来三小时等待趋势" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "四口岸时段压力矩阵" })).toBeVisible();
   await expect(page.getByText("当前最优")).toBeVisible();
@@ -37,9 +40,15 @@ test("口岸态势、V2 场景、双向规划、通知与模型实验室闭环",
 
   await page.goto("/planner");
   await expect(page.getByRole("heading", { name: "跨境路线预测" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "选择通勤条件，生成你的四口岸方案" })).toBeVisible();
+  await expect(page.getByText("本次推荐")).toHaveCount(0);
   await page.getByLabel("通勤方向").selectOption("shenzhen_to_hong_kong");
   await page.getByRole("button", { name: "生成 AI 建议" }).click();
   await expect(page.getByText("本次推荐")).toBeVisible();
+  await page.getByRole("button", { name: "查看完整计算过程" }).first().click();
+  await expect(page.getByRole("dialog", { name: /完整计算过程/ })).toBeVisible();
+  await page.getByRole("button", { name: "关闭计算过程" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
 
   await page.goto("/alerts");
   await page.getByRole("button", { name: "运行本地告警周期" }).click();
@@ -105,6 +114,38 @@ test("口岸态势、V2 场景、双向规划、通知与模型实验室闭环",
   await expect(page.getByText("主预测已启用")).toBeVisible();
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(1);
+});
+
+test("桌面电影感外壳在主要断点无横向溢出", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByRole("button", { name: /Demo 操作员/ }).click();
+  await page.getByRole("button", { name: /进入 CrossBorder AI/ }).click();
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  const desktopNavigation = page.getByRole("navigation", { name: "主要导航" });
+  await desktopNavigation.getByRole("button", { name: "更多" }).click();
+  await expect(page.locator("#more-navigation")).toBeVisible();
+  await expect(page.locator("#more-navigation").getByText("众包反馈")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#more-navigation")).toHaveCount(0);
+  await page.getByRole("button", { name: "账户与身份" }).click();
+  await expect(page.locator("#account-menu")).toBeVisible();
+  await expect(page.locator("#account-menu").getByText("Demo 操作员")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#account-menu")).toHaveCount(0);
+  for (const width of [1440, 1024, 768, 375]) {
+    await page.setViewportSize({ width, height: width <= 375 ? 812 : 900 });
+    await page.goto("/");
+    await expect(page.getByRole("heading", { name: "提前看见口岸等待， 选择更稳的跨境路线。" })).toBeVisible();
+    const layout = await page.evaluate(() => ({
+      overflow: document.documentElement.scrollWidth - window.innerWidth,
+      offenders: [...document.querySelectorAll("body *")]
+        .filter((element) => element.getBoundingClientRect().right > window.innerWidth + 1)
+        .slice(0, 6)
+        .map((element) => ({ tag: element.tagName, className: element.className, right: Math.round(element.getBoundingClientRect().right) })),
+    }));
+    expect(layout.overflow, `viewport ${width}px: ${JSON.stringify(layout.offenders)}`).toBeLessThanOrEqual(1);
+  }
 });
 
 

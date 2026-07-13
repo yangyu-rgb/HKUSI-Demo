@@ -5,7 +5,9 @@ export default defineConfig({
   testDir: "./e2e",
   timeout: 30_000,
   fullyParallel: false,
-  workers: process.env.CI ? 1 : undefined,
+  // The deterministic Demo backend is shared by both viewport projects.
+  // A single worker prevents concurrent reset/report mutations from racing.
+  workers: 1,
   reporter: "line",
   use: {
     baseURL: "http://127.0.0.1:5173",

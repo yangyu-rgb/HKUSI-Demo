@@ -315,6 +315,39 @@ def test_scenario_override_changes_v2_prediction_and_can_reset(client: TestClien
     assert restored.json()["is_override"] is False
 
 
+def test_realtime_weather_pressure_is_monotonic(client: TestClient) -> None:
+    weather_order = ["clear", "rain", "heavy_rain", "thunderstorm"]
+    snapshots = []
+
+    for weather in weather_order:
+        saved = client.put(
+            "/api/demo/scenarios/2026-07-10",
+            json={"weather": weather, "is_holiday": False, "events": []},
+        )
+        assert saved.status_code == 200
+        snapshots.append(client.get("/api/realtime").json())
+
+    for port_id in {port["id"] for port in snapshots[0]["ports"]}:
+        port_forecasts = [
+            next(port for port in snapshot["ports"] if port["id"] == port_id)[
+                "forecast"
+            ]
+            for snapshot in snapshots
+        ]
+        for point_index in range(len(port_forecasts[0])):
+            waits = [forecast[point_index]["wait"] for forecast in port_forecasts]
+            assert waits == sorted(waits), (port_id, point_index, waits)
+        current_waits = [forecast[0]["wait"] for forecast in port_forecasts]
+        assert len(set(current_waits)) == len(weather_order), (
+            port_id,
+            current_waits,
+        )
+
+    restored = client.delete("/api/demo/scenarios/2026-07-10")
+    assert restored.status_code == 200
+    assert restored.json()["weather"] == "clear"
+
+
 def test_only_operator_can_modify_scenarios(client: TestClient) -> None:
     response = client.put(
         "/api/demo/scenarios/2026-07-10",

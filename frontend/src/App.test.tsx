@@ -86,6 +86,23 @@ const prediction = {
       ],
       historical_sample_count: 42,
       uncertainty_minutes: 3.2,
+      prediction_engine: "v2",
+      scenario_delta_minutes: 1.5,
+      official_calibration: {
+        status: "active",
+        source: "demo",
+        feature_version: "v1",
+        calibration_version: "v1",
+        traffic: { pressure: 0.42, expected_count: 120, baseline_count: 100, distribution: { status: "in_distribution" } },
+        queue: { resident_level: "low", visitor_level: "medium", effective_weight: 0.65, age_minutes: 4 },
+        shenzhen_validation: { available: true, agreement_percent: 88, uncertainty_multiplier: 0.95, reason: "双侧一致" },
+        raw_model_wait_minutes: 16,
+        scenario_adjusted_wait_minutes: 17,
+        queue_adjusted_wait_minutes: 18,
+        crowdsource_adjustment_minutes: 0,
+        calibrated_wait_minutes: 18,
+        uncertainty_minutes: 3.2,
+      },
     },
   ],
   recommended: "福田",
@@ -246,24 +263,45 @@ describe("application routes", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     renderRoute("/planner");
-    await screen.findByText("本次推荐");
+    expect(await screen.findByRole("heading", { name: "选择通勤条件，生成你的四口岸方案" })).toBeInTheDocument();
+    expect(fetchMock.mock.calls.filter(([input]) => String(input).endsWith("/api/predict"))).toHaveLength(0);
     const target = screen.getByLabelText("最迟到达");
     expect(target).toHaveAttribute("min", "2026-07-10T08:00");
     expect(target).toHaveAttribute("max", "2026-07-11T07:45");
     expect(target).toHaveValue("2026-07-10T09:45");
     expect(screen.getByText("香港时间")).toBeInTheDocument();
 
-    fireEvent.change(screen.getByLabelText("出发地"), { target: { value: "central" } });
+    const origin = screen.getByRole("combobox", { name: "出发地" });
+    fireEvent.change(origin, { target: { value: "中环" } });
+    fireEvent.click(screen.getByRole("option", { name: /中环/ }));
     fireEvent.click(screen.getByRole("button", { name: "生成 AI 建议" }));
 
     await waitFor(() => {
       const predictionCalls = fetchMock.mock.calls.filter(
         ([input]) => String(input).endsWith("/api/predict"),
       );
-      expect(predictionCalls).toHaveLength(2);
-      const requestInit = predictionCalls[1][1] as RequestInit;
+      expect(predictionCalls).toHaveLength(1);
+      const requestInit = predictionCalls[0][1] as RequestInit;
       expect(JSON.parse(String(requestInit.body)).origin_id).toBe("central");
     });
+    expect(await screen.findByText("本次推荐")).toBeInTheDocument();
+
+    const calculationTrigger = screen.getByRole("button", { name: "查看完整计算过程" });
+    fireEvent.click(calculationTrigger);
+    expect(await screen.findByRole("dialog", { name: "福田口岸 · 完整计算过程" })).toBeInTheDocument();
+    expect(screen.getByText("88% 压力一致度")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "关闭计算过程" }));
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+
+    fireEvent.change(target, { target: { value: "2026-07-10T10:00" } });
+    expect(screen.queryByText("本次推荐")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "选择通勤条件，生成你的四口岸方案" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "生成 AI 建议" }));
+    expect(await screen.findByText("本次推荐")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "清除方案" }));
+    expect(screen.queryByText("本次推荐")).not.toBeInTheDocument();
+    expect(target).toHaveValue("2026-07-10T10:00");
   });
 
   it("shows a useful planner error when bootstrap fails", async () => {
