@@ -123,6 +123,15 @@ Demo 模型为每个目标时间筛选相同工作日、周末或节假日，目
 
 响应汇总预测运行和引擎分布、有效众包和质量等级、错误码与请求 ID、写操作审计及本地适配器状态。错误事件只保存路径、状态、错误码、类别、请求 ID 和时间，不保存请求正文或敏感值。
 
+## 商业化演示
+
+- `GET /api/commercial/plans`：返回 Starter、Professional 与 Enterprise 三档课堂套餐。
+- `GET /api/commercial/subscription`：按当前 Demo 个人或组织账户读取商业订阅。
+- `POST /api/commercial/checkout`：接收 `plan_id` 与 `billing_cycle`，生成本地订阅和 Demo 收据。
+- `POST /api/commercial/subscription/cancel`：取消当前账户的本地商业订阅。
+
+商业接口不接收银行卡号、支付令牌、OAuth 凭证或账单地址，不连接支付网关。运营汇总中的订阅数、MRR 和结账金额均为本地商业展示值。
+
 ## 提醒订阅
 
 - `GET /api/subscriptions?user_id=demo-user`
@@ -155,6 +164,7 @@ Demo 模型为每个目标时间筛选相同工作日、周末或节假日，目
 - SVG 路线仅为示意，不代表真实地理比例。
 - SQLite 仅提供本地 Demo 持久化，不代表生产环境并发能力或部署可靠性。
 - 运营分析只反映当前本地 SQLite 中的课堂操作，不代表生产监控、真实用户行为或商业指标。
+- 登录页只选择本地 Demo persona；商业结账只生成本地收据。二者都不是生产认证或真实支付。
 - Demo 身份头、本地通知和本地审计只用于闭合演示逻辑，不替代认证、外部投递或生产审计设施。
 - AI v2.2 使用香港真实公开客流特征与生成基础等待标签驱动课堂 Demo；深圳公开快照用于交叉核验，AI v1 仅作影子比较。
 - 项目不收集现场真实训练数据，也不提供生产 readiness。

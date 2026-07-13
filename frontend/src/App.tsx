@@ -17,12 +17,15 @@ const MobileFeedbackPage = lazy(() => import("./mobile/MobileFeedbackPage").then
 const MobileMePage = lazy(() => import("./mobile/MobileMePage").then((module) => ({ default: module.MobileMePage })));
 const ScenarioPage = lazy(() => import("./pages/ScenarioPage").then((module) => ({ default: module.ScenarioPage })));
 const OperationsPage = lazy(() => import("./pages/OperationsPage").then((module) => ({ default: module.OperationsPage })));
+const LoginPage = lazy(() => import("./pages/LoginPage").then((module) => ({ default: module.LoginPage })));
+const PricingPage = lazy(() => import("./pages/PricingPage").then((module) => ({ default: module.PricingPage })));
 const MobileLayout = lazy(() => import("./mobile/MobileLayout").then((module) => ({ default: module.MobileLayout })));
 
 
 export function AppRoutes() {
   return (
     <Routes>
+      <Route path="login" element={<Suspense fallback={<PageSkeleton cards={2} />}><LoginPage /></Suspense>} />
       <Route element={<AppLayout />}>
         <Route index element={<Suspense fallback={<PageSkeleton />}><HomePage /></Suspense>} />
         <Route path="planner" element={<Suspense fallback={<PageSkeleton cards={2} />}><PlannerPage /></Suspense>} />
@@ -32,6 +35,7 @@ export function AppRoutes() {
         <Route path="model" element={<Suspense fallback={<PageSkeleton cards={3} />}><ModelPage /></Suspense>} />
         <Route path="scenarios" element={<Suspense fallback={<PageSkeleton cards={3} />}><ScenarioPage /></Suspense>} />
         <Route path="operations" element={<Suspense fallback={<PageSkeleton cards={4} />}><OperationsPage /></Suspense>} />
+        <Route path="pricing" element={<Suspense fallback={<PageSkeleton cards={3} />}><PricingPage /></Suspense>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
       <Route path="mobile" element={<Suspense fallback={<PageSkeleton cards={3} />}><MobileLayout /></Suspense>}>

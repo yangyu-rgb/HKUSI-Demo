@@ -63,6 +63,7 @@ class V2ModelResponse(BaseModel):
     traffic_distribution: dict
     sensitivity: dict
     promotion: dict
+    optimization_matrix: list[dict]
 
 
 class V1ReadinessCheck(BaseModel):
@@ -101,6 +102,7 @@ class OperationsSummaryResponse(BaseModel):
     errors: dict
     audit: dict
     adapters: dict
+    commercial: dict
 
 
 class DemoResetResponse(BaseModel):

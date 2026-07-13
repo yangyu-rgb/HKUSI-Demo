@@ -11,6 +11,16 @@ export function setDemoPersonaId(personaId: string): void {
 }
 
 
+export function setDemoSession(session: { personaId: string; signedInAt: string }): void {
+  window.localStorage.setItem("crossborder-demo-session", JSON.stringify(session));
+}
+
+
+export function clearDemoSession(): void {
+  window.localStorage.removeItem("crossborder-demo-session");
+}
+
+
 type ErrorEnvelope = {
   error?: {
     code?: string;

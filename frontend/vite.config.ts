@@ -15,6 +15,8 @@ export default defineConfig({
         "src/features/crowdsource/FeedItem.tsx",
         "src/features/realtime/PortSituationMap.tsx",
         "src/pages/OperationsPage.tsx",
+        "src/pages/LoginPage.tsx",
+        "src/pages/PricingPage.tsx",
       ],
       thresholds: {
         lines: 70,

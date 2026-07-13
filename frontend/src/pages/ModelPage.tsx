@@ -36,6 +36,7 @@ export function ModelPage() {
   const interval = v2Model.data.interval_calibration as { test_coverage_percent: number; average_interval_width_minutes: number; coverage_by_port_percent: Record<string, number> };
   const promotion = v2Model.data.promotion as { passed: boolean; checks: Array<{ name: string; passed: boolean; actual: unknown; required: string }> };
   const dataAudit = v2Model.data.data_audit as { complete_dates: number; warmup_days: number; future_rows_used: number };
+  const optimization = v2Model.data.optimization_matrix as Array<{ id: string; name: string; status: "completed" | "blocked" | "deferred"; evidence: string }>;
 
   return (
     <main className="page">
@@ -85,6 +86,13 @@ export function ModelPage() {
             {promotion.checks.map((check) => (
               <p key={check.name}>{check.passed ? "✓" : "○"} {check.name} · {String(typeof check.actual === "object" ? JSON.stringify(check.actual) : check.actual)} · 要求 {check.required}</p>
             ))}
+          </div>
+        </article>
+        <article className={`${styles.panel} ${styles.wide}`}>
+          <h2>主管建议 AI 优化对照</h2>
+          <p>逐项核对候选选型、A/B、解释性、在线学习、SHAP 与模型集成；不把缺少真实标签的能力伪装成已完成。</p>
+          <div className={styles.optimization}>
+            {optimization.map((item) => <div className={styles[item.status]} key={item.id}><span>{item.status === "completed" ? "已完成" : item.status === "blocked" ? "受阻" : "后续"}</span><strong>{item.name}</strong><small>{item.evidence}</small></div>)}
           </div>
         </article>
         <article className={styles.panel}>

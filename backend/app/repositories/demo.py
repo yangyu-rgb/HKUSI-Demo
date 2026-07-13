@@ -1135,6 +1135,12 @@ class DemoRepository:
                 linked_rows = connection.execute(
                     "SELECT linked_at FROM forecast_feedback_links"
                 ).fetchall()
+                commercial_rows = connection.execute(
+                    "SELECT plan_id, billing_cycle, status, price_hkd FROM commercial_subscriptions"
+                ).fetchall()
+                transaction_rows = connection.execute(
+                    "SELECT amount_hkd, created_at FROM commercial_transactions"
+                ).fetchall()
         except sqlite3.Error as error:
             raise PersistenceError() from error
 
@@ -1142,6 +1148,17 @@ class DemoRepository:
         errors = [dict(row) for row in error_rows if in_window(row["created_at"])]
         audits = [dict(row) for row in audit_rows if in_window(row["created_at"])]
         linked_count = sum(in_window(row["linked_at"]) for row in linked_rows)
+        active_commercial = [row for row in commercial_rows if row["status"] == "active"]
+        plan_distribution: dict[str, int] = {}
+        for row in active_commercial:
+            plan_distribution[row["plan_id"]] = plan_distribution.get(row["plan_id"], 0) + 1
+        demo_mrr = round(sum(
+            row["price_hkd"] if row["billing_cycle"] == "monthly" else row["price_hkd"] / 12
+            for row in active_commercial
+        ))
+        window_revenue = sum(
+            row["amount_hkd"] for row in transaction_rows if in_window(row["created_at"])
+        )
         run_engines: dict[str, str] = {}
         port_counts: dict[str, int] = {}
         hourly: dict[str, set[str]] = {}
@@ -1183,6 +1200,13 @@ class DemoRepository:
                 "recent": audits[:10],
             },
             "linked_feedback_count": linked_count,
+            "commercial": {
+                "active_subscriptions": len(active_commercial),
+                "demo_mrr_hkd": demo_mrr,
+                "window_checkout_hkd": window_revenue,
+                "plan_distribution": plan_distribution,
+                "demo_only": True,
+            },
         }
 
     def save_batch_plan(
@@ -1214,6 +1238,63 @@ class DemoRepository:
                     ),
                 )
             return plan_id
+        except sqlite3.Error as error:
+            raise PersistenceError() from error
+
+    def get_commercial_subscription(self, account_id: str) -> dict | None:
+        try:
+            with self._connect() as connection:
+                row = connection.execute(
+                    "SELECT * FROM commercial_subscriptions WHERE account_id = ?",
+                    (account_id,),
+                ).fetchone()
+            return dict(row) if row else None
+        except sqlite3.Error as error:
+            raise PersistenceError() from error
+
+    def save_commercial_subscription(self, *, account_id: str, persona: dict, plan_id: str, billing_cycle: str, price_hkd: int, started_at: datetime, renews_at: datetime) -> dict:
+        receipt_id = f"demo-receipt-{uuid4().hex[:10]}"
+        now = self._utc_now()
+        try:
+            with self._connect() as connection:
+                connection.execute(
+                    """
+                    INSERT INTO commercial_subscriptions(
+                        account_id, persona_id, organization_id, plan_id,
+                        billing_cycle, status, price_hkd, started_at,
+                        renews_at, receipt_id, updated_at
+                    ) VALUES (?, ?, ?, ?, ?, 'active', ?, ?, ?, ?, ?)
+                    ON CONFLICT(account_id) DO UPDATE SET
+                        persona_id=excluded.persona_id,
+                        organization_id=excluded.organization_id,
+                        plan_id=excluded.plan_id,
+                        billing_cycle=excluded.billing_cycle,
+                        status='active', price_hkd=excluded.price_hkd,
+                        started_at=excluded.started_at, renews_at=excluded.renews_at,
+                        receipt_id=excluded.receipt_id, updated_at=excluded.updated_at
+                    """,
+                    (account_id, persona["id"], persona["organization_id"], plan_id, billing_cycle, price_hkd, started_at.isoformat(), renews_at.isoformat(), receipt_id, now),
+                )
+                connection.execute(
+                    "INSERT INTO commercial_transactions(id, account_id, plan_id, billing_cycle, amount_hkd, status, created_at) VALUES (?, ?, ?, ?, ?, 'demo_succeeded', ?)",
+                    (receipt_id, account_id, plan_id, billing_cycle, price_hkd, now),
+                )
+                row = connection.execute("SELECT * FROM commercial_subscriptions WHERE account_id = ?", (account_id,)).fetchone()
+            return dict(row)
+        except sqlite3.Error as error:
+            raise PersistenceError() from error
+
+    def cancel_commercial_subscription(self, account_id: str) -> dict | None:
+        try:
+            with self._connect() as connection:
+                cursor = connection.execute(
+                    "UPDATE commercial_subscriptions SET status = 'canceled', updated_at = ? WHERE account_id = ? AND status = 'active'",
+                    (self._utc_now(), account_id),
+                )
+                if cursor.rowcount == 0:
+                    return None
+                row = connection.execute("SELECT * FROM commercial_subscriptions WHERE account_id = ?", (account_id,)).fetchone()
+            return dict(row)
         except sqlite3.Error as error:
             raise PersistenceError() from error
 
@@ -1655,6 +1736,8 @@ class DemoRepository:
                 connection.execute("DELETE FROM notifications")
                 connection.execute("DELETE FROM audit_events")
                 connection.execute("DELETE FROM error_events")
+                connection.execute("DELETE FROM commercial_transactions")
+                connection.execute("DELETE FROM commercial_subscriptions")
                 connection.execute("DELETE FROM crowdsource_reports")
                 connection.execute("DELETE FROM subscriptions")
                 connection.execute("DELETE FROM batch_plans")
@@ -1666,6 +1749,7 @@ class DemoRepository:
                 "reports": len(self.get_reports()),
                 "subscriptions": len(self.list_subscriptions("demo-user")),
                 "batch_plans": 0,
+                "commercial_subscriptions": 0,
             }
         except sqlite3.Error as error:
             raise PersistenceError() from error

@@ -1,4 +1,5 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, NavLink, Outlet } from "react-router-dom";
 import { useDemoContext } from "../features/demo/useDemo";
 import { useHongKongClock } from "../features/demo/useHongKongClock";
 import { formatClock } from "../shared/formatters";
@@ -18,6 +19,26 @@ const navigation = [
 export function MobileLayout() {
   const context = useDemoContext();
   const hongKongTime = useHongKongClock(context.data?.current_time);
+  const [online, setOnline] = useState(navigator.onLine);
+  const [installPrompt, setInstallPrompt] = useState<Event | null>(null);
+  useEffect(() => {
+    const goOnline = () => setOnline(true);
+    const goOffline = () => setOnline(false);
+    const beforeInstall = (event: Event) => { event.preventDefault(); setInstallPrompt(event); };
+    window.addEventListener("online", goOnline);
+    window.addEventListener("offline", goOffline);
+    window.addEventListener("beforeinstallprompt", beforeInstall);
+    return () => {
+      window.removeEventListener("online", goOnline);
+      window.removeEventListener("offline", goOffline);
+      window.removeEventListener("beforeinstallprompt", beforeInstall);
+    };
+  }, []);
+  const install = async () => {
+    if (!installPrompt) return;
+    await (installPrompt as Event & { prompt: () => Promise<void> }).prompt();
+    setInstallPrompt(null);
+  };
   return (
     <MobileSessionProvider>
       <div className={styles.viewport}>
@@ -28,6 +49,11 @@ export function MobileLayout() {
           <time dateTime={hongKongTime?.toISOString()}>
             <small>香港时间</small><strong>{hongKongTime ? formatClock(hongKongTime.toISOString()) : "同步中"}</strong>
           </time>
+          <div className={styles.headerActions}>
+            {!online && <span className={styles.offline}>离线</span>}
+            {installPrompt && <button onClick={() => void install()}>安装</button>}
+            <Link to="/" aria-label="返回网页版">网页版 ↗</Link>
+          </div>
         </header>
         <Outlet />
         <nav className={styles.bottomNav} aria-label="移动快捷导航">

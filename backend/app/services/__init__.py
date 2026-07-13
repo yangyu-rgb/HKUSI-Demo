@@ -1,5 +1,6 @@
 from .batch import BatchService
 from .crowdsource import CrowdsourceService
+from .commercial import CommercialService
 from .demo import DemoService
 from .prediction import PredictionService
 from .realtime import RealtimeService
@@ -9,6 +10,7 @@ from .subscription import SubscriptionService
 __all__ = [
     "BatchService",
     "CrowdsourceService",
+    "CommercialService",
     "DemoService",
     "PredictionService",
     "RealtimeService",

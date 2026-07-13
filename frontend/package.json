@@ -15,11 +15,13 @@
   },
   "dependencies": {
     "@tanstack/react-query": "^5.101.2",
+    "@types/three": "^0.185.1",
     "@vitejs/plugin-react": "^4.3.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router-dom": "^7.18.1",
     "recharts": "^3.9.2",
+    "three": "^0.185.1",
     "typescript": "^5.7.2",
     "vite": "^6.0.7"
   },

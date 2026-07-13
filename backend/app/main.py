@@ -11,6 +11,7 @@ from fastapi.responses import JSONResponse
 from .api import (
     batch_router,
     crowdsource_router,
+    commercial_router,
     demo_router,
     health_router,
     prediction_router,
@@ -219,6 +220,7 @@ def create_app(
     app.include_router(realtime_router)
     app.include_router(prediction_router)
     app.include_router(crowdsource_router)
+    app.include_router(commercial_router)
     app.include_router(subscription_router)
     app.include_router(batch_router)
     return app

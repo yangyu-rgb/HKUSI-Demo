@@ -151,6 +151,15 @@ class DemoService:
             "traffic_distribution": metadata["traffic_distribution"],
             "sensitivity": metadata["sensitivity"],
             "promotion": metadata["promotion"],
+            "optimization_matrix": [
+                {"id": "candidate_selection", "name": "多模型候选选型", "status": "completed", "evidence": f"Ridge、ExtraTrees 与 HGB 共 {metadata['selection']['candidate_count']} 组候选，验证集选型"},
+                {"id": "shadow_ab", "name": "运行时模型 A/B", "status": "completed", "evidence": "AI v1 影子对照与 AI v2.2 主预测同时记录，不影响用户结果"},
+                {"id": "scenario_ab", "name": "未来场景 A/B", "status": "completed", "evidence": "默认场景与草稿场景无副作用对比"},
+                {"id": "explainability", "name": "模型可解释性", "status": "completed", "evidence": "客流消融、单调敏感性、逐层透明校准和最终因子链"},
+                {"id": "online_learning", "name": "在线学习", "status": "blocked", "evidence": "缺少合规真实等待分钟标签；课堂众包禁止进入训练"},
+                {"id": "shap", "name": "SHAP 逐预测解释", "status": "deferred", "evidence": "当前透明因子与消融已满足 Demo；取得真实标签后再评估 SHAP"},
+                {"id": "runtime_ensemble", "name": "运行时模型集成", "status": "deferred", "evidence": "当前候选差异未证明集成优于单模型，先保留统计降级与影子对照"},
+            ],
         }
 
     def get_audit_events(self, limit: int) -> dict:

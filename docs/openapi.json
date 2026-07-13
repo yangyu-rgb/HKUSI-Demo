@@ -1482,6 +1482,260 @@
         }
       }
     },
+    "/api/commercial/plans": {
+      "get": {
+        "tags": [
+          "商业化演示"
+        ],
+        "summary": "获取本地商业套餐",
+        "operationId": "get_plans_api_commercial_plans_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommercialPlansResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/commercial/subscription": {
+      "get": {
+        "tags": [
+          "商业化演示"
+        ],
+        "summary": "获取当前 Demo 账户商业订阅",
+        "operationId": "get_subscription_api_commercial_subscription_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommercialSubscriptionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/commercial/checkout": {
+      "post": {
+        "tags": [
+          "商业化演示"
+        ],
+        "summary": "执行无真实扣款的模拟结账",
+        "operationId": "checkout_api_commercial_checkout_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommercialCheckoutRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommercialCheckoutResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/commercial/subscription/cancel": {
+      "post": {
+        "tags": [
+          "商业化演示"
+        ],
+        "summary": "取消本地商业订阅",
+        "operationId": "cancel_subscription_api_commercial_subscription_cancel_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommercialSubscriptionResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "请求的资源不存在",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "请求与当前状态冲突",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "领域规则或请求参数验证失败",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "内部服务或持久化错误",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/subscriptions": {
       "get": {
         "tags": [
@@ -3165,6 +3419,221 @@
         ],
         "title": "BatchSummary"
       },
+      "CommercialCheckoutRequest": {
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "enum": [
+              "starter",
+              "professional",
+              "enterprise"
+            ],
+            "title": "Plan Id"
+          },
+          "billing_cycle": {
+            "type": "string",
+            "enum": [
+              "monthly",
+              "yearly"
+            ],
+            "title": "Billing Cycle"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "plan_id",
+          "billing_cycle"
+        ],
+        "title": "CommercialCheckoutRequest"
+      },
+      "CommercialCheckoutResponse": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success"
+          },
+          "subscription": {
+            "$ref": "#/components/schemas/CommercialSubscription"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "success",
+          "subscription",
+          "message"
+        ],
+        "title": "CommercialCheckoutResponse"
+      },
+      "CommercialPlan": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "audience": {
+            "type": "string",
+            "title": "Audience"
+          },
+          "monthly_price_hkd": {
+            "type": "integer",
+            "title": "Monthly Price Hkd"
+          },
+          "yearly_price_hkd": {
+            "type": "integer",
+            "title": "Yearly Price Hkd"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "features": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Features"
+          },
+          "highlighted": {
+            "type": "boolean",
+            "title": "Highlighted",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "audience",
+          "monthly_price_hkd",
+          "yearly_price_hkd",
+          "description",
+          "features"
+        ],
+        "title": "CommercialPlan"
+      },
+      "CommercialPlansResponse": {
+        "properties": {
+          "plans": {
+            "items": {
+              "$ref": "#/components/schemas/CommercialPlan"
+            },
+            "type": "array",
+            "title": "Plans"
+          },
+          "demo_notice": {
+            "type": "string",
+            "title": "Demo Notice"
+          }
+        },
+        "type": "object",
+        "required": [
+          "plans",
+          "demo_notice"
+        ],
+        "title": "CommercialPlansResponse"
+      },
+      "CommercialSubscription": {
+        "properties": {
+          "account_id": {
+            "type": "string",
+            "title": "Account Id"
+          },
+          "persona_id": {
+            "type": "string",
+            "title": "Persona Id"
+          },
+          "organization_id": {
+            "type": "string",
+            "title": "Organization Id"
+          },
+          "plan_id": {
+            "type": "string",
+            "title": "Plan Id"
+          },
+          "plan_name": {
+            "type": "string",
+            "title": "Plan Name"
+          },
+          "billing_cycle": {
+            "type": "string",
+            "title": "Billing Cycle"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "price_hkd": {
+            "type": "integer",
+            "title": "Price Hkd"
+          },
+          "started_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Started At"
+          },
+          "renews_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Renews At"
+          },
+          "receipt_id": {
+            "type": "string",
+            "title": "Receipt Id"
+          },
+          "demo_payment": {
+            "type": "boolean",
+            "title": "Demo Payment",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "account_id",
+          "persona_id",
+          "organization_id",
+          "plan_id",
+          "plan_name",
+          "billing_cycle",
+          "status",
+          "price_hkd",
+          "started_at",
+          "renews_at",
+          "receipt_id"
+        ],
+        "title": "CommercialSubscription"
+      },
+      "CommercialSubscriptionResponse": {
+        "properties": {
+          "subscription": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CommercialSubscription"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "demo_notice": {
+            "type": "string",
+            "title": "Demo Notice"
+          }
+        },
+        "type": "object",
+        "required": [
+          "demo_notice"
+        ],
+        "title": "CommercialSubscriptionResponse"
+      },
       "CrossingChannel": {
         "type": "string",
         "enum": [
@@ -4058,6 +4527,11 @@
             "additionalProperties": true,
             "type": "object",
             "title": "Adapters"
+          },
+          "commercial": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Commercial"
           }
         },
         "type": "object",
@@ -4068,7 +4542,8 @@
           "crowdsource",
           "errors",
           "audit",
-          "adapters"
+          "adapters",
+          "commercial"
         ],
         "title": "OperationsSummaryResponse"
       },
@@ -6176,6 +6651,14 @@
             "additionalProperties": true,
             "type": "object",
             "title": "Promotion"
+          },
+          "optimization_matrix": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Optimization Matrix"
           }
         },
         "type": "object",
@@ -6200,7 +6683,8 @@
           "interval_calibration",
           "traffic_distribution",
           "sensitivity",
-          "promotion"
+          "promotion",
+          "optimization_matrix"
         ],
         "title": "V2ModelResponse"
       },

@@ -1,7 +1,7 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { useDemoContext, useDemoPersonas, useDemoReset } from "../features/demo/useDemo";
 import { useHongKongClock } from "../features/demo/useHongKongClock";
-import { getDemoPersonaId, setDemoPersonaId, userFacingError } from "../shared/api/client";
+import { clearDemoSession, getDemoPersonaId, setDemoPersonaId, userFacingError } from "../shared/api/client";
 import { formatHongKongDateTime } from "../shared/formatters";
 import styles from "./AppLayout.module.css";
 
@@ -15,6 +15,7 @@ const navigation = [
   { to: "/business", label: "企业方案" },
   { to: "/model", label: "AI 模型" },
   { to: "/operations", label: "运营分析", operatorOnly: true },
+  { to: "/pricing", label: "套餐订阅" },
   { to: "/mobile", label: "手机版" },
 ];
 
@@ -59,6 +60,7 @@ export function AppLayout() {
           <strong>{hongKongTime ? formatHongKongDateTime(hongKongTime, true) : "同步中"}</strong>
         </time>
         <div className={styles.demoControls}>
+          <NavLink to="/login">登录页</NavLink>
           <select
             aria-label="Demo 身份"
             value={getDemoPersonaId()}
@@ -73,6 +75,7 @@ export function AppLayout() {
           </select>
           <span className={styles.demoChip}>Classroom Demo</span>
           <button onClick={handleReset} disabled={reset.isPending}>重置</button>
+          <button onClick={() => { clearDemoSession(); window.location.assign("/login"); }}>退出</button>
         </div>
       </header>
       {reset.isError && (

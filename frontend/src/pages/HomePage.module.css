@@ -134,6 +134,7 @@
 }
 
 .selectedCard { border-radius: 18px; outline: 3px solid rgba(8, 127, 112, .28); outline-offset: 3px; }
+.flowFallback { max-width: 1240px; min-height: 380px; margin: 0 auto 28px; display: grid; place-items: center; color: #a9c7c0; background: #0a302d; border-radius: var(--radius-panel); font-size: 11px; }
 
 .refresh {
   display: flex;

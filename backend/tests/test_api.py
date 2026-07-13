@@ -430,6 +430,59 @@ def test_untrusted_text_is_literal_and_sql_is_parameterized(client: TestClient) 
     assert client.get("/api/crowdsource/feed").status_code == 200
 
 
+def test_commercial_demo_checkout_subscription_and_cancel(client: TestClient) -> None:
+    plans = client.get("/api/commercial/plans")
+    assert plans.status_code == 200
+    assert [item["id"] for item in plans.json()["plans"]] == ["starter", "professional", "enterprise"]
+    assert client.get("/api/commercial/subscription").json()["subscription"] is None
+
+    checkout = client.post(
+        "/api/commercial/checkout",
+        json={"plan_id": "professional", "billing_cycle": "yearly"},
+    )
+    assert checkout.status_code == 200
+    subscription = checkout.json()["subscription"]
+    assert subscription["plan_name"] == "Professional"
+    assert subscription["price_hkd"] == 3990
+    assert subscription["demo_payment"] is True
+    assert subscription["receipt_id"].startswith("demo-receipt-")
+
+    summary = client.get("/api/demo/operations-summary").json()
+    assert summary["commercial"]["active_subscriptions"] == 1
+    assert summary["commercial"]["demo_mrr_hkd"] == 332
+    assert summary["commercial"]["window_checkout_hkd"] == 3990
+
+    canceled = client.post("/api/commercial/subscription/cancel")
+    assert canceled.status_code == 200
+    assert canceled.json()["subscription"]["status"] == "canceled"
+    assert client.get("/api/commercial/subscription").json()["subscription"]["status"] == "canceled"
+
+
+def test_commercial_subscription_is_scoped_to_demo_account(client: TestClient) -> None:
+    client.post(
+        "/api/commercial/checkout",
+        headers={"X-Demo-Persona-ID": "commuter-user"},
+        json={"plan_id": "starter", "billing_cycle": "monthly"},
+    )
+    operator = client.get("/api/commercial/subscription").json()
+    commuter = client.get(
+        "/api/commercial/subscription",
+        headers={"X-Demo-Persona-ID": "commuter-user"},
+    ).json()
+    assert operator["subscription"] is None
+    assert commuter["subscription"]["account_id"] == "commuter-user"
+
+    rejected_payment_data = client.post(
+        "/api/commercial/checkout",
+        json={
+            "plan_id": "professional", "billing_cycle": "monthly",
+            "card_number": "4111111111111111",
+        },
+    )
+    assert rejected_payment_data.status_code == 422
+    assert rejected_payment_data.json()["error"]["code"] == "VALIDATION_ERROR"
+
+
 def test_crowdsource_subscription_and_batch(client: TestClient) -> None:
     feed = client.get("/api/crowdsource/feed")
     report = client.post(
@@ -914,7 +967,7 @@ def test_demo_end_to_end_flow_and_reset(client: TestClient) -> None:
     shadow_after_reset = client.get("/api/demo/model-shadow-summary")
 
     assert reset.status_code == 200
-    assert reset.json()["seeded"] == {"reports": 4, "subscriptions": 1, "batch_plans": 0}
+    assert reset.json()["seeded"] == {"reports": 4, "subscriptions": 1, "batch_plans": 0, "commercial_subscriptions": 0}
     assert reports_after_reset.json()["total"] == 4
     assert plans_after_reset.json()["total"] == 0
     assert shadow_after_reset.json()["total_observations"] == 0

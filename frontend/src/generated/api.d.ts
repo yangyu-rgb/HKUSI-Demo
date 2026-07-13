@@ -374,6 +374,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/commercial/plans": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 获取本地商业套餐 */
+        get: operations["get_plans_api_commercial_plans_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/commercial/subscription": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 获取当前 Demo 账户商业订阅 */
+        get: operations["get_subscription_api_commercial_subscription_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/commercial/checkout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 执行无真实扣款的模拟结账 */
+        post: operations["checkout_api_commercial_checkout_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/commercial/subscription/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** 取消本地商业订阅 */
+        post: operations["cancel_subscription_api_commercial_subscription_cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/subscriptions": {
         parameters: {
             query?: never;
@@ -795,6 +863,98 @@ export interface components {
             /** Recommendation */
             recommendation: string;
         };
+        /** CommercialCheckoutRequest */
+        CommercialCheckoutRequest: {
+            /**
+             * Plan Id
+             * @enum {string}
+             */
+            plan_id: "starter" | "professional" | "enterprise";
+            /**
+             * Billing Cycle
+             * @enum {string}
+             */
+            billing_cycle: "monthly" | "yearly";
+        };
+        /** CommercialCheckoutResponse */
+        CommercialCheckoutResponse: {
+            /** Success */
+            success: boolean;
+            subscription: components["schemas"]["CommercialSubscription"];
+            /** Message */
+            message: string;
+        };
+        /** CommercialPlan */
+        CommercialPlan: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Audience */
+            audience: string;
+            /** Monthly Price Hkd */
+            monthly_price_hkd: number;
+            /** Yearly Price Hkd */
+            yearly_price_hkd: number;
+            /** Description */
+            description: string;
+            /** Features */
+            features: string[];
+            /**
+             * Highlighted
+             * @default false
+             */
+            highlighted: boolean;
+        };
+        /** CommercialPlansResponse */
+        CommercialPlansResponse: {
+            /** Plans */
+            plans: components["schemas"]["CommercialPlan"][];
+            /** Demo Notice */
+            demo_notice: string;
+        };
+        /** CommercialSubscription */
+        CommercialSubscription: {
+            /** Account Id */
+            account_id: string;
+            /** Persona Id */
+            persona_id: string;
+            /** Organization Id */
+            organization_id: string;
+            /** Plan Id */
+            plan_id: string;
+            /** Plan Name */
+            plan_name: string;
+            /** Billing Cycle */
+            billing_cycle: string;
+            /** Status */
+            status: string;
+            /** Price Hkd */
+            price_hkd: number;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /**
+             * Renews At
+             * Format: date-time
+             */
+            renews_at: string;
+            /** Receipt Id */
+            receipt_id: string;
+            /**
+             * Demo Payment
+             * @default true
+             */
+            demo_payment: boolean;
+        };
+        /** CommercialSubscriptionResponse */
+        CommercialSubscriptionResponse: {
+            subscription?: components["schemas"]["CommercialSubscription"] | null;
+            /** Demo Notice */
+            demo_notice: string;
+        };
         /**
          * CrossingChannel
          * @enum {string}
@@ -1164,6 +1324,10 @@ export interface components {
             };
             /** Adapters */
             adapters: {
+                [key: string]: unknown;
+            };
+            /** Commercial */
+            commercial: {
                 [key: string]: unknown;
             };
         };
@@ -1962,6 +2126,10 @@ export interface components {
             promotion: {
                 [key: string]: unknown;
             };
+            /** Optimization Matrix */
+            optimization_matrix: {
+                [key: string]: unknown;
+            }[];
         };
         /**
          * Weekday
@@ -3198,6 +3366,234 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CrowdsourceSubmitResponse"];
+                };
+            };
+            /** @description 请求的资源不存在 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 领域规则或请求参数验证失败 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 内部服务或持久化错误 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_plans_api_commercial_plans_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommercialPlansResponse"];
+                };
+            };
+            /** @description 请求的资源不存在 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 领域规则或请求参数验证失败 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 内部服务或持久化错误 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    get_subscription_api_commercial_subscription_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommercialSubscriptionResponse"];
+                };
+            };
+            /** @description 请求的资源不存在 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 领域规则或请求参数验证失败 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 内部服务或持久化错误 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    checkout_api_commercial_checkout_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CommercialCheckoutRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommercialCheckoutResponse"];
+                };
+            };
+            /** @description 请求的资源不存在 */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 请求与当前状态冲突 */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 领域规则或请求参数验证失败 */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 内部服务或持久化错误 */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    cancel_subscription_api_commercial_subscription_cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommercialSubscriptionResponse"];
                 };
             };
             /** @description 请求的资源不存在 */

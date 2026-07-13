@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { ForecastChart } from "../features/realtime/ForecastChart";
 import { ForecastHeatmap } from "../features/realtime/ForecastHeatmap";
 import { PortCard } from "../features/realtime/PortCard";
@@ -9,6 +9,9 @@ import { ErrorState } from "../shared/components/PageState";
 import { PageSkeleton } from "../shared/components/PageSkeleton";
 import { formatHongKongDateTime } from "../shared/formatters";
 import styles from "./HomePage.module.css";
+
+
+const PortFlowScene = lazy(() => import("../features/realtime/PortFlowScene").then((module) => ({ default: module.PortFlowScene })));
 
 
 export function HomePage() {
@@ -50,6 +53,8 @@ export function HomePage() {
           <p>{alert.message}</p>
         </div>
       ))}
+
+      <Suspense fallback={<section className={styles.flowFallback}>正在加载 3D 路线态势…</section>}><PortFlowScene ports={data.ports} /></Suspense>
 
       <section className="pageSection">
         <div className="sectionHeading">

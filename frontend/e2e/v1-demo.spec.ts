@@ -9,9 +9,15 @@ test.beforeEach(async ({ request }) => {
 
 
 test("口岸态势、V2 场景、双向规划、通知与模型实验室闭环", async ({ page }, testInfo) => {
+  await page.goto("/login");
+  await expect(page.getByRole("heading", { name: "选择你的工作空间" })).toBeVisible();
+  await page.getByRole("button", { name: /Demo 操作员/ }).click();
+  await page.getByRole("button", { name: /进入 CrossBorder AI/ }).click();
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "四口岸动态态势" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "深港口岸态势地图" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "四条过关路线流动压力" })).toBeVisible();
+  await expect(page.locator("canvas")).toBeVisible();
   await page.getByRole("button", { name: /福田口岸，当前等待/ }).press("Enter");
   await expect(page.getByRole("heading", { name: "未来三小时等待趋势" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "四口岸时段压力矩阵" })).toBeVisible();
@@ -47,11 +53,21 @@ test("口岸态势、V2 场景、双向规划、通知与模型实验室闭环",
   await expect(page.getByText("全部晋级门槛通过")).toBeVisible();
   await expect(page.getByText("90.44%", { exact: true })).toBeVisible();
   await expect(page.getByText("仅用于课堂 Demo，不收集现场真实训练数据")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "主管建议 AI 优化对照" })).toBeVisible();
+  await expect(page.getByText("在线学习", { exact: true })).toBeVisible();
+
+  await page.goto("/pricing");
+  await expect(page.getByRole("heading", { name: /从预测能力到可购买的/ })).toBeVisible();
+  await page.getByRole("button", { name: "模拟购买" }).first().click();
+  await expect(page.getByText(/不会收集银行卡/)).toBeVisible();
+  await page.getByRole("button", { name: "确认模拟结账" }).click();
+  await expect(page.getByText(/Professional · 生效中/)).toBeVisible();
 
   await page.goto("/operations");
   await expect(page.getByRole("heading", { name: "Demo 运营分析中心" })).toBeVisible();
   await expect(page.getByText("预测运行", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "众包质量结构" })).toBeVisible();
+  await expect(page.getByText("商业订阅", { exact: true })).toBeVisible();
 
   if (testInfo.project.name === "mobile-chromium") {
     await page.evaluate(() => window.localStorage.setItem("crossborder-demo-persona", "commuter-user"));
@@ -60,6 +76,7 @@ test("口岸态势、V2 场景、双向规划、通知与模型实验室闭环",
   await expect(page.getByRole("heading", { name: "现在走哪个口岸？" })).toBeVisible();
   await expect(page.getByText("深圳官方快照 · 交叉核验")).toBeVisible();
   await expect(page.getByRole("navigation", { name: "移动快捷导航" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "返回网页版" })).toHaveAttribute("href", "/");
   await expect(page.locator('a[href="/planner"]')).toHaveCount(0);
   await page.getByRole("link", { name: "规划", exact: true }).click();
   await expect(page.getByRole("heading", { name: "规划跨境行程" })).toBeVisible();
@@ -91,7 +108,7 @@ test("口岸态势、V2 场景、双向规划、通知与模型实验室闭环",
 
 
 test("主要页面没有严重可访问性问题", async ({ page }) => {
-  for (const route of ["/", "/planner", "/scenarios", "/crowdsource", "/alerts", "/business", "/model", "/operations", "/mobile", "/mobile/planner", "/mobile/scenarios", "/mobile/feedback", "/mobile/me"]) {
+  for (const route of ["/login", "/", "/planner", "/scenarios", "/crowdsource", "/alerts", "/business", "/model", "/operations", "/pricing", "/mobile", "/mobile/planner", "/mobile/scenarios", "/mobile/feedback", "/mobile/me"]) {
     await page.goto(route);
     await page.locator("main").waitFor();
     const result = await new AxeBuilder({ page })

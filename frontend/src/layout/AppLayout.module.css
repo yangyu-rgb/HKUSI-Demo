@@ -109,7 +109,8 @@
   font-variant-numeric: tabular-nums;
 }
 
-.demoControls button {
+.demoControls button,
+.demoControls > a {
   padding: 7px 9px;
   color: var(--muted);
   background: white;
@@ -117,6 +118,7 @@
   border-radius: 8px;
   cursor: pointer;
   font-size: 10px;
+  text-decoration: none;
 }
 
 .demoControls select {

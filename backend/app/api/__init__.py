@@ -1,5 +1,6 @@
 from .batch import router as batch_router
 from .crowdsource import router as crowdsource_router
+from .commercial import router as commercial_router
 from .demo import router as demo_router
 from .health import router as health_router
 from .prediction import router as prediction_router
@@ -10,6 +11,7 @@ from .scenario import router as scenario_router
 __all__ = [
     "batch_router",
     "crowdsource_router",
+    "commercial_router",
     "demo_router",
     "health_router",
     "prediction_router",

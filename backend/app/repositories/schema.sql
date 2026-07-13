@@ -108,6 +108,30 @@ CREATE TABLE IF NOT EXISTS audit_events (
 CREATE INDEX IF NOT EXISTS idx_audit_events_created
 ON audit_events(created_at DESC, id DESC);
 
+CREATE TABLE IF NOT EXISTS commercial_subscriptions (
+    account_id TEXT PRIMARY KEY,
+    persona_id TEXT NOT NULL,
+    organization_id TEXT NOT NULL,
+    plan_id TEXT NOT NULL CHECK(plan_id IN ('starter', 'professional', 'enterprise')),
+    billing_cycle TEXT NOT NULL CHECK(billing_cycle IN ('monthly', 'yearly')),
+    status TEXT NOT NULL CHECK(status IN ('active', 'canceled')),
+    price_hkd INTEGER NOT NULL,
+    started_at TEXT NOT NULL,
+    renews_at TEXT NOT NULL,
+    receipt_id TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS commercial_transactions (
+    id TEXT PRIMARY KEY,
+    account_id TEXT NOT NULL,
+    plan_id TEXT NOT NULL,
+    billing_cycle TEXT NOT NULL,
+    amount_hkd INTEGER NOT NULL,
+    status TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS error_events (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     request_id TEXT NOT NULL,

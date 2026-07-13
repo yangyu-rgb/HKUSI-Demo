@@ -16,6 +16,7 @@ describe("OperationsPage", () => {
       errors: { total: 1, by_code: { VALIDATION_ERROR: 1 }, by_path: {}, recent: [] },
       audit: { total: 2, by_path: { "/api/predict": 2 }, recent: [] },
       adapters: { database: "sqlite-local", database_ready: true, identity: "demo-persona", notifications: "sqlite-inbox", providers: [{ provider: "ports", status: "available", fallback: false }, { provider: "weather", status: "fallback", fallback: true }] },
+      commercial: { active_subscriptions: 1, demo_mrr_hkd: 399, window_checkout_hkd: 399, plan_distribution: { professional: 1 }, demo_only: true },
     };
     vi.stubGlobal("fetch", vi.fn().mockImplementation(() => Promise.resolve(
       new Response(JSON.stringify(payload), { status: 200, headers: { "Content-Type": "application/json" } }),
@@ -27,6 +28,7 @@ describe("OperationsPage", () => {
     expect(screen.getByText("AI v2.2")).toBeInTheDocument();
     expect(screen.getByText("统计降级")).toBeInTheDocument();
     expect(screen.getByText("VALIDATION_ERROR")).toBeInTheDocument();
+    expect(screen.getByText("HK$399")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "7天" }));
     expect(await screen.findByText("最近7天")).toBeInTheDocument();
   });

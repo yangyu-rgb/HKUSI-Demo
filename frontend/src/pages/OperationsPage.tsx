@@ -29,6 +29,7 @@ export function OperationsPage() {
   const errors = data.errors as { total: number; by_code: Record<string, number> };
   const audit = data.audit as { total: number; by_path: Record<string, number> };
   const adapters = data.adapters as { database_ready: boolean; providers: Array<{ provider: string; status: string; fallback: boolean }> };
+  const commercial = data.commercial as { active_subscriptions: number; demo_mrr_hkd: number; window_checkout_hkd: number; plan_distribution: Record<string, number>; demo_only: boolean };
   const engineCounts = forecast.engine_counts;
   const qualityCounts = crowdsource.quality_counts;
   const errorCounts = errors.by_code;
@@ -47,6 +48,8 @@ export function OperationsPage() {
         <article><span>有效众包</span><strong>{crowdsource.used_for_prediction}</strong><small>{crowdsource.distinct_reporters} 名独立反馈者</small></article>
         <article><span>平均质量</span><strong>{crowdsource.average_quality_score ?? "—"}</strong><small>课堂反馈质量分</small></article>
         <article className={errors.total > 0 ? styles.warningMetric : ""}><span>错误事件</span><strong>{errors.total}</strong><small>带请求 ID 可追踪</small></article>
+        <article><span>商业订阅</span><strong>{commercial.active_subscriptions}</strong><small>本地模拟生效账户</small></article>
+        <article><span>Demo MRR</span><strong>HK${commercial.demo_mrr_hkd}</strong><small>展示值 · 非真实收入</small></article>
       </section>
       <section className={styles.grid}>
         <article className={styles.panel}><header><h2>预测引擎分布</h2><span>{windowHours === 24 ? "最近24小时" : "最近7天"}</span></header><div className={styles.bars}>{entries(engineCounts).length ? entries(engineCounts).map(([label, count]) => <div key={label}><span>{label === "v2_2_transparent_hybrid" ? "AI v2.2" : "统计降级"}</span><i><b style={{ width: `${Math.max(8, count / Math.max(1, forecast.total_runs) * 100)}%` }} /></i><strong>{count}</strong></div>) : <p className={styles.empty}>先生成一次路线预测，即可看到引擎运行分布。</p>}</div></article>
@@ -55,6 +58,7 @@ export function OperationsPage() {
         <article className={styles.panel}><header><h2>业务操作分布</h2><span>{audit.total} 次写操作</span></header>{entries(auditPaths).length ? <ul>{entries(auditPaths).slice(0, 6).map(([path, count]) => <li key={path}><span>{path}</span><strong>{count}</strong></li>)}</ul> : <p className={styles.empty}>提交反馈、创建提醒或生成企业方案后会显示操作记录。</p>}</article>
       </section>
       <section className={styles.adapterPanel}><div><span className="sectionKicker">Adapter health</span><h2>课堂运行适配器</h2></div><div className={styles.adapters}><span className={adapters.database_ready ? styles.ok : styles.bad}>SQLite · {adapters.database_ready ? "就绪" : "异常"}</span>{providerRows.map((provider) => <span className={!provider.fallback && provider.status === "available" ? styles.ok : styles.bad} key={provider.provider}>{provider.provider} · {provider.fallback ? "降级" : provider.status}</span>)}</div></section>
+      <p className={styles.commercialNote}>商业订阅、MRR 与结账金额均为本地课堂模拟值，不代表真实客户、收入或支付流水。</p>
     </main>
   );
 }

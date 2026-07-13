@@ -7,6 +7,7 @@ from ..repositories import DemoRepository
 from ..services import (
     BatchService,
     CrowdsourceService,
+    CommercialService,
     DemoService,
     PredictionService,
     RealtimeService,
@@ -60,6 +61,13 @@ def get_crowdsource_service(
     clock: Clock = Depends(get_clock),
 ) -> CrowdsourceService:
     return CrowdsourceService(repository, clock)
+
+
+def get_commercial_service(
+    repository: DemoRepository = Depends(get_repository),
+    clock: Clock = Depends(get_clock),
+) -> CommercialService:
+    return CommercialService(repository, clock)
 
 
 def get_demo_service(

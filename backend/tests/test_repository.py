@@ -49,7 +49,7 @@ def test_reset_restores_seed_data(tmp_path: Path) -> None:
     )
 
     seeded = repository.reset_dynamic_data()
-    assert seeded == {"reports": 4, "subscriptions": 1, "batch_plans": 0}
+    assert seeded == {"reports": 4, "subscriptions": 1, "batch_plans": 0, "commercial_subscriptions": 0}
     assert not any(
         report["user_id"] == "temporary"
         for report in repository.get_reports()
