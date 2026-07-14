@@ -1,6 +1,5 @@
 import {
   ACESFilmicToneMapping,
-  Clock,
   Color,
   DirectionalLight,
   FogExp2,
@@ -12,6 +11,7 @@ import {
   Vector2,
   Vector3,
   WebGLRenderer,
+  type Object3D,
 } from "three";
 import { createBorderPort } from "./BorderPort";
 import { createBorderRoute } from "./BorderRoute";
@@ -36,21 +36,24 @@ export class BorderCommuteScene {
   private readonly routes = new Map<string, RouteVisual>();
   private readonly ports = new Map<string, PortVisual>();
   private readonly raycaster = new Raycaster();
+  private readonly pickTargets: Object3D[] = [];
   private readonly pointer = new Vector2(2, 2);
   private readonly pointerPosition = new Vector2();
   private readonly focusTarget = new Vector3();
   private readonly tooltipAnchor = new Vector3();
-  private readonly clock = new Clock();
   private readonly resizeObserver: ResizeObserver;
   private readonly intersectionObserver: IntersectionObserver;
   private readonly autoTour: RouteAutoTour;
-  private frame = 0;
+  private frame: number | null = null;
   private lastFrameTime = performance.now();
+  private elapsedSeconds = 0;
   private selectedId: string | null = null;
   private hoveredId: string | null = null;
   private pointerDirty = false;
   private pointerStart: { x: number; y: number } | null = null;
-  private visible = true;
+  private inViewport = true;
+  private documentVisible = document.visibilityState === "visible";
+  private contextAvailable = true;
   private disposed = false;
   private lastPerformanceUpdate = 0;
   private autoTourPaused = false;
@@ -104,6 +107,8 @@ export class BorderCommuteScene {
       this.ports.set(status.id, port);
       this.scene.add(route.group, port.group);
     });
+    this.routes.forEach((route) => this.pickTargets.push(route.pickMesh));
+    this.ports.forEach((port) => this.pickTargets.push(...port.pickMeshes));
 
     const geographicPoints = [
       ...(geographyAsset ? geographyCoordinates(geographyAsset) : CITY_POLYGONS.flatMap((polygon) => polygon.points)),
@@ -136,15 +141,19 @@ export class BorderCommuteScene {
     this.renderer.domElement.addEventListener("pointerdown", this.handlePointerDown);
     this.renderer.domElement.addEventListener("pointerup", this.handlePointerUp);
     this.renderer.domElement.addEventListener("webglcontextlost", this.handleContextLost);
+    this.renderer.domElement.addEventListener("webglcontextrestored", this.handleContextRestored);
 
     this.resizeObserver = new ResizeObserver(this.resize);
     this.resizeObserver.observe(this.container);
-    this.intersectionObserver = new IntersectionObserver(([entry]) => { this.visible = entry.isIntersecting; }, { threshold: 0.05 });
+    this.intersectionObserver = new IntersectionObserver(([entry]) => {
+      this.inViewport = entry.isIntersecting;
+      this.syncRenderLoop();
+    }, { threshold: 0.05 });
     this.intersectionObserver.observe(this.container);
     document.addEventListener("visibilitychange", this.handleVisibilityChange);
     this.resize();
     this.callbacks.onAvailabilityChange?.(true);
-    this.render();
+    this.syncRenderLoop();
   }
 
   updateStatuses(statuses: NormalizedRouteStatus[]): void {
@@ -193,11 +202,7 @@ export class BorderCommuteScene {
     if (!this.pointerDirty || this.selectedId) return;
     this.pointerDirty = false;
     this.raycaster.setFromCamera(this.pointer, this.camera);
-    const targets = [
-      ...[...this.routes.values()].map((route) => route.pickMesh),
-      ...[...this.ports.values()].flatMap((port) => port.pickMeshes),
-    ];
-    const next = this.raycaster.intersectObjects(targets, false)[0]?.object.userData.routeId as string | undefined;
+    const next = this.raycaster.intersectObjects(this.pickTargets, false)[0]?.object.userData.routeId as string | undefined;
     const nextId = next ?? null;
     if (nextId === this.hoveredId) return;
     this.hoveredId = nextId;
@@ -248,13 +253,39 @@ export class BorderCommuteScene {
 
   private readonly handleContextLost = (event: Event) => {
     event.preventDefault();
+    this.contextAvailable = false;
+    this.syncRenderLoop();
     this.callbacks.onAvailabilityChange?.(false);
   };
 
-  private readonly handleVisibilityChange = () => {
-    this.visible = document.visibilityState === "visible";
-    if (this.visible) this.lastFrameTime = performance.now();
+  private readonly handleContextRestored = () => {
+    if (this.disposed) return;
+    this.contextAvailable = true;
+    this.callbacks.onAvailabilityChange?.(true);
+    this.syncRenderLoop();
   };
+
+  private readonly handleVisibilityChange = () => {
+    this.documentVisible = document.visibilityState === "visible";
+    this.syncRenderLoop();
+  };
+
+  private shouldRender(): boolean {
+    return !this.disposed && this.inViewport && this.documentVisible && this.contextAvailable;
+  }
+
+  private syncRenderLoop(): void {
+    const shouldRender = this.shouldRender();
+    this.container.dataset.renderState = shouldRender ? "running" : "paused";
+    if (!shouldRender) {
+      if (this.frame !== null) cancelAnimationFrame(this.frame);
+      this.frame = null;
+      return;
+    }
+    if (this.frame !== null) return;
+    this.lastFrameTime = performance.now();
+    this.frame = requestAnimationFrame(this.render);
+  }
 
   private readonly resize = () => {
     const width = Math.max(1, this.container.clientWidth);
@@ -278,13 +309,15 @@ export class BorderCommuteScene {
     );
   }
 
-  private readonly render = (time = performance.now()) => {
-    if (this.disposed) return;
-    this.frame = requestAnimationFrame(this.render);
-    if (!this.visible || document.visibilityState === "hidden") return;
+  private readonly render = (time: number) => {
+    this.frame = null;
+    if (!this.shouldRender()) {
+      this.syncRenderLoop();
+      return;
+    }
     const deltaSeconds = Math.min(0.05, Math.max(0, (time - this.lastFrameTime) / 1000));
     this.lastFrameTime = time;
-    const elapsedSeconds = this.clock.getElapsedTime();
+    this.elapsedSeconds += deltaSeconds;
     const motionEnabled = !this.reducedMotion;
     this.updateHover();
     this.autoTour.update(time);
@@ -294,20 +327,25 @@ export class BorderCommuteScene {
     }
     this.cameraController.update(time);
     this.updateTooltipPosition();
-    this.terrain.update(elapsedSeconds, motionEnabled);
-    this.routes.forEach((route) => route.update(deltaSeconds, elapsedSeconds, motionEnabled));
-    this.ports.forEach((port) => port.update(elapsedSeconds, motionEnabled));
+    this.terrain.update(this.elapsedSeconds, motionEnabled);
+    this.routes.forEach((route) => route.update(deltaSeconds, this.elapsedSeconds, motionEnabled));
+    this.ports.forEach((port) => port.update(this.elapsedSeconds, motionEnabled));
     this.renderer.render(this.scene, this.camera);
     if (import.meta.env.DEV && this.callbacks.onPerformanceUpdate && time - this.lastPerformanceUpdate > 1000) {
       this.lastPerformanceUpdate = time;
       const info = this.renderer.info;
       this.callbacks.onPerformanceUpdate(`${info.render.calls} calls · ${(info.render.triangles / 1000).toFixed(1)}k tris · ${info.memory.geometries} geo · ${info.memory.textures} tex`);
     }
+    if (this.shouldRender()) {
+      this.frame = requestAnimationFrame(this.render);
+    } else {
+      this.syncRenderLoop();
+    }
   };
 
   dispose(): void {
     this.disposed = true;
-    cancelAnimationFrame(this.frame);
+    this.syncRenderLoop();
     this.resizeObserver.disconnect();
     this.intersectionObserver.disconnect();
     document.removeEventListener("visibilitychange", this.handleVisibilityChange);
@@ -316,6 +354,7 @@ export class BorderCommuteScene {
     this.renderer.domElement.removeEventListener("pointerdown", this.handlePointerDown);
     this.renderer.domElement.removeEventListener("pointerup", this.handlePointerUp);
     this.renderer.domElement.removeEventListener("webglcontextlost", this.handleContextLost);
+    this.renderer.domElement.removeEventListener("webglcontextrestored", this.handleContextRestored);
     this.cameraController.dispose();
     this.routes.forEach((route) => route.dispose());
     this.ports.forEach((port) => port.dispose());

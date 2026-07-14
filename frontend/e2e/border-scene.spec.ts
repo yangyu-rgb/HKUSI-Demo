@@ -215,3 +215,47 @@ test("减少动态效果时关闭连续巡航但保留显式路线聚焦", async
   await expect(firstRoute).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator("aside[aria-live='polite']")).toBeVisible();
 });
+
+test("3D 场景离开视口时停止渲染并在返回后保留路线选择", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+
+  const scene = page.getByRole("region", { name: /香港与深圳四口岸地理流线/ });
+  const firstRoute = page.getByLabel("四口岸路线聚焦控制").getByRole("button").first();
+  await scene.scrollIntoViewIfNeeded();
+  await expect(scene.locator("canvas")).toBeVisible();
+  await expect(scene).toHaveAttribute("data-render-state", "running");
+
+  await firstRoute.click();
+  await expect(firstRoute).toHaveAttribute("aria-pressed", "true");
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await expect(scene).toHaveAttribute("data-render-state", "paused");
+
+  await scene.scrollIntoViewIfNeeded();
+  await expect(scene).toHaveAttribute("data-render-state", "running");
+  await expect(firstRoute).toHaveAttribute("aria-pressed", "true");
+});
+
+test("WebGL context 丢失时显示文字回退并在恢复后重启场景", async ({ page }) => {
+  await page.setViewportSize({ width: 1024, height: 820 });
+  await page.goto("/");
+
+  const scene = page.getByRole("region", { name: /香港与深圳四口岸地理流线/ });
+  const canvas = scene.locator("canvas");
+  const fallback = page.getByText("当前浏览器无法运行 3D 场景");
+  await scene.scrollIntoViewIfNeeded();
+  await expect(canvas).toBeVisible();
+  await expect(scene).toHaveAttribute("data-render-state", "running");
+
+  await canvas.evaluate((element) => {
+    element.dispatchEvent(new Event("webglcontextlost", { cancelable: true }));
+  });
+  await expect(fallback).toBeVisible();
+  await expect(scene).toHaveAttribute("data-render-state", "paused");
+
+  await canvas.evaluate((element) => {
+    element.dispatchEvent(new Event("webglcontextrestored"));
+  });
+  await expect(fallback).toBeHidden();
+  await expect(scene).toHaveAttribute("data-render-state", "running");
+});
