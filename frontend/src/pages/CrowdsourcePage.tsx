@@ -11,9 +11,9 @@ import styles from "./CrowdsourcePage.module.css";
 
 
 const CROWD_LABELS: Record<CrowdLevel, string> = {
-  low: "畅通",
-  medium: "正常",
-  high: "拥挤",
+  low: "Clear",
+  medium: "Moderate",
+  high: "Crowded",
 };
 
 
@@ -21,7 +21,7 @@ export function CrowdsourcePage() {
   const [searchParams] = useSearchParams();
   const realtime = useRealtime();
   const crowdsource = useCrowdsource();
-  const [port, setPort] = useState("福田");
+  const [port, setPort] = useState("Futian");
   const [wait, setWait] = useState<number | "">("");
   const [crowd, setCrowd] = useState<CrowdLevel>("low");
   const [comment, setComment] = useState("");
@@ -81,26 +81,26 @@ export function CrowdsourcePage() {
     return <PageSkeleton cards={2} />;
   }
   if (!realtime.data) {
-    return <ErrorState title="无法载入众包页面" detail={realtime.error || "口岸数据不可用"} />;
+    return <ErrorState title="Unable to load crowd reports" detail={realtime.error || "Port data is unavailable."} />;
   }
 
   return (
     <main className="page">
       <div className="pageIntro">
         <span className="sectionKicker">Human-in-the-loop</span>
-        <h1>现场反馈让预测持续校准</h1>
-        <p>反馈按新鲜度、等待偏差和人流一致性评分；有效数据按质量加权参与预测，同一口岸10分钟内不可重复提交。</p>
+        <h1>On-site reports continuously calibrate forecasts</h1>
+        <p>Reports are scored by freshness, wait deviation, and crowd consistency. Valid data is quality-weighted, and the same port cannot be submitted twice within 10 minutes.</p>
       </div>
       <section className={styles.grid}>
         <form className={styles.form} onSubmit={handleSubmit}>
           {forecastRunId && forecastPortId && (
             <p className={styles.forecastLink}>
-              本次反馈将关联到路线预测并用于课堂校准，但不会被收集为真实训练标签。
+              This report will be linked to the route forecast for classroom calibration, but it will not be collected as a real training label.
             </p>
           )}
           <div className={styles.formRow}>
             <label>
-              <span>所在口岸</span>
+              <span>Port</span>
               <select value={port} onChange={(event) => setPort(event.target.value)}>
                 {realtime.data.ports.map((item) => (
                   <option key={item.id}>{item.name}</option>
@@ -108,7 +108,7 @@ export function CrowdsourcePage() {
               </select>
             </label>
             <label htmlFor="crowdsource-wait">
-              <span>实际等待</span>
+              <span>Actual wait</span>
               <div className={styles.unitInput}>
                 <input
                   id="crowdsource-wait"
@@ -117,38 +117,38 @@ export function CrowdsourcePage() {
                   max="180"
                   required
                   value={wait}
-                  placeholder="请输入实际等待"
+                  placeholder="Enter actual wait"
                   onChange={(event) => setWait(
                     event.target.value === "" ? "" : Number(event.target.value),
                   )}
                 />
-                <b>分钟</b>
+                <b>min</b>
               </div>
             </label>
           </div>
           <div className={styles.formRow}>
             <label>
-              <span>通关方向</span>
+              <span>Travel direction</span>
               <select value={direction} onChange={(event) => setDirection(
                 event.target.value as NonNullable<ReportInput["direction"]>,
               )}>
-                <option value="hong_kong_to_shenzhen">香港 → 深圳</option>
-                <option value="shenzhen_to_hong_kong">深圳 → 香港</option>
+                <option value="hong_kong_to_shenzhen">Hong Kong → Shenzhen</option>
+                <option value="shenzhen_to_hong_kong">Shenzhen → Hong Kong</option>
               </select>
             </label>
             <label>
-              <span>通关类型</span>
+              <span>Crossing type</span>
               <select value={channel} onChange={(event) => setChannel(
                 event.target.value as NonNullable<ReportInput["channel"]>,
               )}>
-                <option value="traveller">旅客</option>
-                <option value="vehicle">车辆</option>
-                <option value="cargo">货运</option>
+                <option value="traveller">Traveller</option>
+                <option value="vehicle">Vehicle</option>
+                <option value="cargo">Freight</option>
               </select>
             </label>
           </div>
           <label>
-            <span>现场人流</span>
+            <span>Observed crowd level</span>
             <div className={styles.segmented}>
               {(["low", "medium", "high"] as CrowdLevel[]).map((level) => (
                 <button
@@ -163,26 +163,26 @@ export function CrowdsourcePage() {
             </div>
           </label>
           <div className={styles.dataGovernance}>
-            <strong>课堂 Demo 数据</strong>
-            <small>单人、双人和多人高共识分别使用15%、30%和45%上限，并继续按质量、新鲜度和预测距离衰减；项目不收集现场真实训练标签。</small>
+            <strong>Classroom Demo data</strong>
+            <small>One, two, and multiple high-consensus reporters use 15%, 30%, and 45% caps, then decay by quality, freshness, and forecast distance. No real field training labels are collected.</small>
           </div>
           <label>
-            <span>补充说明</span>
+            <span>Additional notes</span>
             <input
               value={comment}
-              placeholder="选填：描述现场排队情况"
+              placeholder="Optional: describe the queue"
               onChange={(event) => setComment(event.target.value)}
               maxLength={160}
             />
           </label>
           <button className="button buttonAccent" disabled={crowdsource.submitting}>
-            {crowdsource.submitting ? "正在提交…" : "提交反馈"}
+            {crowdsource.submitting ? "Submitting…" : "Submit report"}
           </button>
           {crowdsource.message && <p className="formSuccess">{crowdsource.message}</p>}
           {crowdsource.calibrationPreview && (
             <div className={styles.calibrationPreview}>
-              <strong>{Number(crowdsource.calibrationPreview.distinct_reporters)} 名独立反馈者 · 有效权重 {Math.round(Number(crowdsource.calibrationPreview.effective_weight) * 100)}%</strong>
-              <small>{String(crowdsource.calibrationPreview.reason)} · 当前上限 {Math.round(Number(crowdsource.calibrationPreview.weight_cap) * 100)}%</small>
+              <strong>{Number(crowdsource.calibrationPreview.distinct_reporters)} independent reporters · Effective weight {Math.round(Number(crowdsource.calibrationPreview.effective_weight) * 100)}%</strong>
+              <small>{String(crowdsource.calibrationPreview.reason)} · Current cap {Math.round(Number(crowdsource.calibrationPreview.weight_cap) * 100)}%</small>
             </div>
           )}
           {crowdsource.error && <p className="formError">{crowdsource.error}</p>}
@@ -190,8 +190,8 @@ export function CrowdsourcePage() {
 
         <div className={styles.feedPanel}>
           <div className={styles.feedHeader}>
-            <h2>最新现场动态</h2>
-            <span>{crowdsource.reports.length} 条展示中</span>
+            <h2>Latest on-site activity</h2>
+            <span>{crowdsource.reports.length} reports shown</span>
           </div>
           <div className={styles.feedList}>
             {crowdsource.reports.map((report) => <FeedItem report={report} key={report.id} />)}

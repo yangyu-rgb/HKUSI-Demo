@@ -30,9 +30,9 @@ describe("API client", () => {
 
   it("distinguishes network and server failures for users", () => {
     expect(userFacingError(new ApiError("offline", 0, "NETWORK_ERROR")))
-      .toBe("无法连接服务器，请检查后端是否已启动。");
+      .toBe("Unable to connect to the server. Check that the backend is running.");
     expect(userFacingError(new ApiError("boom", 503, "INTERNAL_ERROR", {}, "req-9")))
-      .toBe("服务暂时不可用，请联系演示操作员（请求 req-9）");
+      .toBe("The service is temporarily unavailable; contact the Demo operator (request req-9).");
   });
 
   it("handles successful empty responses", async () => {

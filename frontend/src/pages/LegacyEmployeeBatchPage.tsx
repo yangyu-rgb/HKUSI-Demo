@@ -14,17 +14,17 @@ import { queryKeys } from "../shared/queryKeys";
 import styles from "./BusinessPage.module.css";
 
 
-const COMPANY = "大湾区跨境服务有限公司";
+const COMPANY = "Greater Bay Cross-border Services Ltd.";
 const PRIORITY_LABELS: Record<Priority, string> = {
-  balanced: "稳妥均衡",
-  fastest: "时间最快",
-  cheapest: "费用最低",
+  balanced: "Balanced",
+  fastest: "Fastest",
+  cheapest: "Lowest cost",
 };
 const INITIAL_EMPLOYEES: BatchEmployee[] = [
-  { id: "E-101", name: "员工101", origin_id: "hku", destination_id: "nanshan-tech", arrival_deadline: "09:30" },
-  { id: "E-102", name: "员工102", origin_id: "central", destination_id: "nanshan-tech", arrival_deadline: "09:30" },
-  { id: "E-103", name: "员工103", origin_id: "hku", destination_id: "futian-cbd", arrival_deadline: "10:00" },
-  { id: "E-104", name: "员工104", origin_id: "kowloon-tong", destination_id: "nanshan-tech", arrival_deadline: "09:45" },
+  { id: "E-101", name: "Employee 101", origin_id: "hku", destination_id: "nanshan-tech", arrival_deadline: "09:30" },
+  { id: "E-102", name: "Employee 102", origin_id: "central", destination_id: "nanshan-tech", arrival_deadline: "09:30" },
+  { id: "E-103", name: "Employee 103", origin_id: "hku", destination_id: "futian-cbd", arrival_deadline: "10:00" },
+  { id: "E-104", name: "Employee 104", origin_id: "kowloon-tong", destination_id: "nanshan-tech", arrival_deadline: "09:45" },
 ];
 
 
@@ -71,7 +71,7 @@ export function LegacyEmployeeBatchPage() {
       ...current,
       {
         id: `E-${number}`,
-        name: `员工${number}`,
+        name: `Employee ${number}`,
         origin_id: "hku",
         destination_id: "nanshan-tech",
         arrival_deadline: "09:30",
@@ -105,9 +105,9 @@ export function LegacyEmployeeBatchPage() {
     const result = await validateBatchCsv(await file.text());
     if (result.valid) {
       setEmployees(result.employees);
-      setCsvMessage(`已导入 ${result.employees.length} 名员工。`);
+      setCsvMessage(`Imported ${result.employees.length} employees.`);
     } else {
-      setCsvMessage(result.errors.map((item) => `第${item.row}行：${item.message}`).join("；"));
+      setCsvMessage(result.errors.map((item) => `Row ${item.row}: ${item.message}`).join("; "));
     }
   }
 
@@ -128,17 +128,17 @@ export function LegacyEmployeeBatchPage() {
     <main className="page">
       <div className="pageIntro">
         <span className="sectionKicker">B2B operations</span>
-        <h1>企业批量通勤风险管理</h1>
-        <p>编辑员工需求、反复生成调度方案，并从 SQLite 恢复最近的方案输入。</p>
+        <h1>Enterprise Batch Commute Risk Management</h1>
+        <p>Edit employee requirements, regenerate dispatch plans, and restore recent plan inputs from SQLite.</p>
       </div>
       <form className={styles.editor} onSubmit={handleSubmit}>
         <div className={styles.editorHeading}>
           <div>
             <h2>{COMPANY}</h2>
-            <p>{employees.length} 名员工</p>
+            <p>{employees.length} employees</p>
           </div>
           <label>
-            <span>服务日期</span>
+            <span>Service date</span>
             <input
               required
               type="date"
@@ -150,16 +150,16 @@ export function LegacyEmployeeBatchPage() {
           </label>
           <div className={styles.batchPreferences}>
             <label>
-              <span>默认路线偏好</span>
+              <span>Default route preference</span>
               <select value={batchPriority} onChange={(event) => setBatchPriority(event.target.value as Priority)}>
-                <option value="balanced">稳妥均衡</option>
-                <option value="fastest">时间最快</option>
-                <option value="cheapest">费用最低</option>
+                <option value="balanced">Balanced</option>
+                <option value="fastest">Fastest</option>
+                <option value="cheapest">Lowest cost</option>
               </select>
             </label>
             <label>
-              <span>默认预算上限（HK$）</span>
-              <input min="0" type="number" value={batchBudget} placeholder="不限" onChange={(event) => setBatchBudget(event.target.value)} />
+              <span>Default budget cap (HK$)</span>
+              <input min="0" type="number" value={batchBudget} placeholder="No limit" onChange={(event) => setBatchBudget(event.target.value)} />
             </label>
           </div>
         </div>
@@ -167,13 +167,13 @@ export function LegacyEmployeeBatchPage() {
           {employees.map((employee, index) => (
             <div className={styles.employeeRow} key={String(employee.id)}>
               <input
-                aria-label={`员工${index + 1}姓名`}
+                aria-label={`Employee ${index + 1} name`}
                 required
                 value={employee.name}
                 onChange={(event) => updateEmployee(index, { name: event.target.value })}
               />
               <select
-                aria-label={`员工${index + 1}出发地`}
+                aria-label={`Employee ${index + 1} origin`}
                 required
                 value={employee.origin_id}
                 onChange={(event) => {
@@ -192,7 +192,7 @@ export function LegacyEmployeeBatchPage() {
                 ))}
               </select>
               <select
-                aria-label={`员工${index + 1}目的地`}
+                aria-label={`Employee ${index + 1} destination`}
                 required
                 value={employee.destination_id}
                 onChange={(event) => updateEmployee(index, { destination_id: event.target.value })}
@@ -207,14 +207,14 @@ export function LegacyEmployeeBatchPage() {
                 ))}
               </select>
               <input
-                aria-label={`员工${index + 1}到达时间`}
+                aria-label={`Employee ${index + 1} arrival time`}
                 type="time"
                 required
                 value={employee.arrival_deadline}
                 onChange={(event) => updateEmployee(index, { arrival_deadline: event.target.value })}
               />
               <select
-                aria-label={`员工${index + 1}路线偏好`}
+                aria-label={`Employee ${index + 1} route preference`}
                 value={employee.preferences?.priority ?? "batch"}
                 onChange={(event) => {
                   const value = event.target.value;
@@ -228,18 +228,18 @@ export function LegacyEmployeeBatchPage() {
                   });
                 }}
               >
-                <option value="batch">使用批次默认</option>
-                <option value="balanced">个人：稳妥均衡</option>
-                <option value="fastest">个人：时间最快</option>
-                <option value="cheapest">个人：费用最低</option>
+                <option value="batch">Use batch default</option>
+                <option value="balanced">Individual: Balanced</option>
+                <option value="fastest">Individual: Fastest</option>
+                <option value="cheapest">Individual: Lowest cost</option>
               </select>
               <input
-                aria-label={`员工${index + 1}预算上限`}
+                aria-label={`Employee ${index + 1} budget cap`}
                 min="0"
                 type="number"
                 disabled={!employee.preferences}
                 value={employee.preferences?.max_budget ?? ""}
-                placeholder="批次默认"
+                placeholder="Batch default"
                 onChange={(event) => updateEmployee(index, {
                   preferences: {
                     priority: employee.preferences?.priority ?? batchPriority,
@@ -253,14 +253,14 @@ export function LegacyEmployeeBatchPage() {
                 onClick={() => setEmployees((current) => current.filter((_, itemIndex) => itemIndex !== index))}
                 disabled={employees.length === 1}
               >
-                删除
+                Delete
               </button>
             </div>
           ))}
         </div>
         <div className={styles.editorActions}>
           <label className={styles.add}>
-            导入 CSV
+            Import CSV
             <input
               hidden
               type="file"
@@ -268,39 +268,39 @@ export function LegacyEmployeeBatchPage() {
               onChange={(event) => void importCsv(event.target.files?.[0])}
             />
           </label>
-          <button type="button" className={styles.add} onClick={addEmployee}>+ 添加员工</button>
+          <button type="button" className={styles.add} onClick={addEmployee}>+ Add employee</button>
           <button className="button buttonDark" disabled={batch.generating}>
-            {batch.generating ? "正在生成…" : batch.plan ? "重新生成方案" : "生成调度方案"}
+            {batch.generating ? "Generating…" : batch.plan ? "Regenerate plan" : "Generate dispatch plan"}
           </button>
         </div>
         {batch.error && <p className="formError">{batch.error}</p>}
-        {csvMessage && <p className={csvMessage.startsWith("已导入") ? "formSuccess" : "formError"}>{csvMessage}</p>}
+        {csvMessage && <p className={csvMessage.startsWith("Imported") ? "formSuccess" : "formError"}>{csvMessage}</p>}
       </form>
 
       {batch.plan && (
         <section className={styles.result}>
           <div className={styles.editorActions}>
-            <select aria-label="风险筛选" value={riskFilter} onChange={(event) => setRiskFilter(event.target.value)}>
-              <option value="all">全部风险</option>
-              <option value="high">高风险</option>
-              <option value="over_budget">超预算</option>
+            <select aria-label="Risk filter" value={riskFilter} onChange={(event) => setRiskFilter(event.target.value)}>
+              <option value="all">All risks</option>
+              <option value="high">High risk</option>
+              <option value="over_budget">Over budget</option>
             </select>
-            <select aria-label="口岸筛选" value={portFilter} onChange={(event) => setPortFilter(event.target.value)}>
-              <option value="all">全部口岸</option>
+            <select aria-label="Port filter" value={portFilter} onChange={(event) => setPortFilter(event.target.value)}>
+              <option value="all">All ports</option>
               {[...new Set(batch.plan.plan.map((item) => item.recommended_port))].map((port) => (
                 <option key={port}>{port}</option>
               ))}
             </select>
-            <button type="button" onClick={() => void downloadBatchPlan(batch.plan!.plan_id)}>导出当前方案</button>
+            <button type="button" onClick={() => void downloadBatchPlan(batch.plan!.plan_id)}>Export current plan</button>
           </div>
           <div className={styles.stats}>
-            <div><strong>{batch.plan.summary.employee_count}</strong><span>员工</span></div>
-            <div><strong>{batch.plan.summary.avg_commute_time}</strong><span>平均分钟</span></div>
-            <div><strong>{batch.plan.summary.high_risk_count}</strong><span>高风险</span></div>
+            <div><strong>{batch.plan.summary.employee_count}</strong><span>Employees</span></div>
+            <div><strong>{batch.plan.summary.avg_commute_time}</strong><span>Average minutes</span></div>
+            <div><strong>{batch.plan.summary.high_risk_count}</strong><span>High risk</span></div>
           </div>
           <div className={styles.table}>
             <div className={styles.tableHeader}>
-              <span>员工</span><span>推荐口岸</span><span>出发时间</span><span>通勤时间</span><span>风险</span><span>偏好/预算</span>
+              <span>Employee</span><span>Recommended port</span><span>Departure</span><span>Commute time</span><span>Risk</span><span>Preference / budget</span>
             </div>
             {batch.plan.plan.filter((item) => (
               (riskFilter === "all"
@@ -312,9 +312,9 @@ export function LegacyEmployeeBatchPage() {
                 <strong>{item.employee_id}</strong>
                 <span>{item.recommended_port}</span>
                 <span>{item.departure_time}</span>
-                <span>{item.total_time} 分钟</span>
+                <span>{item.total_time} minutes</span>
                 <span>{item.late_risk_percent}%</span>
-                <span>{PRIORITY_LABELS[item.priority]} · {item.max_budget === null ? "不限" : `HK$${item.max_budget}`}</span>
+                <span>{PRIORITY_LABELS[item.priority]} · {item.max_budget === null ? "No limit" : `HK$${item.max_budget}`}</span>
               </div>
             ))}
           </div>
@@ -324,24 +324,24 @@ export function LegacyEmployeeBatchPage() {
 
       <section className={styles.shadowSummary}>
         <div className={styles.shadowHeading}>
-          <div><span className="sectionKicker">AI v1 shadow</span><h2>模型差异观测</h2></div>
-          <span>不影响当前用户推荐</span>
+          <div><span className="sectionKicker">AI v1 shadow</span><h2>Model Difference Observations</h2></div>
+          <span>Does not affect current recommendations</span>
         </div>
-        {shadowSummary.isPending && <p>正在读取影子观测…</p>}
-        {shadowSummary.error && <p>暂时无法读取影子观测。</p>}
+        {shadowSummary.isPending && <p>Loading shadow observations…</p>}
+        {shadowSummary.error && <p>Shadow observations are temporarily unavailable.</p>}
         {shadowSummary.data && (
           <>
             <div className={styles.shadowStats}>
-              <div><strong>{shadowSummary.data.total_observations}</strong><span>预测点</span></div>
-              <div><strong>{shadowSummary.data.available_observations}</strong><span>AI 可用</span></div>
-              <div><strong>{shadowSummary.data.unavailable_observations}</strong><span>已降级</span></div>
+              <div><strong>{shadowSummary.data.total_observations}</strong><span>Forecast points</span></div>
+              <div><strong>{shadowSummary.data.available_observations}</strong><span>AI available</span></div>
+              <div><strong>{shadowSummary.data.unavailable_observations}</strong><span>Fallback</span></div>
             </div>
             {shadowSummary.data.ports.length === 0 ? (
-              <p>尚无观测；生成方案或完成路线预测后会在此汇总统计模型与 AI v1 的差异。</p>
+              <p>No observations yet. Differences between the statistical model and AI v1 appear after a plan or route forecast is generated.</p>
             ) : (
               <div className={styles.shadowPorts}>
                 {shadowSummary.data.ports.map((port) => (
-                  <span key={port.port_id}>{port.port_name} · 平均绝对差 {port.average_absolute_difference_minutes ?? "—"} 分钟</span>
+                  <span key={port.port_id}>{port.port_name} · Average absolute difference {port.average_absolute_difference_minutes ?? "—"} minutes</span>
                 ))}
               </div>
             )}
@@ -350,16 +350,16 @@ export function LegacyEmployeeBatchPage() {
       </section>
 
       <section className={styles.history}>
-        <div><h2>最近方案</h2><span>{batch.history.length} 条</span></div>
-        {batch.history.length === 0 && <p>尚未保存企业调度方案。</p>}
+        <div><h2>Recent plans</h2><span>{batch.history.length} total</span></div>
+        {batch.history.length === 0 && <p>No enterprise dispatch plans have been saved.</p>}
         {batch.history.map((item) => (
           <article key={item.plan_id}>
             <div>
               <strong>{item.date} · {item.plan_id}</strong>
-              <span>{new Date(item.created_at).toLocaleString("zh-HK")}</span>
+              <span>{new Date(item.created_at).toLocaleString("en-HK")}</span>
             </div>
-            <button onClick={() => loadHistory(item.request)}>载入输入</button>
-            <button onClick={() => void downloadBatchPlan(item.plan_id)}>导出</button>
+            <button onClick={() => loadHistory(item.request)}>Load input</button>
+            <button onClick={() => void downloadBatchPlan(item.plan_id)}>Export</button>
           </article>
         ))}
       </section>

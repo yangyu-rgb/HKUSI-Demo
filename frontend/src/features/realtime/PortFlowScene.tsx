@@ -102,10 +102,10 @@ export function PortFlowScene({ ports }: { ports: PortStatus[] }) {
       <header className={styles.heading}>
         <div>
           <span className="sectionKicker">Live border digital twin</span>
-          <h2 id="flow-title">香港—深圳四口岸实时流线</h2>
-          <p>基于离线港深地理与道路数据的城市级交通沙盘。颜色表示压力，粒子密度表示人流，速度表示通行效率。</p>
+          <h2 id="flow-title">Hong Kong–Shenzhen live four-port flow</h2>
+          <p>A city-scale traffic model based on offline geography and road data. Color shows pressure, particle density shows flow, and speed shows throughput.</p>
         </div>
-        <div className={styles.legend} aria-label="四档拥堵图例">
+        <div className={styles.legend} aria-label="Four-level congestion legend">
           {(Object.entries(CONGESTION_CONFIG) as Array<[keyof typeof CONGESTION_CONFIG, (typeof CONGESTION_CONFIG)[keyof typeof CONGESTION_CONFIG]]>).map(([level, config]) => (
             <span key={level}><i style={{ background: config.color, color: config.color }} />{config.label}</span>
           ))}
@@ -123,40 +123,40 @@ export function PortFlowScene({ ports }: { ports: PortStatus[] }) {
           role="region"
           tabIndex={0}
           aria-describedby="flow-interaction-hint"
-          aria-label={`香港与深圳四口岸地理流线。${statuses.map((status) => `${status.name}口岸${CONGESTION_CONFIG[status.congestionLevel].label}，预计等待${status.waitingTime}分钟`).join("；")}`}
+          aria-label={`Hong Kong and Shenzhen four-port geographic flow. ${statuses.map((status) => `${status.nameEn} Port is ${CONGESTION_CONFIG[status.congestionLevel].label}, with an estimated ${status.waitingTime}-minute wait`).join("; ")}`}
         >
           {!ready && available && (
             <div className={styles.loading} role="status">
               <span />
-              <strong>正在构建港深城市沙盘</strong>
-              <small>载入地形、口岸与实时路线…</small>
+              <strong>Building the Hong Kong–Shenzhen city model</strong>
+              <small>Loading terrain, ports, and live routes…</small>
             </div>
           )}
           {!available && (
             <div className={styles.fallback} role="status">
-              <strong>当前浏览器无法运行 3D 场景</strong>
-              <p>实时口岸状态仍可通过下方路线控制和页面中的口岸卡片查看。</p>
+              <strong>This browser cannot run the 3D scene</strong>
+              <p>Live port status remains available through the route controls and port cards below.</p>
             </div>
           )}
         </div>
 
-        <div className={styles.sceneControls} aria-label="3D 场景控制">
-          <button type="button" onClick={() => focus(null)} disabled={!selectedPortId}>返回总览</button>
+        <div className={styles.sceneControls} aria-label="3D scene controls">
+          <button type="button" onClick={() => focus(null)} disabled={!selectedPortId}>Overview</button>
           <button
             type="button"
             aria-pressed={autoTourEnabled}
             disabled={reducedMotion}
-            title={reducedMotion ? "系统已启用减少动态效果，自动巡航保持关闭" : undefined}
+            title={reducedMotion ? "Reduced motion is enabled, so auto tour remains off" : undefined}
             onClick={() => scene.current?.setAutoTour(!autoTourEnabled)}
           >
-            自动巡航 {autoTourEnabled ? (autoTourPaused ? "暂停" : "开") : "关"}
+            Auto tour {autoTourEnabled ? (autoTourPaused ? "Paused" : "On") : "Off"}
           </button>
           <label>
-            <span>画质</span>
+            <span>Quality</span>
             <select value={quality} onChange={(event) => setQuality(event.target.value as QualityLevel)}>
-              <option value="low">流畅</option>
-              <option value="medium">均衡</option>
-              <option value="high">精细</option>
+              <option value="low">Performance</option>
+              <option value="medium">Balanced</option>
+              <option value="high">Detailed</option>
             </select>
           </label>
         </div>
@@ -164,17 +164,16 @@ export function PortFlowScene({ ports }: { ports: PortStatus[] }) {
         {detail && (
           <aside className={styles.tooltip} aria-live="polite" aria-atomic="true">
             <span style={{ color: CONGESTION_CONFIG[detail.congestionLevel].color }}>{CONGESTION_CONFIG[detail.congestionLevel].label}</span>
-            <strong>{detail.name}口岸</strong>
-            <small>{detail.nameEn}</small>
-            <p>预计等待 <b>约 {detail.waitingTime} 分钟</b></p>
+            <strong>{detail.nameEn} Port</strong>
+            <p>Estimated wait: <b>about {detail.waitingTime} minutes</b></p>
           </aside>
         )}
 
         {import.meta.env.DEV && performanceSummary && <output className={styles.performance}>{quality} · {performanceSummary}</output>}
-        <span className={styles.interactionHint} id="flow-interaction-hint">拖动旋转 · 滚轮缩放 · 方向键平移 · 悬停查看 · 点击聚焦</span>
+        <span className={styles.interactionHint} id="flow-interaction-hint">Drag to rotate · Scroll to zoom · Arrow keys to pan · Hover to inspect · Click to focus</span>
       </div>
 
-      <div className={styles.routes} aria-label="四口岸路线聚焦控制">
+      <div className={styles.routes} aria-label="Four-port route focus controls">
         {statuses.map((status, index) => {
           const config = CONGESTION_CONFIG[status.congestionLevel];
           const selected = selectedPortId === status.id;
@@ -182,25 +181,25 @@ export function PortFlowScene({ ports }: { ports: PortStatus[] }) {
             <button
               type="button"
               aria-pressed={selected}
-              aria-label={`${status.name}口岸，${config.label}，预计等待${status.waitingTime}分钟`}
+              aria-label={`${status.nameEn} Port, ${config.label}, estimated wait ${status.waitingTime} minutes`}
               className={`${styles.routeButton} ${selected ? styles.selected : ""}`}
               onClick={() => focus(selected ? null : status.id)}
               key={status.id}
             >
               <span className={styles.routeIndex}>{String(index + 1).padStart(2, "0")}</span>
               <i style={{ background: config.color, color: config.color }} />
-              <span><b>{status.name}口岸</b><small>{status.nameEn}</small></span>
+              <span><b>{status.nameEn} Port</b></span>
               <em>{config.label}</em>
             </button>
           );
         })}
       </div>
       <small className={styles.notice}>
-        {geographyMode === "fallback" ? "离线地理资产载入失败，当前使用简化轮廓；" : "地理与道路底图："}
+        {geographyMode === "fallback" ? "Offline geography failed to load; using simplified outlines. " : "Geography and road base map: "}
         {geographyMode !== "fallback" && (
-          <><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors · ODbL</a>；</>
+          <><a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">© OpenStreetMap contributors · ODbL</a>. </>
         )}
-        仅用于态势演示，不作为测绘、旅客轨迹或导航路线；实时等待数据仍沿用现有业务接口。
+        For situation demonstration only; not surveying, passenger tracking, or navigation. Live wait data continues to use the existing Demo API.
       </small>
     </section>
   );

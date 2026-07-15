@@ -13,10 +13,10 @@ describe("LoginPage", () => {
       { id: "commuter-user", name: "跨境通勤者", role: "commuter", organization_id: "personal", organization_name: "个人空间" },
     ] }), { status: 200, headers: { "Content-Type": "application/json" } })));
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-    render(<QueryClientProvider client={client}><MemoryRouter initialEntries={["/login?next=%2Fplanner"]}><Routes><Route path="login" element={<LoginPage />} /><Route path="planner" element={<h1>已返回路线规划</h1>} /></Routes></MemoryRouter></QueryClientProvider>);
-    fireEvent.click(await screen.findByRole("button", { name: /跨境通勤者/ }));
+    render(<QueryClientProvider client={client}><MemoryRouter initialEntries={["/login?next=%2Fplanner"]}><Routes><Route path="login" element={<LoginPage />} /><Route path="planner" element={<h1>Returned to route planning</h1>} /></Routes></MemoryRouter></QueryClientProvider>);
+    fireEvent.click(await screen.findByRole("button", { name: /Cross-border Commuter/ }));
     fireEvent.click(screen.getByRole("button", { name: /Enter CrossBorder AI/ }));
-    expect(await screen.findByRole("heading", { name: "已返回路线规划" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Returned to route planning" })).toBeInTheDocument();
     expect(window.localStorage.getItem("crossborder-demo-persona")).toBe("commuter-user");
     expect(window.localStorage.getItem("crossborder-demo-session")).toContain("commuter-user");
   });

@@ -8,11 +8,11 @@ import styles from "./MobileLayout.module.css";
 
 
 const navigation = [
-  { to: "/mobile", label: "首页", end: true },
-  { to: "/mobile/planner", label: "规划" },
-  { to: "/mobile/scenarios", label: "场景" },
-  { to: "/mobile/feedback", label: "反馈" },
-  { to: "/mobile/me", label: "我的" },
+  { to: "/mobile", label: "Home", end: true },
+  { to: "/mobile/planner", label: "Plan" },
+  { to: "/mobile/scenarios", label: "Scenarios" },
+  { to: "/mobile/feedback", label: "Report" },
+  { to: "/mobile/me", label: "My commute" },
 ];
 
 
@@ -43,20 +43,20 @@ export function MobileLayout() {
     <MobileSessionProvider>
       <div className={styles.viewport}>
         <header className={styles.header}>
-          <NavLink to="/mobile" className={styles.brand} aria-label="CrossBorder AI 手机首页">
+          <NavLink to="/mobile" className={styles.brand} aria-label="CrossBorder AI mobile home">
             <b>CB</b><span><strong>CrossBorder AI</strong><small>Mobile</small></span>
           </NavLink>
           <time dateTime={hongKongTime?.toISOString()}>
-            <small>香港时间</small><strong>{hongKongTime ? formatClock(hongKongTime.toISOString()) : "同步中"}</strong>
+            <small>Hong Kong time</small><strong>{hongKongTime ? formatClock(hongKongTime.toISOString()) : "Syncing"}</strong>
           </time>
           <div className={styles.headerActions}>
-            {!online && <span className={styles.offline}>离线</span>}
-            {installPrompt && <button onClick={() => void install()}>安装</button>}
-            <Link to="/" aria-label="返回网页版">网页版 ↗</Link>
+            {!online && <span className={styles.offline}>Offline</span>}
+            {installPrompt && <button onClick={() => void install()}>Install</button>}
+            <Link to="/" aria-label="Return to web app">Web app ↗</Link>
           </div>
         </header>
         <Outlet />
-        <nav className={styles.bottomNav} aria-label="移动快捷导航">
+        <nav className={styles.bottomNav} aria-label="Mobile quick navigation">
           {navigation.map((item) => (
             <NavLink
               key={item.to}

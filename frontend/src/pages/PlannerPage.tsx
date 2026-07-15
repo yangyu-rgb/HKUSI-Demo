@@ -33,7 +33,7 @@ export function PlannerPage() {
     return <PageSkeleton cards={2} />;
   }
   if (!locations || !context) {
-    return <ErrorState title="无法载入路线规划" detail={error || "地点数据不可用"} />;
+    return <ErrorState title="Unable to load route planning" detail={error || "Location data is unavailable."} />;
   }
   const recommendedRoute = prediction?.ports.find(
     (route) => route.port_id === prediction.recommended_port_id,
@@ -44,8 +44,8 @@ export function PlannerPage() {
       <section className={styles.planner}>
         <div className={styles.panel}>
           <div className="sectionHeading stacked">
-            <div><span className="sectionKicker">AI route planner</span><h1>跨境路线预测</h1></div>
-            <p>选择地点和最迟到达时间，系统计算四口岸的最晚出发、预算与准时可达性。</p>
+            <div><span className="sectionKicker">AI route planner</span><h1>Cross-border route forecast</h1></div>
+            <p>Select locations and a latest arrival time. The system compares latest departure, budget, and on-time feasibility across four ports.</p>
           </div>
           <PlannerForm
             locations={locations}
@@ -62,25 +62,25 @@ export function PlannerPage() {
         {prediction && (
           <div className={styles.results}>
             <div className={styles.summary}>
-              <span>本次推荐</span>
-              <h2>{prediction.recommended}口岸</h2>
+              <span>Recommended route</span>
+              <h2>{prediction.recommended} Port</h2>
               <p>{prediction.reason}</p>
-              <small>{prediction.model_version} · {Math.round(prediction.confidence_level * 100)}%置信水平 · {prediction.demo_notice}</small>
+              <small>{prediction.model_version} · {Math.round(prediction.confidence_level * 100)}% confidence · {prediction.demo_notice}</small>
               {prediction.scenario && (
-                <small>{prediction.prediction_engine === "v2" ? "AI V2 主预测" : "统计模型自动降级"} · 场景 {String(prediction.scenario.weather)} · 版本 {String(prediction.scenario.version)}</small>
+                <small>{prediction.prediction_engine === "v2" ? "AI V2 primary forecast" : "Statistical fallback"} · Scenario {String(prediction.scenario.weather)} · Version {String(prediction.scenario.version)}</small>
               )}
               {prediction.forecast_run_id && recommendedRoute && (
                 <Link
                   className={styles.feedbackLink}
                   to={`/crowdsource?forecast_run_id=${encodeURIComponent(prediction.forecast_run_id)}&forecast_port_id=${encodeURIComponent(recommendedRoute.port_id)}&direction=${encodeURIComponent(prediction.direction)}`}
                 >
-                  通关后反馈实际等待
+                  Report actual wait after crossing
                 </Link>
               )}
-              <button className={styles.clearButton} type="button" onClick={clearPrediction}>清除方案</button>
+              <button className={styles.clearButton} type="button" onClick={clearPrediction}>Clear plan</button>
             </div>
-            {prediction.warnings.map((warning) => (
-              <p className={styles.warning} key={warning}>{warning}</p>
+            {prediction.warnings.map((warning, index) => (
+              <p className={styles.warning} key={index}>{warning}</p>
             ))}
             {recommendedRoute && (
               <RouteSchematic
@@ -104,8 +104,8 @@ export function PlannerPage() {
         {!prediction && (
           <section className={styles.emptyState} aria-live="polite">
             <span>01</span>
-            <div><h2>选择通勤条件，生成你的四口岸方案</h2><p>目前还没有预测结果。确认出发地、目的地和最迟到达时间后，点击“生成 AI 建议”。</p></div>
-            <div className={styles.emptySteps}><b>选择固定地点</b><i>→</i><b>设定到达要求</b><i>→</i><b>比较四个口岸</b></div>
+            <div><h2>Select trip conditions to generate a four-port plan</h2><p>No forecast has been generated yet. Confirm the origin, destination, and latest arrival time, then select “Generate AI recommendation.”</p></div>
+            <div className={styles.emptySteps}><b>Select locations</b><i>→</i><b>Set arrival target</b><i>→</i><b>Compare four ports</b></div>
           </section>
         )}
       </section>

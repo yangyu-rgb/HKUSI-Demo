@@ -10,7 +10,7 @@ import { useMobileSession } from "./MobileSession";
 import styles from "./MobilePages.module.css";
 
 
-const crowdLabels: Record<CrowdLevel, string> = { low: "畅通", medium: "正常", high: "拥挤" };
+const crowdLabels: Record<CrowdLevel, string> = { low: "Clear", medium: "Moderate", high: "Crowded" };
 
 
 export function MobileFeedbackPage() {
@@ -21,7 +21,7 @@ export function MobileFeedbackPage() {
   const forecastRunId = searchParams.get("forecast_run_id") ?? session.prediction?.forecast_run_id ?? null;
   const forecastPortId = searchParams.get("forecast_port_id") ?? session.prediction?.recommended_port_id ?? null;
   const forecastDirection = searchParams.get("direction") ?? session.prediction?.direction ?? "hong_kong_to_shenzhen";
-  const [port, setPort] = useState("福田");
+  const [port, setPort] = useState("Futian");
   const [wait, setWait] = useState<number | "">("");
   const [crowd, setCrowd] = useState<CrowdLevel>("low");
   const [direction, setDirection] = useState<NonNullable<ReportInput["direction"]>>(
@@ -49,32 +49,32 @@ export function MobileFeedbackPage() {
   }
 
   if (realtime.loading || crowdsource.loading) return <PageSkeleton cards={2} />;
-  if (!realtime.data) return <main className={styles.page}><p className={styles.error}>{realtime.error || "口岸数据暂时不可用"}</p></main>;
+  if (!realtime.data) return <main className={styles.page}><p className={styles.error}>{realtime.error || "Port data is temporarily unavailable."}</p></main>;
 
   return (
     <main className={styles.page}>
-      <div className={styles.intro}><span>Human in the loop</span><h1>提交现场反馈</h1><p>众包按独立反馈者与共识使用 15%/30%/45% 动态上限，不会作为真实训练标签。</p></div>
+      <div className={styles.intro}><span>Human in the loop</span><h1>Submit an on-site report</h1><p>Crowd reports use dynamic 15%/30%/45% caps based on independent reporters and consensus, and are never treated as real training labels.</p></div>
       <section className={styles.card}>
-        {forecastRunId && <p className={styles.message}>已关联最近一次移动路线预测。</p>}
+        {forecastRunId && <p className={styles.message}>Linked to the latest mobile route forecast.</p>}
         <form className={styles.form} onSubmit={submit}>
           <div className={styles.row}>
-            <label>所在口岸<select aria-label="移动反馈口岸" value={port} onChange={(event) => setPort(event.target.value)}>{realtime.data.ports.map((item) => <option key={item.id}>{item.name}</option>)}</select></label>
-            <label>实际等待<input aria-label="移动实际等待" type="number" min="0" max="180" required value={wait} placeholder="分钟" onChange={(event) => setWait(event.target.value === "" ? "" : Number(event.target.value))} /></label>
+            <label>Port<select aria-label="Mobile report port" value={port} onChange={(event) => setPort(event.target.value)}>{realtime.data.ports.map((item) => <option key={item.id}>{item.name_en}</option>)}</select></label>
+            <label>Actual wait<input aria-label="Mobile actual wait" type="number" min="0" max="180" required value={wait} placeholder="Minutes" onChange={(event) => setWait(event.target.value === "" ? "" : Number(event.target.value))} /></label>
           </div>
           <div className={styles.row}>
-            <label>通关方向<select aria-label="移动反馈方向" value={direction} onChange={(event) => setDirection(event.target.value as typeof direction)}><option value="hong_kong_to_shenzhen">香港 → 深圳</option><option value="shenzhen_to_hong_kong">深圳 → 香港</option></select></label>
-            <label>通关类型<select aria-label="移动通关类型" value={channel} onChange={(event) => setChannel(event.target.value as typeof channel)}><option value="traveller">旅客</option><option value="vehicle">车辆</option><option value="cargo">货运</option></select></label>
+            <label>Travel direction<select aria-label="Mobile report direction" value={direction} onChange={(event) => setDirection(event.target.value as typeof direction)}><option value="hong_kong_to_shenzhen">Hong Kong → Shenzhen</option><option value="shenzhen_to_hong_kong">Shenzhen → Hong Kong</option></select></label>
+            <label>Crossing type<select aria-label="Mobile crossing type" value={channel} onChange={(event) => setChannel(event.target.value as typeof channel)}><option value="traveller">Traveller</option><option value="vehicle">Vehicle</option><option value="cargo">Freight</option></select></label>
           </div>
-          <div><small>现场人流</small><div className={styles.chips}>{(["low","medium","high"] as CrowdLevel[]).map((level) => <button type="button" aria-pressed={crowd === level} onClick={() => setCrowd(level)} key={level}>{crowdLabels[level]}</button>)}</div></div>
-          <label>补充说明<textarea aria-label="移动反馈说明" maxLength={160} value={comment} placeholder="选填：描述现场情况" onChange={(event) => setComment(event.target.value)} /></label>
-          <button className={styles.button} disabled={crowdsource.submitting}>{crowdsource.submitting ? "正在提交…" : "提交反馈"}</button>
+          <div><small>Observed crowd level</small><div className={styles.chips}>{(["low","medium","high"] as CrowdLevel[]).map((level) => <button type="button" aria-pressed={crowd === level} onClick={() => setCrowd(level)} key={level}>{crowdLabels[level]}</button>)}</div></div>
+          <label>Additional notes<textarea aria-label="Mobile report notes" maxLength={160} value={comment} placeholder="Optional: describe conditions" onChange={(event) => setComment(event.target.value)} /></label>
+          <button className={styles.button} disabled={crowdsource.submitting}>{crowdsource.submitting ? "Submitting…" : "Submit report"}</button>
           {crowdsource.message && <p className={styles.message}>{crowdsource.message}</p>}
-          {crowdsource.calibrationPreview && <p className={styles.message}>{Number(crowdsource.calibrationPreview.distinct_reporters)} 名独立反馈者 · 当前有效权重 {Math.round(Number(crowdsource.calibrationPreview.effective_weight) * 100)}% · {String(crowdsource.calibrationPreview.reason)}</p>}
+          {crowdsource.calibrationPreview && <p className={styles.message}>{Number(crowdsource.calibrationPreview.distinct_reporters)} independent reporters · Current effective weight {Math.round(Number(crowdsource.calibrationPreview.effective_weight) * 100)}% · {String(crowdsource.calibrationPreview.reason)}</p>}
           {crowdsource.error && <p className={styles.error}>{crowdsource.error}</p>}
-          {submitted && session.prediction && <Link className={styles.linkButton} to="/mobile/planner">返回规划并查看最新校准</Link>}
+          {submitted && session.prediction && <Link className={styles.linkButton} to="/mobile/planner">Return to planning and view the latest calibration</Link>}
         </form>
       </section>
-      <section className={styles.card}><h2>最新现场动态</h2><div className={styles.list}>{crowdsource.reports.slice(0,4).map((report) => <article key={report.id}><header><strong>{report.port} · {report.actual_wait_time} 分钟</strong><b>{report.quality_score}分</b></header><p>{report.time_label} · {crowdLabels[report.crowd_level]} · {report.used_for_prediction ? "参与校准" : "仅记录"}</p></article>)}</div></section>
+      <section className={styles.card}><h2>Latest on-site activity</h2><div className={styles.list}>{crowdsource.reports.slice(0,4).map((report) => <article key={report.id}><header><strong>{report.port} · {report.actual_wait_time} minutes</strong><b>Score {report.quality_score}</b></header><p>{report.time_label} · {crowdLabels[report.crowd_level]} · {report.used_for_prediction ? "Used for calibration" : "Recorded only"}</p></article>)}</div></section>
     </main>
   );
 }

@@ -12,7 +12,7 @@ import styles from "./MobilePages.module.css";
 
 
 type PresetId = "heavy_rain" | "holiday" | "event" | "classroom";
-const presetLabels: Record<PresetId, string> = { heavy_rain: "暴雨通勤", holiday: "节假日高峰", event: "深圳湾活动", classroom: "综合压力" };
+const presetLabels: Record<PresetId, string> = { heavy_rain: "Heavy-rain commute", holiday: "Holiday peak", event: "Shenzhen Bay event", classroom: "Combined pressure" };
 
 
 function makeScenario(id: PresetId): ScenarioWrite {
@@ -20,7 +20,7 @@ function makeScenario(id: PresetId): ScenarioWrite {
   return {
     weather: id === "heavy_rain" || id === "classroom" ? "heavy_rain" : "clear",
     is_holiday: id === "holiday" || id === "classroom",
-    events: hasEvent ? [{ name: "深圳湾大型活动", preset: "classroom_demo", direction: "hong_kong_to_shenzhen", affected_ports: ["深圳湾"], start_time: "00:00", end_time: "23:59", impact: "high" }] : [],
+    events: hasEvent ? [{ name: "Major Shenzhen Bay event", preset: "classroom_demo", direction: "hong_kong_to_shenzhen", affected_ports: ["深圳湾"], start_time: "00:00", end_time: "23:59", impact: "high" }] : [],
   };
 }
 
@@ -53,29 +53,29 @@ export function MobileScenarioPage() {
 
   return (
     <main className={styles.page}>
-      <div className={styles.intro}><span>Scenario preview</span><h1>未来场景推演</h1><p>选择一个课堂预设，无需保存即可比较正常情况与压力场景。</p></div>
+      <div className={styles.intro}><span>Scenario preview</span><h1>Future scenario preview</h1><p>Select a classroom preset to compare normal and stress conditions without saving.</p></div>
       <section className={styles.card}>
         <div className={styles.form}>
-          <label>推演日期<select aria-label="移动场景日期" value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)}>{scenarios.data.scenarios.map((item) => <option value={item.date} key={item.date}>{item.date}</option>)}</select></label>
-          <div><small>压力预设</small><div className={styles.chips}>{(Object.keys(presetLabels) as PresetId[]).map((id) => <button type="button" aria-pressed={preset === id} key={id} onClick={() => setPreset(id)}>{presetLabels[id]}</button>)}</div></div>
-          <label>通勤方向<select aria-label="移动场景方向" value={direction} onChange={(event) => {
+          <label>Scenario date<select aria-label="Mobile scenario date" value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)}>{scenarios.data.scenarios.map((item) => <option value={item.date} key={item.date}>{item.date}</option>)}</select></label>
+          <div><small>Stress preset</small><div className={styles.chips}>{(Object.keys(presetLabels) as PresetId[]).map((id) => <button type="button" aria-pressed={preset === id} key={id} onClick={() => setPreset(id)}>{presetLabels[id]}</button>)}</div></div>
+          <label>Travel direction<select aria-label="Mobile scenario direction" value={direction} onChange={(event) => {
             const next = event.target.value as typeof direction;
             const item = locations.data!.directions.find((candidate) => candidate.id === next)!;
             setDirection(next); setOriginId(item.origin_ids[0]); setDestinationId(item.destination_ids[0]);
           }}>{locations.data.directions.map((item) => <option value={item.id} key={item.id}>{item.label}</option>)}</select></label>
           <div className={styles.row}>
-            <label>出发地<select aria-label="移动场景出发地" value={originId} onChange={(event) => setOriginId(event.target.value)}>{origins.map((item) => <option value={item.id} key={item.id}>{item.name}</option>)}</select></label>
-            <label>目的地<select aria-label="移动场景目的地" value={destinationId} onChange={(event) => setDestinationId(event.target.value)}>{destinations.map((item) => <option value={item.id} key={item.id}>{item.name}</option>)}</select></label>
+            <label>Origin<select aria-label="Mobile scenario origin" value={originId} onChange={(event) => setOriginId(event.target.value)}>{origins.map((item) => <option value={item.id} key={item.id}>{item.name}</option>)}</select></label>
+            <label>Destination<select aria-label="Mobile scenario destination" value={destinationId} onChange={(event) => setDestinationId(event.target.value)}>{destinations.map((item) => <option value={item.id} key={item.id}>{item.name}</option>)}</select></label>
           </div>
-          <label>路线偏好<select aria-label="移动场景偏好" value={priority} onChange={(event) => setPriority(event.target.value as Priority)}><option value="balanced">稳妥均衡</option><option value="fastest">时间最快</option><option value="cheapest">费用最低</option></select></label>
-          <button className={styles.button} disabled={compare.isPending} onClick={runComparison}>{compare.isPending ? "AI 正在推演…" : "对比 AI 方案"}</button>
+          <label>Route preference<select aria-label="Mobile scenario preference" value={priority} onChange={(event) => setPriority(event.target.value as Priority)}><option value="balanced">Balanced</option><option value="fastest">Fastest</option><option value="cheapest">Lowest cost</option></select></label>
+          <button className={styles.button} disabled={compare.isPending} onClick={runComparison}>{compare.isPending ? "AI is simulating…" : "Compare AI plans"}</button>
           {compare.error && <p className={styles.error}>{userFacingError(compare.error)}</p>}
         </div>
       </section>
       {compare.data && <section aria-live="polite">
-        <div className={styles.resultHero}><small>默认场景 → {presetLabels[preset]}</small><h2>{compare.data.candidate.recommended}口岸</h2><p>{compare.data.recommended_changed ? `推荐已从${compare.data.baseline.recommended}切换` : "推荐口岸保持不变，但等待和风险已经重新计算"}</p></div>
-        <div className={styles.list}>{compare.data.ports.map((port) => <article key={port.port_id}><header><strong>{port.port_name}</strong><b>{port.wait_delta_minutes > 0 ? "+" : ""}{port.wait_delta_minutes} 分</b></header><p>默认 {port.baseline_wait_minutes} 分钟 → 场景 {port.candidate_wait_minutes} 分钟 · 迟到风险变化 {port.late_risk_delta_percent > 0 ? "+" : ""}{port.late_risk_delta_percent}%</p></article>)}</div>
-        <p className={styles.message}>本次推演不会保存场景，也不会写入预测或审计历史。</p>
+        <div className={styles.resultHero}><small>Default scenario → {presetLabels[preset]}</small><h2>{compare.data.candidate.recommended} Port</h2><p>{compare.data.recommended_changed ? `Recommendation changed from ${compare.data.baseline.recommended}` : "The recommended port is unchanged, but wait and risk were recalculated."}</p></div>
+        <div className={styles.list}>{compare.data.ports.map((port) => <article key={port.port_id}><header><strong>{port.port_name}</strong><b>{port.wait_delta_minutes > 0 ? "+" : ""}{port.wait_delta_minutes} min</b></header><p>Default {port.baseline_wait_minutes} minutes → Scenario {port.candidate_wait_minutes} minutes · Late-risk change {port.late_risk_delta_percent > 0 ? "+" : ""}{port.late_risk_delta_percent}%</p></article>)}</div>
+        <p className={styles.message}>This preview does not save the scenario or write to forecast or audit history.</p>
       </section>}
     </main>
   );

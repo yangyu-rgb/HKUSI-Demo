@@ -1,44 +1,46 @@
 import type { CrowdLevel } from "../realtime/types";
 import type { CrowdsourceReport } from "./types";
 import { formatClock } from "../../shared/formatters";
+import { englishDisplayText } from "../../shared/displayText";
 import styles from "./FeedItem.module.css";
 
 
 const CROWD_LABELS: Record<CrowdLevel, string> = {
-  low: "畅通",
-  medium: "正常",
-  high: "拥挤",
+  low: "Clear",
+  medium: "Moderate",
+  high: "Crowded",
 };
 
 const QUALITY_LABELS = {
-  high: "高可信",
-  medium: "中可信",
-  low: "低可信",
+  high: "High confidence",
+  medium: "Medium confidence",
+  low: "Low confidence",
 } as const;
 
 
 export function FeedItem({ report }: { report: CrowdsourceReport }) {
+  const port = englishDisplayText(report.port);
   return (
     <article className={styles.item}>
       <div className={`${styles.avatar} ${styles[report.crowd_level]}`}>
-        {report.port.slice(0, 1)}
+        {port.slice(0, 1)}
       </div>
       <div>
         <div className={styles.meta}>
-          <strong>{report.port} · {report.actual_wait_time} 分钟</strong>
-          <span>{report.time_label}</span>
+          <strong>{port} · {report.actual_wait_time} minutes</strong>
+          <span>{englishDisplayText(report.time_label)}</span>
         </div>
-        <p>{report.comment}</p>
+        <p>{englishDisplayText(report.comment)}</p>
         <div className={styles.details}>
           <small>@{report.user_id} · {CROWD_LABELS[report.crowd_level]}</small>
           <span className={`${styles.quality} ${styles[report.quality_level]}`}>
-            {QUALITY_LABELS[report.quality_level]} {report.quality_score}分
+            {QUALITY_LABELS[report.quality_level]} · score {report.quality_score}
           </span>
           <small>
-            有效至 {formatClock(report.expires_at)}
-            {!report.used_for_prediction && " · 不参与预测"}
+            Valid until {formatClock(report.expires_at)}
+            {!report.used_for_prediction && " · Not used for prediction"}
           </small>
-          <small>课堂演示反馈 · 不进入训练数据</small>
+          <small>Classroom Demo report · Excluded from training data</small>
         </div>
       </div>
     </article>

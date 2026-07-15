@@ -45,7 +45,7 @@ export function PlannerForm({
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
       <label>
-        <span>通勤方向</span>
+        <span>Travel direction</span>
         <select
           value={query.direction}
           onChange={(event) => {
@@ -65,10 +65,10 @@ export function PlannerForm({
           ))}
         </select>
       </label>
-      <LocationCombobox label="出发地" value={query.origin_id} options={origins} onChange={(origin_id) => setQuery({ ...query, origin_id })} />
-      <LocationCombobox label="目的地" value={query.destination_id} options={destinations} onChange={(destination_id) => setQuery({ ...query, destination_id })} />
+      <LocationCombobox label="Origin" value={query.origin_id} options={origins} onChange={(origin_id) => setQuery({ ...query, origin_id })} />
+      <LocationCombobox label="Destination" value={query.destination_id} options={destinations} onChange={(destination_id) => setQuery({ ...query, destination_id })} />
       <label>
-        <span>最迟到达</span>
+        <span>Latest arrival</span>
         <input
           type="datetime-local"
           required
@@ -79,23 +79,23 @@ export function PlannerForm({
         />
       </label>
       <label>
-        <span>优化偏好</span>
+        <span>Optimization preference</span>
         <select
           value={query.priority}
           onChange={(event) => setQuery({ ...query, priority: event.target.value as Priority })}
         >
-          <option value="balanced">稳妥均衡</option>
-          <option value="fastest">时间最快</option>
-          <option value="cheapest">费用最低</option>
+          <option value="balanced">Balanced</option>
+          <option value="fastest">Fastest</option>
+          <option value="cheapest">Lowest cost</option>
         </select>
       </label>
       <label>
-        <span>预算上限（HK$）</span>
+        <span>Budget cap (HK$)</span>
         <input
           type="number"
           min="0"
           value={query.max_budget ?? ""}
-          placeholder="不限"
+          placeholder="No limit"
           onChange={(event) => setQuery({
             ...query,
             max_budget: event.target.value === "" ? null : Number(event.target.value),
@@ -103,7 +103,7 @@ export function PlannerForm({
         />
       </label>
       <button className="button buttonPrimary" disabled={predicting}>
-        {predicting ? "正在计算…" : "生成 AI 建议"}
+        {predicting ? "Calculating…" : "Generate AI recommendation"}
       </button>
     </form>
   );

@@ -23,14 +23,14 @@ describe("OperationsPage", () => {
     )));
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     render(<QueryClientProvider client={client}><OperationsPage /></QueryClientProvider>);
-    expect(await screen.findByRole("heading", { name: "Demo 运营分析中心" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Demo Operations Analytics" })).toBeInTheDocument();
     expect(screen.getByText("88")).toBeInTheDocument();
     expect(screen.getByText("AI v2.2")).toBeInTheDocument();
-    expect(screen.getByText("统计降级")).toBeInTheDocument();
+    expect(screen.getByText("Statistical fallback")).toBeInTheDocument();
     expect(screen.getByText("VALIDATION_ERROR")).toBeInTheDocument();
     expect(screen.getByText("HK$399")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "7天" }));
-    expect(await screen.findByText("最近7天")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "7 days" }));
+    expect(await screen.findByText("Last 7 days")).toBeInTheDocument();
   });
 
   it("shows the normalized API error", async () => {
@@ -39,7 +39,7 @@ describe("OperationsPage", () => {
     }), { status: 403, headers: { "Content-Type": "application/json" } })));
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     render(<QueryClientProvider client={client}><OperationsPage /></QueryClientProvider>);
-    expect(await screen.findByRole("heading", { name: "无法载入运营分析" })).toBeInTheDocument();
-    expect(screen.getByText("仅运营人员可查看")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Unable to load operations analytics" })).toBeInTheDocument();
+    expect(screen.getByText("Only operators can view this page")).toBeInTheDocument();
   });
 });

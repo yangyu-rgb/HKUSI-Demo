@@ -3,7 +3,7 @@ import styles from "./PageSkeleton.module.css";
 
 export function PageSkeleton({ cards = 4 }: { cards?: number }) {
   return (
-    <main className={styles.page} aria-label="正在载入页面内容">
+    <main className={styles.page} aria-label="Loading page content">
       <div className={styles.hero}>
         <span />
         <strong />

@@ -3,11 +3,11 @@ import { getDemoSession, type DemoRole } from "./session";
 import styles from "./RequireAccess.module.css";
 
 const roleNames: Record<DemoRole, string> = {
-  operator: "Demo 运营人员",
-  commuter: "个人通勤者",
-  business_admin: "企业管理员",
-  transport_dispatcher: "运输调度员",
-  port_official: "口岸协调人员",
+  operator: "Demo operator",
+  commuter: "personal commuter",
+  business_admin: "enterprise administrator",
+  transport_dispatcher: "transport dispatcher",
+  port_official: "port coordinator",
 };
 
 type RequireAccessProps = {
@@ -29,13 +29,13 @@ export function RequireAccess({ allowedRoles, mobile = false }: RequireAccessPro
       <main className={mobile ? styles.mobilePage : styles.page}>
         <section className={styles.card}>
           <span>Access policy</span>
-          <h1>当前身份无法访问此功能</h1>
-          <p>你正在使用“{roleNames[session.role]}”身份，此页面需要{allowedRoles.map((role) => `“${roleNames[role]}”`).join("或")}。</p>
+          <h1>This persona cannot access this feature</h1>
+          <p>You are signed in as a {roleNames[session.role]}. This page requires {allowedRoles.map((role) => roleNames[role]).join(" or ")} access.</p>
           <div>
-            <Link className={styles.primary} to={`${login}?next=${encodeURIComponent(next)}`}>切换登录身份</Link>
-            <Link to={mobile ? "/" : "/"}>返回口岸态势</Link>
+            <Link className={styles.primary} to={`${login}?next=${encodeURIComponent(next)}`}>Switch persona</Link>
+            <Link to={mobile ? "/" : "/"}>Return to Border Situation</Link>
           </div>
-          <small>本权限仅用于课堂 Demo 的角色流程展示，不代表生产认证。</small>
+          <small>This access policy only demonstrates classroom Demo roles; it is not production authentication.</small>
         </section>
       </main>
     );

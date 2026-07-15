@@ -64,7 +64,7 @@ export async function downloadEnterpriseTemplate(
     `${import.meta.env.VITE_API_BASE ?? "http://127.0.0.1:8000"}/api/enterprise-operations/templates/${workspaceKind}.csv${suffix}`,
     { headers: session ? { "X-Demo-Persona-ID": session.personaId } : {} },
   );
-  if (!response.ok) throw new Error("CSV 模板下载失败");
+  if (!response.ok) throw new Error("Unable to download the CSV template");
   const blob = await response.blob();
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
@@ -105,7 +105,7 @@ export async function downloadEnterprisePlan(planId: string): Promise<void> {
     `${import.meta.env.VITE_API_BASE ?? "http://127.0.0.1:8000"}/api/enterprise-operations/plans/${encodeURIComponent(planId)}/export.csv`,
     { headers: session ? { "X-Demo-Persona-ID": session.personaId } : {} },
   );
-  if (!response.ok) throw new Error("运营方案导出失败");
+  if (!response.ok) throw new Error("Unable to export the operations plan");
   const blob = await response.blob();
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");

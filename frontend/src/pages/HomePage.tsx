@@ -38,7 +38,7 @@ export function HomePage() {
     return <PageSkeleton />;
   }
   if (error || !data) {
-    return <ErrorState title="无法连接 CrossBorder AI 后端" detail={error || "请启动 FastAPI 服务"} />;
+    return <ErrorState title="Cannot connect to the CrossBorder AI backend" detail={error || "Start the FastAPI service and try again."} />;
   }
 
   const rankByPort = new Map([...data.ports].sort((left, right) => left.current_wait - right.current_wait).map((port, index) => [port.id, index + 1]));
@@ -62,21 +62,21 @@ export function HomePage() {
         <div className={styles.heroCopy}>
           <FadeIn delay={500} duration={800}><span className={styles.heroKicker}>AI predictive operations for cross-border transport</span></FadeIn>
           <AnimatedHeading className={styles.heroHeading} text={"Predict border uncertainty.\nDispatch with confidence."} />
-          <FadeIn delay={800}><p className={styles.heroDescription}>Turn 1–3 hour border forecasts into trip, fleet and coordination decisions.<br />将口岸不确定性转化为班次、车辆和协同决策。</p></FadeIn>
+          <FadeIn delay={800}><p className={styles.heroDescription}>Turn 1–3 hour border forecasts into trip, fleet, and coordination decisions.<br />Compare operational risk before committing resources.</p></FadeIn>
           <FadeIn delay={1200} className={styles.heroActionReveal}>
             <div className={styles.heroActions}>
               <Link className={styles.primaryAction} to="/login?next=%2Fbusiness">Open Operations Control Tower</Link>
               <Link className={`${styles.secondaryAction} liquid-glass`} to="/planner">Personal Route Planner</Link>
-              <span className={styles.liveStatus}><i />实时计算中 · {formatHongKongDateTime(data.timestamp)}</span>
+              <span className={styles.liveStatus}><i />Live calculation · {formatHongKongDateTime(data.timestamp)}</span>
             </div>
           </FadeIn>
         </div>
         <FadeIn delay={1400} className={styles.signalReveal}>
-          <div className={styles.signal} aria-label="平台能力摘要">
-            <div className="liquid-glass"><strong>{data.overview.smoothest_port_name}</strong><span>当前最畅通 · {data.overview.smoothest_wait}分</span></div>
-            <div className="liquid-glass"><strong>{data.overview.highest_pressure_port_name}</strong><span>当前压力最高 · {data.overview.highest_pressure_wait}分</span></div>
-            <div className="liquid-glass"><strong>{data.overview.fastest_rising_port_name}</strong><span>未来1h变化 · {data.overview.fastest_rising_change > 0 ? "+" : ""}{data.overview.fastest_rising_change}分</span></div>
-            <div className="liquid-glass"><strong>{data.overview.crowdsource_report_count}</strong><span>有效反馈 · {data.overview.active_anomaly_count}项异常</span></div>
+          <div className={styles.signal} aria-label="Platform capability summary">
+            <div className="liquid-glass"><strong>{data.overview.smoothest_port_name}</strong><span>Lowest wait · {data.overview.smoothest_wait} min</span></div>
+            <div className="liquid-glass"><strong>{data.overview.highest_pressure_port_name}</strong><span>Highest pressure · {data.overview.highest_pressure_wait} min</span></div>
+            <div className="liquid-glass"><strong>{data.overview.fastest_rising_port_name}</strong><span>Next-hour change · {data.overview.fastest_rising_change > 0 ? "+" : ""}{data.overview.fastest_rising_change} min</span></div>
+            <div className="liquid-glass"><strong>{data.overview.crowdsource_report_count}</strong><span>Valid reports · {data.overview.active_anomaly_count} anomalies</span></div>
           </div>
         </FadeIn>
         {!reducedMotion && !videoFailed && <button className={`${styles.videoControl} liquid-glass`} type="button" onClick={() => {
@@ -84,27 +84,27 @@ export function HomePage() {
           if (!video) return;
           if (video.paused) { void video.play(); setManuallyPaused(false); }
           else { video.pause(); setManuallyPaused(true); }
-        }}>{manuallyPaused ? "播放背景" : "暂停背景"}</button>}
+        }}>{manuallyPaused ? "Play background" : "Pause background"}</button>}
       </section>
 
       <div id="border-status" className={styles.statusAnchor}>
         {data.alerts.map((alert, index) => (
-          <Reveal delay={index * 80} key={alert.message}><div className={`${styles.alert} ${styles[alert.severity]}`}>
-            <span>{alert.severity === "high" ? "高风险告警" : alert.severity === "medium" ? "态势提醒" : "运行提示"}</span>
+          <Reveal delay={index * 80} key={`${alert.severity}-${index}`}><div className={`${styles.alert} ${styles[alert.severity]}`}>
+            <span>{alert.severity === "high" ? "High-risk alert" : alert.severity === "medium" ? "Situation update" : "Operations note"}</span>
             <p>{alert.message}</p>
           </div></Reveal>
         ))}
       </div>
 
-      <Reveal><Suspense fallback={<section className={styles.flowFallback}>正在加载 3D 路线态势…</section>}><PortFlowScene ports={data.ports} /></Suspense></Reveal>
+      <Reveal><Suspense fallback={<section className={styles.flowFallback}>Loading the 3D border flow view…</section>}><PortFlowScene ports={data.ports} /></Suspense></Reveal>
 
       <section className="pageSection" aria-labelledby="port-status-title">
         <div className="sectionHeading">
-          <div><span className="sectionKicker">Simulated border pulse</span><h2 id="port-status-title">四口岸动态态势</h2></div>
+          <div><span className="sectionKicker">Simulated border pulse</span><h2 id="port-status-title">Four-port live situation</h2></div>
           <div className={styles.refresh}>
-            <span>{openPortCount}/4 口岸开放 · 更新于 {new Date(dataUpdatedAt).toLocaleTimeString("zh-HK")}</span>
+            <span>{openPortCount}/4 ports open · Updated {new Date(dataUpdatedAt).toLocaleTimeString("en-HK")}</span>
             <button onClick={() => void refresh()} disabled={refreshing}>
-              {refreshing ? "刷新中…" : "手动刷新"}
+              {refreshing ? "Refreshing…" : "Refresh now"}
             </button>
           </div>
         </div>

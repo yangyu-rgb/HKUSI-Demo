@@ -50,8 +50,8 @@ export const CITY_POLYGONS: CityPolygon[] = [
 ];
 
 export const CITY_LABELS = [
-  { id: "shenzhen", name: "深圳", nameEn: "SHENZHEN", position: { lng: 114.01, lat: 22.63 } },
-  { id: "hong-kong", name: "香港", nameEn: "HONG KONG", position: { lng: 114.14, lat: 22.31 } },
+  { id: "shenzhen", name: "Shenzhen", nameEn: "SHENZHEN", position: { lng: 114.01, lat: 22.63 } },
+  { id: "hong-kong", name: "Hong Kong", nameEn: "HONG KONG", position: { lng: 114.14, lat: 22.31 } },
 ] as const;
 
 export const BORDER_TRACE: GeoCoordinate[] = [

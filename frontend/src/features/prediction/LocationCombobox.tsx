@@ -17,9 +17,9 @@ export function LocationCombobox({ label, value, options, onChange }: Props) {
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const filtered = useMemo(() => {
-    const keyword = search.trim().toLocaleLowerCase("zh-HK");
-    if (!keyword || keyword === selected?.name.toLocaleLowerCase("zh-HK")) return options;
-    return options.filter((option) => `${option.name} ${option.city} ${option.id}`.toLocaleLowerCase("zh-HK").includes(keyword));
+    const keyword = search.trim().toLocaleLowerCase("en-HK");
+    if (!keyword || keyword === selected?.name.toLocaleLowerCase("en-HK")) return options;
+    return options.filter((option) => `${option.name} ${option.city} ${option.id}`.toLocaleLowerCase("en-HK").includes(keyword));
   }, [options, search, selected?.name]);
 
   useEffect(() => {
@@ -79,12 +79,12 @@ export function LocationCombobox({ label, value, options, onChange }: Props) {
           onChange={(event) => { setSearch(event.target.value); setOpen(true); setActiveIndex(0); }}
           onKeyDown={handleKeyDown}
         />
-        <button type="button" aria-label={`展开${label}列表`} onClick={() => setOpen((current) => !current)}>
+        <button type="button" aria-label={`Open ${label} list`} onClick={() => setOpen((current) => !current)}>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5" /></svg>
         </button>
         {open && (
-          <div className={styles.options} id={listId} role="listbox" aria-label={`${label}固定地点`}>
-            {filtered.length === 0 && <p>没有匹配地点，仅支持列表中的固定地点。</p>}
+          <div className={styles.options} id={listId} role="listbox" aria-label={`${label} fixed locations`}>
+            {filtered.length === 0 && <p>No matching location. Only listed Demo locations are supported.</p>}
             {filtered.map((option, index) => (
               <button
                 type="button"

@@ -168,14 +168,14 @@ describe("application routes", () => {
       throw new Error(`Unexpected request: ${String(input)}`);
     }));
     renderRoute("/planner", null);
-    expect(await screen.findByRole("heading", { name: "Choose your workspace / 选择工作空间" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Choose your workspace" })).toBeInTheDocument();
   });
 
   it("shows a permission explanation instead of leaking an enterprise page", async () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("not needed")));
     renderRoute("/business", "commuter");
-    expect(await screen.findByRole("heading", { name: "当前身份无法访问此功能" })).toBeInTheDocument();
-    expect(screen.getByText(/企业管理员/)).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "This persona cannot access this feature" })).toBeInTheDocument();
+    expect(screen.getByText(/enterprise administrator/)).toBeInTheDocument();
   });
 
   it("redirects a guest to the dedicated mobile login", async () => {
@@ -184,7 +184,7 @@ describe("application routes", () => {
       throw new Error(`Unexpected request: ${String(input)}`);
     }));
     renderRoute("/mobile", null);
-    expect(await screen.findByRole("heading", { name: "个人通勤空间" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Personal commute workspace" })).toBeInTheDocument();
   });
 
   it("keeps mobile planning inside the independent mobile application", async () => {
@@ -205,13 +205,13 @@ describe("application routes", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     renderRoute("/mobile/planner");
-    expect(await screen.findByRole("heading", { name: "规划跨境行程" })).toBeInTheDocument();
-    expect(screen.queryByRole("navigation", { name: "主要导航" })).not.toBeInTheDocument();
-    const mobileNavigation = screen.getByRole("navigation", { name: "移动快捷导航" });
+    expect(await screen.findByRole("heading", { name: "Plan a cross-border journey" })).toBeInTheDocument();
+    expect(screen.queryByRole("navigation", { name: "Main navigation" })).not.toBeInTheDocument();
+    const mobileNavigation = screen.getByRole("navigation", { name: "Mobile quick navigation" });
     expect(mobileNavigation.querySelector('a[href="/planner"]')).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "生成 AI 建议" }));
-    expect(await screen.findByText("本次推荐 · 香港大学 → 深圳南山科技园")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "通关后反馈实际等待" })).toHaveAttribute("href", expect.stringContaining("/mobile/feedback"));
+    fireEvent.click(screen.getByRole("button", { name: "Generate AI recommendation" }));
+    expect(await screen.findByText("Recommendation · The University of Hong Kong → Shenzhen Nanshan Technology Park")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Report actual wait after crossing" })).toHaveAttribute("href", expect.stringContaining("/mobile/feedback"));
   });
 
   it("loads the enterprise operations control tower without changing the page shell", async () => {
@@ -298,7 +298,7 @@ describe("application routes", () => {
 
     renderRoute("/business");
 
-    expect(await screen.findByRole("heading", { name: "Enterprise Predictive Dispatch / 企业预测与调度" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Enterprise Predictive Dispatch" })).toBeInTheDocument();
     expect(screen.getByText("No operating data loaded")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Load Demo Sample" }));
     expect(screen.getByText(/1 validated Demo tasks loaded/)).toBeInTheDocument();
@@ -318,18 +318,18 @@ describe("application routes", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     renderRoute("/planner");
-    expect(await screen.findByRole("heading", { name: "选择通勤条件，生成你的四口岸方案" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Select trip conditions to generate a four-port plan" })).toBeInTheDocument();
     expect(fetchMock.mock.calls.filter(([input]) => String(input).endsWith("/api/predict"))).toHaveLength(0);
-    const target = screen.getByLabelText("最迟到达");
+    const target = screen.getByLabelText("Latest arrival");
     expect(target).toHaveAttribute("min", "2026-07-10T08:00");
     expect(target).toHaveAttribute("max", "2026-07-11T07:45");
     expect(target).toHaveValue("2026-07-10T09:45");
-    expect(screen.getByText("香港时间")).toBeInTheDocument();
+    expect(screen.getByText("Hong Kong time")).toBeInTheDocument();
 
-    const origin = screen.getByRole("combobox", { name: "出发地" });
-    fireEvent.change(origin, { target: { value: "中环" } });
-    fireEvent.click(screen.getByRole("option", { name: /中环/ }));
-    fireEvent.click(screen.getByRole("button", { name: "生成 AI 建议" }));
+    const origin = screen.getByRole("combobox", { name: "Origin" });
+    fireEvent.change(origin, { target: { value: "Central" } });
+    fireEvent.click(screen.getByRole("option", { name: /Central/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Generate AI recommendation" }));
 
     await waitFor(() => {
       const predictionCalls = fetchMock.mock.calls.filter(
@@ -339,23 +339,23 @@ describe("application routes", () => {
       const requestInit = predictionCalls[0][1] as RequestInit;
       expect(JSON.parse(String(requestInit.body)).origin_id).toBe("central");
     });
-    expect(await screen.findByText("本次推荐")).toBeInTheDocument();
+    expect(await screen.findByText("Recommended route")).toBeInTheDocument();
 
-    const calculationTrigger = screen.getByRole("button", { name: "查看完整计算过程" });
+    const calculationTrigger = screen.getByRole("button", { name: "View full calculation" });
     fireEvent.click(calculationTrigger);
-    expect(await screen.findByRole("dialog", { name: "福田口岸 · 完整计算过程" })).toBeInTheDocument();
-    expect(screen.getByText("88% 压力一致度")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "关闭计算过程" }));
+    expect(await screen.findByRole("dialog", { name: "Futian Port · Full calculation" })).toBeInTheDocument();
+    expect(screen.getByText("88% pressure agreement")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Close calculation" }));
     await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
 
     fireEvent.change(target, { target: { value: "2026-07-10T10:00" } });
-    expect(screen.queryByText("本次推荐")).not.toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "选择通勤条件，生成你的四口岸方案" })).toBeInTheDocument();
+    expect(screen.queryByText("Recommended route")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Select trip conditions to generate a four-port plan" })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "生成 AI 建议" }));
-    expect(await screen.findByText("本次推荐")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "清除方案" }));
-    expect(screen.queryByText("本次推荐")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Generate AI recommendation" }));
+    expect(await screen.findByText("Recommended route")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Clear plan" }));
+    expect(screen.queryByText("Recommended route")).not.toBeInTheDocument();
     expect(target).toHaveValue("2026-07-10T10:00");
   });
 
@@ -363,8 +363,8 @@ describe("application routes", () => {
     vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("offline")));
     renderRoute("/planner");
 
-    expect(await screen.findByRole("heading", { name: "无法载入路线规划" })).toBeInTheDocument();
-    expect(screen.getByText("无法连接服务器，请检查后端是否已启动。")).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Unable to load route planning" })).toBeInTheDocument();
+    expect(screen.getByText("Unable to connect to the server. Check that the backend is running.")).toBeInTheDocument();
   });
 
   it("shows report quality and explains duplicate crowdsource rejection", async () => {
@@ -425,16 +425,16 @@ describe("application routes", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     renderRoute("/crowdsource");
-    expect(await screen.findByText("高可信 95分")).toBeInTheDocument();
-    expect(screen.getByText("有效至 09:10")).toBeInTheDocument();
+    expect(await screen.findByText("High confidence · score 95")).toBeInTheDocument();
+    expect(screen.getByText("Valid until 09:10")).toBeInTheDocument();
 
-    expect(screen.getByText("课堂 Demo 数据")).toBeInTheDocument();
-    expect(screen.getByText(/15%、30%和45%上限/)).toBeInTheDocument();
+    expect(screen.getByText("Classroom Demo data")).toBeInTheDocument();
+    expect(screen.getByText(/15%, 30%, and 45% caps/)).toBeInTheDocument();
 
-    fireEvent.change(screen.getByLabelText(/实际等待/), { target: { value: "14" } });
-    fireEvent.click(screen.getByRole("button", { name: "提交反馈" }));
+    fireEvent.change(screen.getByLabelText(/Actual wait/), { target: { value: "14" } });
+    fireEvent.click(screen.getByRole("button", { name: "Submit report" }));
 
-    expect(await screen.findByText("同一口岸反馈提交过于频繁，请在10分钟后重试"))
+    expect(await screen.findByText("Reports for the same port are too frequent. Try again in 10 minutes."))
       .toBeInTheDocument();
     const reportCall = fetchMock.mock.calls.find(
       ([input, init]) => String(input).endsWith("/api/crowdsource/report") && init?.method === "POST",
@@ -488,14 +488,14 @@ describe("application routes", () => {
     vi.spyOn(window, "confirm").mockReturnValue(true);
 
     renderRoute("/alerts");
-    expect(await screen.findByText("香港大学 → 深圳南山科技园")).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "编辑" }));
-    fireEvent.change(screen.getByLabelText("路线偏好"), { target: { value: "fastest" } });
-    fireEvent.click(screen.getByRole("button", { name: "保存修改" }));
-    expect(await screen.findByText("订阅已更新。")).toBeInTheDocument();
+    expect(await screen.findByText("The University of Hong Kong → Shenzhen Nanshan Technology Park")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Edit" }));
+    fireEvent.change(screen.getByLabelText("Route preference"), { target: { value: "fastest" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+    expect(await screen.findByText("Subscription updated.")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: "删除" }));
-    await waitFor(() => expect(screen.getByText("0 条")).toBeInTheDocument());
+    fireEvent.click(screen.getByRole("button", { name: "Delete" }));
+    await waitFor(() => expect(screen.getByText("0 total")).toBeInTheDocument());
     expect(fetchMock.mock.calls.some(
       ([input, init]) => String(input).endsWith("/api/subscriptions/sub-1") && init?.method === "DELETE",
     )).toBe(true);

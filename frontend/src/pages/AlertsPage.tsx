@@ -21,13 +21,13 @@ import styles from "./AlertsPage.module.css";
 
 const USER_ID = "demo-user";
 const DAYS: Array<[Weekday, string]> = [
-  ["monday", "周一"],
-  ["tuesday", "周二"],
-  ["wednesday", "周三"],
-  ["thursday", "周四"],
-  ["friday", "周五"],
-  ["saturday", "周六"],
-  ["sunday", "周日"],
+  ["monday", "Mon"],
+  ["tuesday", "Tue"],
+  ["wednesday", "Wed"],
+  ["thursday", "Thu"],
+  ["friday", "Fri"],
+  ["saturday", "Sat"],
+  ["sunday", "Sun"],
 ];
 
 
@@ -76,7 +76,7 @@ export function AlertsPage() {
     mutationFn: () => runAlertCycle(USER_ID),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.notifications(USER_ID) });
-      setMessage("本地告警周期已完成，触发结果已写入通知收件箱。");
+      setMessage("The local alert cycle is complete. Triggered results were added to the notification inbox.");
     },
   });
   const markNotification = useMutation({
@@ -161,14 +161,14 @@ export function AlertsPage() {
         await queryClient.invalidateQueries({
           queryKey: queryKeys.subscriptionPreview(editingId),
         });
-        setMessage("订阅已更新。");
+        setMessage("Subscription updated.");
       } else {
         const created = await subscriptions.create({ user_id: USER_ID, ...payload });
         setPreviewId(created.subscription_id);
         await queryClient.invalidateQueries({
           queryKey: queryKeys.subscriptionPreview(created.subscription_id),
         });
-        setMessage("订阅已创建。");
+        setMessage("Subscription created.");
       }
       resetForm();
     } catch {
@@ -177,7 +177,7 @@ export function AlertsPage() {
   }
 
   async function handleDelete(subscriptionId: string) {
-    if (window.confirm("确定删除这条提醒订阅？")) {
+    if (window.confirm("Delete this alert subscription?")) {
       setMessage("");
       try {
         await subscriptions.remove(subscriptionId);
@@ -196,9 +196,9 @@ export function AlertsPage() {
     }
     try {
       await saveEvaluation.mutateAsync(previewId);
-      setMessage("当前提醒评估已保存到历史记录。");
+      setMessage("The current alert evaluation was saved to history.");
     } catch {
-      setMessage("提醒评估暂时无法保存，请稍后重试。");
+      setMessage("The alert evaluation could not be saved. Try again later.");
     }
   }
 
@@ -210,14 +210,14 @@ export function AlertsPage() {
     <main className="page">
       <div className="pageIntro">
         <span className="sectionKicker">Proactive alert</span>
-        <h1>智能提醒订阅管理</h1>
-        <p>创建、编辑和删除跨境通勤提醒；所有订阅保存在本地 SQLite 中。</p>
+        <h1>Smart alert subscriptions</h1>
+        <p>Create, edit, and delete cross-border commute alerts. All subscriptions are stored in local SQLite.</p>
       </div>
       <section className={styles.grid}>
         <form className={styles.form} onSubmit={(event) => void handleSubmit(event)}>
-          <h2>{editingId ? "编辑订阅" : "新增订阅"}</h2>
+          <h2>{editingId ? "Edit subscription" : "New subscription"}</h2>
           <label>
-            <span>出发地</span>
+            <span>Origin</span>
             <select required value={originId} onChange={(event) => {
               const nextOrigin = event.target.value;
               const direction = locations.data?.directions.find(
@@ -232,7 +232,7 @@ export function AlertsPage() {
             </select>
           </label>
           <label>
-            <span>目的地</span>
+            <span>Destination</span>
             <select required value={destinationId} onChange={(event) => setDestinationId(event.target.value)}>
               {locations.data?.destinations.filter((item) => {
                 const direction = locations.data?.directions.find(
@@ -246,7 +246,7 @@ export function AlertsPage() {
           </label>
           <div className={styles.formRow}>
             <label>
-              <span>计划到达</span>
+              <span>Planned arrival</span>
               <input
                 type="time"
                 required
@@ -255,16 +255,16 @@ export function AlertsPage() {
               />
             </label>
             <label>
-              <span>路线偏好</span>
+              <span>Route preference</span>
               <select value={priority} onChange={(event) => setPriority(event.target.value as Priority)}>
-                <option value="balanced">稳妥均衡</option>
-                <option value="fastest">时间最快</option>
-                <option value="cheapest">费用最低</option>
+                <option value="balanced">Balanced</option>
+                <option value="fastest">Fastest</option>
+                <option value="cheapest">Lowest cost</option>
               </select>
             </label>
           </div>
           <fieldset className={styles.days}>
-            <legend>通勤日期</legend>
+            <legend>Commute days</legend>
             {DAYS.map(([value, label]) => (
               <label key={value}>
                 <input
@@ -281,16 +281,16 @@ export function AlertsPage() {
             ))}
           </fieldset>
           <div className={styles.alertOptions}>
-            <label><input type="checkbox" checked={advanceReminder} onChange={(event) => setAdvanceReminder(event.target.checked)} /> 出发前30分钟</label>
-            <label><input type="checkbox" checked={anomalyAlert} onChange={(event) => setAnomalyAlert(event.target.checked)} /> 异常拥堵</label>
-            <label><input type="checkbox" checked={betterRouteAlert} onChange={(event) => setBetterRouteAlert(event.target.checked)} /> 更优路线</label>
+            <label><input type="checkbox" checked={advanceReminder} onChange={(event) => setAdvanceReminder(event.target.checked)} /> 30 minutes before departure</label>
+            <label><input type="checkbox" checked={anomalyAlert} onChange={(event) => setAnomalyAlert(event.target.checked)} /> Abnormal congestion</label>
+            <label><input type="checkbox" checked={betterRouteAlert} onChange={(event) => setBetterRouteAlert(event.target.checked)} /> Better route available</label>
           </div>
           <div className={styles.actions}>
             <button className="button buttonLight" disabled={subscriptions.saving || days.length === 0}>
-              {subscriptions.saving ? "保存中…" : editingId ? "保存修改" : "创建提醒"}
+              {subscriptions.saving ? "Saving…" : editingId ? "Save changes" : "Create alert"}
             </button>
             {editingId && (
-              <button type="button" className={styles.cancel} onClick={resetForm}>取消</button>
+              <button type="button" className={styles.cancel} onClick={resetForm}>Cancel</button>
             )}
           </div>
           {message && <p className={styles.success}>{message}</p>}
@@ -300,8 +300,8 @@ export function AlertsPage() {
         <div className={styles.sideColumn}>
           <div className={styles.list}>
             <div className={styles.listHeading}>
-              <h2>已有订阅</h2>
-              <span>{subscriptions.subscriptions.length} 条</span>
+              <h2>Existing subscriptions</h2>
+              <span>{subscriptions.subscriptions.length} total</span>
             </div>
             {subscriptions.subscriptions.map((item) => {
             const origin = locations.data?.origins.find((entry) => entry.id === item.routine.origin_id);
@@ -310,13 +310,13 @@ export function AlertsPage() {
               <article className={styles.subscription} key={item.subscription_id}>
                 <div>
                   <strong>{origin?.name} → {destination?.name}</strong>
-                  <span>{item.routine.days.length}天/周 · {item.routine.arrival_deadline}前到达</span>
+                  <span>{item.routine.days.length} days/week · Arrive by {item.routine.arrival_deadline}</span>
                 </div>
-                  <b>下次提醒约 {item.next_alert ? formatNextAlert(item.next_alert) : "已关闭"}</b>
+                  <b>Next alert: {item.next_alert ? formatNextAlert(item.next_alert) : "Disabled"}</b>
                   <div className={styles.itemActions}>
-                  <button onClick={() => setPreviewId(item.subscription_id)}>预览</button>
-                  <button onClick={() => beginEdit(item)}>编辑</button>
-                  <button onClick={() => void handleDelete(item.subscription_id)} disabled={subscriptions.deleting}>删除</button>
+                  <button onClick={() => setPreviewId(item.subscription_id)}>Preview</button>
+                  <button onClick={() => beginEdit(item)}>Edit</button>
+                  <button onClick={() => void handleDelete(item.subscription_id)} disabled={subscriptions.deleting}>Delete</button>
                 </div>
               </article>
             );
@@ -324,44 +324,44 @@ export function AlertsPage() {
           </div>
           <section className={styles.preview}>
             <div className={styles.previewHeading}>
-              <div><span className="sectionKicker">Next commute</span><h2>提醒预览</h2></div>
-              {preview.data && <b>{preview.data.recommended_port}口岸</b>}
+              <div><span className="sectionKicker">Next commute</span><h2>Alert preview</h2></div>
+              {preview.data && <b>{preview.data.recommended_port} Port</b>}
             </div>
-            {!previewId && <p>创建或选择一条订阅以查看下一次提醒。</p>}
-            {preview.isPending && <p>正在评估下一次通勤…</p>}
-            {preview.error && <p className={styles.previewError}>暂时无法生成提醒预览。</p>}
+            {!previewId && <p>Create or select a subscription to preview the next alert.</p>}
+            {preview.isPending && <p>Evaluating the next commute…</p>}
+            {preview.error && <p className={styles.previewError}>The alert preview is temporarily unavailable.</p>}
             {preview.data && (
               <>
-                <p className={styles.previewMeta}>计划于 {formatHongKongDateTime(preview.data.target_time)} 前到达；最晚建议 {formatClock(preview.data.latest_departure)} 出发。</p>
+                <p className={styles.previewMeta}>Planned arrival by {formatHongKongDateTime(preview.data.target_time)}; recommended departure no later than {formatClock(preview.data.latest_departure)}.</p>
                 <button
                   type="button"
                   className={styles.saveEvaluation}
                   onClick={() => void handleSaveEvaluation()}
                   disabled={saveEvaluation.isPending}
                 >
-                  {saveEvaluation.isPending ? "正在保存…" : "保存本次评估"}
+                  {saveEvaluation.isPending ? "Saving…" : "Save this evaluation"}
                 </button>
                 <div className={styles.previewCards}>
                   {preview.data.alerts.map((alert) => (
                     <article className={alert.triggered ? styles.previewActive : styles.previewInactive} key={alert.kind}>
-                      <div><strong>{alert.title}</strong><span>{alert.triggered ? "将发送" : alert.enabled ? "当前未触发" : "未启用"}</span></div>
+                      <div><strong>{alert.title}</strong><span>{alert.triggered ? "Will send" : alert.enabled ? "Not triggered" : "Disabled"}</span></div>
                       <p>{alert.message}</p>
-                      {alert.scheduled_at && <small>评估/发送时间：{formatHongKongDateTime(alert.scheduled_at)}</small>}
+                      {alert.scheduled_at && <small>Evaluate/send time: {formatHongKongDateTime(alert.scheduled_at)}</small>}
                     </article>
                   ))}
                 </div>
-                {preview.data.alternative_port && <p className={styles.alternative}>备用口岸：{preview.data.alternative_port}</p>}
+                {preview.data.alternative_port && <p className={styles.alternative}>Alternative port: {preview.data.alternative_port}</p>}
               </>
             )}
             {previewId && (
               <div className={styles.history}>
                 <div className={styles.historyHeading}>
-                  <strong>评估历史</strong>
-                  <span>{evaluations.data?.unread_total ?? 0} 条未读</span>
+                  <strong>Evaluation history</strong>
+                  <span>{evaluations.data?.unread_total ?? 0} unread</span>
                 </div>
-                {evaluations.isPending && <p>正在读取历史记录…</p>}
+                {evaluations.isPending && <p>Loading history…</p>}
                 {!evaluations.isPending && evaluations.data?.evaluations.length === 0 && (
-                  <p>暂无已保存评估；预览本身不会写入历史。</p>
+                  <p>No saved evaluations. Previewing alone does not write to history.</p>
                 )}
                 {evaluations.data?.evaluations.map((evaluation) => (
                   <article
@@ -369,15 +369,15 @@ export function AlertsPage() {
                     key={evaluation.evaluation_id}
                   >
                     <div>
-                      <strong>{evaluation.recommended_port}口岸</strong>
-                      <span>{formatHongKongDateTime(evaluation.evaluated_at)} · 最晚 {formatClock(evaluation.latest_departure)} 出发</span>
+                      <strong>{evaluation.recommended_port} Port</strong>
+                      <span>{formatHongKongDateTime(evaluation.evaluated_at)} · Depart by {formatClock(evaluation.latest_departure)}</span>
                     </div>
                     {!evaluation.is_read && (
                       <button
                         type="button"
                         onClick={() => void markRead.mutateAsync(evaluation.evaluation_id)}
                         disabled={markRead.isPending}
-                      >标为已读</button>
+                      >Mark as read</button>
                     )}
                   </article>
                 ))}
@@ -388,18 +388,18 @@ export function AlertsPage() {
       </section>
       <section className={styles.preview}>
         <div className={styles.previewHeading}>
-          <div><span className="sectionKicker">Local delivery adapter</span><h2>通知收件箱</h2></div>
+          <div><span className="sectionKicker">Local delivery adapter</span><h2>Notification inbox</h2></div>
           <button
             type="button"
             className={styles.saveEvaluation}
             disabled={alertCycle.isPending}
             onClick={() => alertCycle.mutate()}
           >
-            {alertCycle.isPending ? "运行中…" : "运行本地告警周期"}
+            {alertCycle.isPending ? "Running…" : "Run local alert cycle"}
           </button>
         </div>
-        <p>此处模拟邮件、短信或推送的投递边界，不会连接外部服务。</p>
-        {notifications.data?.notifications.length === 0 && <p>暂无通知。</p>}
+        <p>This simulates email, SMS, or push delivery boundaries without connecting to external services.</p>
+        {notifications.data?.notifications.length === 0 && <p>No notifications.</p>}
         <div className={styles.history}>
           {notifications.data?.notifications.map((notification) => (
             <article
@@ -411,7 +411,7 @@ export function AlertsPage() {
                 <span>{notification.message} · {formatHongKongDateTime(notification.scheduled_at)}</span>
               </div>
               {!notification.is_read && (
-                <button onClick={() => markNotification.mutate(notification.id)}>标为已读</button>
+                <button onClick={() => markNotification.mutate(notification.id)}>Mark as read</button>
               )}
             </article>
           ))}

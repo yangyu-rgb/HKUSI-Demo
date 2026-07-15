@@ -9,6 +9,7 @@ BACKEND_PYTHON="${BACKEND_DIR}/.venv/bin/python"
 
 BACKEND_PID=""
 FRONTEND_PID=""
+HOME_URL="http://127.0.0.1:5173/"
 
 log() {
   printf '[CrossBorder AI] %s\n' "$1"
@@ -92,8 +93,25 @@ log "Starting frontend at http://127.0.0.1:5173"
 ) &
 FRONTEND_PID=$!
 
+open_border_situation() {
+  [[ "${CROSSBORDER_NO_BROWSER:-0}" != "1" ]] || return 0
+  for _ in {1..40}; do
+    if curl -fsS "${HOME_URL}" >/dev/null 2>&1; then
+      if command -v open >/dev/null 2>&1; then
+        open "${HOME_URL}"
+      elif command -v xdg-open >/dev/null 2>&1; then
+        xdg-open "${HOME_URL}" >/dev/null 2>&1
+      fi
+      return 0
+    fi
+    sleep 0.25
+  done
+}
+
+open_border_situation &
+
 printf '\n'
-log "Platform ready: http://127.0.0.1:5173"
+log "Platform ready: ${HOME_URL}"
 log "API documentation: http://127.0.0.1:8000/docs"
 log "Official inputs: reproducible repository snapshots (no live collector required)"
 log "Press Ctrl+C to stop both services."

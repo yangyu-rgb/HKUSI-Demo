@@ -19,9 +19,9 @@ describe("PricingPage", () => {
     window.localStorage.setItem("crossborder-demo-session", JSON.stringify({ personaId: "demo-user", role: "operator", signedInAt: "2026-07-10T07:45:00+08:00" }));
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     render(<QueryClientProvider client={client}><MemoryRouter><PricingPage /></MemoryRouter></QueryClientProvider>);
-    fireEvent.click(await screen.findByRole("button", { name: "模拟购买" }));
-    expect(screen.getByText(/不会收集银行卡/)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "确认模拟结账" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Simulate purchase" }));
+    expect(screen.getByText(/does not collect card/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Confirm simulated checkout" }));
     await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledWith(expect.stringContaining("/api/commercial/checkout"), expect.objectContaining({ method: "POST" })));
   });
 });

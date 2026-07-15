@@ -131,7 +131,7 @@ export function createBorderPort(status: NormalizedRouteStatus, quality: Quality
   beacon.userData.routeId = status.id;
   group.add(beacon);
 
-  const label = createLabelSprite(`${status.name}口岸`, status.nameEn.toUpperCase(), statusConfig.color);
+  const label = createLabelSprite(`${status.nameEn.toUpperCase()} PORT`, status.nameEn.toUpperCase(), statusConfig.color);
   label.position.set(...status.labelOffset);
   label.scale.set(2.2, 0.69, 1);
   group.add(label);

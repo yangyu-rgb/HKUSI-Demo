@@ -31,7 +31,7 @@ describe("FeedItem", () => {
       source_type: "demo_entry", direction: "hong_kong_to_shenzhen", channel: "traveller",
     } as unknown as CrowdsourceReport;
     render(<FeedItem report={report} />);
-    expect(screen.getByText(/不参与预测/)).toBeInTheDocument();
-    expect(screen.getByText(/低可信 30分/)).toBeInTheDocument();
+    expect(screen.getByText(/Not used for prediction/)).toBeInTheDocument();
+    expect(screen.getByText(/Low confidence · score 30/)).toBeInTheDocument();
   });
 });

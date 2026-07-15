@@ -17,24 +17,24 @@ import { ErrorState } from "../shared/components/PageState";
 import styles from "./BusinessPage.module.css";
 
 const VIEW_LABELS: Record<WorkspaceKind, string> = {
-  coach_operator: "Coach Dispatch / 巴士调度",
-  freight_operator: "Freight Dispatch / 物流调度",
-  enterprise_client: "Enterprise Client / 企业客户",
-  port_authority: "Port Authority / 口岸官方",
+  coach_operator: "Coach Dispatch",
+  freight_operator: "Freight Dispatch",
+  enterprise_client: "Enterprise Client",
+  port_authority: "Port Authority",
 };
-const RISK_LABELS = { low: "Low / 低", medium: "Medium / 中", high: "High / 高" } as const;
+const RISK_LABELS = { low: "Low", medium: "Medium", high: "High" } as const;
 const PORT_LABELS: Record<string, string> = {
-  luohu: "Lo Wu / 罗湖",
-  futian: "Futian / 福田",
-  huanggang: "Huanggang / 皇岗",
-  "shenzhen-bay": "Shenzhen Bay / 深圳湾",
-  liantang: "Liantang / 莲塘",
-  "man-kam-to": "Man Kam To / 文锦渡",
+  luohu: "Lo Wu",
+  futian: "Futian",
+  huanggang: "Huanggang",
+  "shenzhen-bay": "Shenzhen Bay",
+  liantang: "Liantang",
+  "man-kam-to": "Man Kam To",
 };
 const SCENARIO_IDS = ["normal-weekday", "holiday-peak", "concert-release", "typhoon-severe-weather"];
 const DEFAULT_SCENARIO: OperationsScenario = {
   preset_id: "normal-weekday",
-  name: "Normal Weekday / 普通工作日",
+  name: "Normal Weekday",
   weather: "clear",
   is_holiday: false,
   events: [],
@@ -78,7 +78,7 @@ export function BusinessPage() {
     actual_high_risk_count: 0,
     actual_average_arrival_delta_minutes: 0,
     actual_support_contacts: 0,
-    note: "Classroom Demo review / 课堂演示复盘",
+    note: "Classroom Demo review",
   });
 
   useEffect(() => {
@@ -106,7 +106,7 @@ export function BusinessPage() {
   );
 
   if (operations.workspace.isPending) return <PageSkeleton cards={4} />;
-  if (!workspace || operations.workspace.error) return <ErrorState title="无法载入企业运营方案" detail={operations.error} />;
+  if (!workspace || operations.workspace.error) return <ErrorState title="Unable to load enterprise operations" detail={operations.error} />;
 
   const official = workspace.workspace_kind === "port_authority";
 
@@ -138,7 +138,7 @@ export function BusinessPage() {
       asset_available_at: departure.toISOString(),
       baseline_port_id: ports[0],
     }]);
-    setInputMessage("1 manual task added. Edit the row before analysis. / 已新增一条手工任务。");
+    setInputMessage("1 manual task added. Edit the row before analysis.");
     clearResults();
   }
 
@@ -146,7 +146,7 @@ export function BusinessPage() {
     const samples = workspace!.sample_jobs ?? [];
     setJobs(clone(samples));
     setShowAllJobs(false);
-    setInputMessage(`${samples.length} validated Demo tasks loaded. / 已载入并校验 ${samples.length} 条样例任务。`);
+    setInputMessage(`${samples.length} validated Demo tasks loaded.`);
     clearResults();
   }
 
@@ -208,7 +208,7 @@ export function BusinessPage() {
   function publishNotice(event: FormEvent) {
     event.preventDefault();
     void operations.notice.mutateAsync({
-      title: "Cross-border operating coordination window / 跨境运营协调窗口",
+      title: "Cross-border operating coordination window",
       message: "Operators should review port pressure, diversion capacity and vehicle circulation before the next three-hour operating window.",
       affected_ports: workspace!.ports.slice(0, 3).map((port) => String(port.id)),
       valid_until: "2026-07-15T10:00:00+08:00",
@@ -220,14 +220,14 @@ export function BusinessPage() {
     <main className="page">
       <div className="pageIntro">
         <span className="sectionKicker">AI at the core · Input to execution</span>
-        <h1>Enterprise Predictive Dispatch / 企业预测与调度</h1>
+        <h1>Enterprise Predictive Dispatch</h1>
         <p>Import an operating plan, stress-test it across four scenarios, then let the model and constraint optimizer produce an auditable dispatch decision.</p>
       </div>
 
       <section className={styles.editor}>
         <div className={styles.editorHeading}>
-          <div><span className="sectionKicker">Stage 1 · Operating input</span><h2>Import Services or Shipments / 导入运营任务</h2><p>Draft data stays in this browser until a plan is adopted.</p></div>
-          {session?.role === "operator" && <label><span>Demo view / 演示视角</span><select value={view} onChange={(event) => setView(event.target.value as WorkspaceKind)}>{workspace.available_views.map((item) => <option key={item} value={item}>{VIEW_LABELS[item]}</option>)}</select></label>}
+          <div><span className="sectionKicker">Stage 1 · Operating input</span><h2>Import Services or Shipments</h2><p>Draft data stays in this browser until a plan is adopted.</p></div>
+          {session?.role === "operator" && <label><span>Demo view</span><select value={view} onChange={(event) => setView(event.target.value as WorkspaceKind)}>{workspace.available_views.map((item) => <option key={item} value={item}>{VIEW_LABELS[item]}</option>)}</select></label>}
         </div>
 
         {!official && <>
@@ -259,7 +259,7 @@ export function BusinessPage() {
       </section>
 
       {!official && <section className={styles.shadowSummary}>
-        <div className={styles.shadowHeading}><div><span className="sectionKicker">Stage 2 · Scenario stress test</span><h2>Choose and Compare Scenarios / 选择并比较场景</h2></div><button className="button buttonPrimary" disabled={!jobs.length || operations.comparison.isPending} onClick={() => void compareScenarios()}>{operations.comparison.isPending ? "Running 4 scenarios…" : "Compare All 4 Scenarios"}</button></div>
+        <div className={styles.shadowHeading}><div><span className="sectionKicker">Stage 2 · Scenario stress test</span><h2>Choose and Compare Scenarios</h2></div><button className="button buttonPrimary" disabled={!jobs.length || operations.comparison.isPending} onClick={() => void compareScenarios()}>{operations.comparison.isPending ? "Running 4 scenarios…" : "Compare All 4 Scenarios"}</button></div>
         <div className={styles.scenarioGrid}>
           {(workspace.scenario_presets ?? [DEFAULT_SCENARIO]).map((item) => {
             const comparison = operations.comparison.data?.scenarios.find((candidate) => field(candidate.scenario, "preset_id") === item.preset_id);
@@ -284,7 +284,7 @@ export function BusinessPage() {
       </section>}
 
       {(result || official) && <section className={styles.result}>
-        <div className={styles.shadowHeading}><div><span className="sectionKicker">Stage 3 · AI analysis</span><h2>{official ? "Aggregate Port Pressure / 聚合口岸压力" : `${field(result!.scenario, "name")} Decision`}</h2></div><span>{workspace.ai_decision_trace.model_version}</span></div>
+        <div className={styles.shadowHeading}><div><span className="sectionKicker">Stage 3 · AI analysis</span><h2>{official ? "Aggregate Port Pressure" : `${field(result!.scenario, "name")} Decision`}</h2></div><span>{workspace.ai_decision_trace.model_version}</span></div>
         <div className={styles.readinessChecks}>
           <span className={styles.checkPassed}>✓ Input validated</span><span className={styles.checkPassed}>✓ HGB forecast</span><span className={styles.checkPassed}>✓ Scenario calibrated</span><span className={styles.checkPassed}>✓ Constraints optimized</span><span className={styles.checkPassed}>✓ Plan ready</span>
         </div>
@@ -307,7 +307,7 @@ export function BusinessPage() {
       </section>}
 
       {result && <section className={styles.shadowSummary}>
-        <div className={styles.shadowHeading}><div><span className="sectionKicker">Stage 4 · Adopt and execute</span><h2>{adopted ? "Plan Adopted / 方案已采用" : "AI Dispatch Actions / AI 调度措施"}</h2></div><span>Local execution checklist · No live dispatch connection</span></div>
+        <div className={styles.shadowHeading}><div><span className="sectionKicker">Stage 4 · Adopt and execute</span><h2>{adopted ? "Plan Adopted" : "AI Dispatch Actions"}</h2></div><span>Local execution checklist · No live dispatch connection</span></div>
         <div className={styles.history}>
           {result.actions.map((action) => <article key={action.id}><label><input type="checkbox" disabled={Boolean(adopted)} checked={selectedActions.includes(action.id)} onChange={(event) => setSelectedActions((current) => event.target.checked ? [...current, action.id] : current.filter((id) => id !== action.id))} /> <strong>{action.title}</strong></label><div><span>{action.detail}</span><span>{action.impact}</span></div></article>)}
         </div>
@@ -318,7 +318,7 @@ export function BusinessPage() {
       {official && <section className={styles.shadowSummary}><form onSubmit={publishNotice}><div className={styles.shadowHeading}><div><span className="sectionKicker">Coordination</span><h2>Publish Aggregate Operating Notice</h2></div><button className="button buttonPrimary" disabled={operations.notice.isPending}>{operations.notice.isSuccess ? "Demo Notice Published" : "Publish Demo Coordination Notice"}</button></div></form></section>}
 
       {adopted && !official && <section className={styles.readinessSummary}>
-        <div className={styles.shadowHeading}><div><span className="sectionKicker">Outcome review</span><h2>Human-entered Operations Review / 人工运营复盘</h2></div><span>Never presented as automatically observed</span></div>
+        <div className={styles.shadowHeading}><div><span className="sectionKicker">Outcome review</span><h2>Human-entered Operations Review</h2></div><span>Never presented as automatically observed</span></div>
         <div className={styles.batchPreferences}>
           <label><span>Actual high-risk tasks</span><input type="number" min="0" value={outcome.actual_high_risk_count} onChange={(event) => setOutcome({ ...outcome, actual_high_risk_count: Number(event.target.value) })} /></label>
           <label><span>Arrival improvement</span><input type="number" value={outcome.actual_average_arrival_delta_minutes} onChange={(event) => setOutcome({ ...outcome, actual_average_arrival_delta_minutes: Number(event.target.value) })} /></label>
@@ -328,7 +328,7 @@ export function BusinessPage() {
       </section>}
 
       <section className={styles.history}>
-        <div><h2>Recently Adopted Plans / 最近方案</h2><span>{operations.plans.length}</span></div>
+        <div><h2>Recently Adopted Plans</h2><span>{operations.plans.length}</span></div>
         {operations.plans.length === 0 && <p>An auditable record appears here only after a plan is adopted.</p>}
         {operations.plans.map((plan) => <article key={plan.plan_id}><div><strong>{field(plan.scenario, "name")}</strong><span>{new Date(plan.adopted_at).toLocaleString("en-HK")} · {plan.status} · {plan.notifications_created} drafts</span></div><button onClick={() => void downloadEnterprisePlan(plan.plan_id)}>Export</button></article>)}
       </section>

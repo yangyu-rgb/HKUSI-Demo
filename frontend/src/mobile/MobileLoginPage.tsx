@@ -23,23 +23,23 @@ export function MobileLoginPage() {
     <main className={styles.screen}>
       <section className={styles.hero}>
         <div className={styles.brand}><b>CB</b><span><strong>CrossBorder AI</strong><small>Mobile commute</small></span></div>
-        <span className={styles.kicker}>个人跨境助手</span>
-        <h1>先登录，<br />再开始今天的跨境行程。</h1>
-        <p>登录后可规划路线、推演场景、提交现场反馈并管理个人提醒。</p>
-        <div className={styles.pulse}><i /><span>四口岸态势持续更新</span></div>
+        <span className={styles.kicker}>Personal cross-border assistant</span>
+        <h1>Sign in,<br />then begin today's cross-border journey.</h1>
+        <p>Plan routes, compare scenarios, submit on-site reports, and manage personal alerts.</p>
+        <div className={styles.pulse}><i /><span>Four-port situation continuously updated</span></div>
       </section>
       <section className={styles.panel}>
         <span>Personal demo sign in</span>
-        <h2>个人通勤空间</h2>
-        <p>手机版仅开放个人身份，企业规划与运营分析请返回网页版。</p>
+        <h2>Personal commute workspace</h2>
+        <p>The mobile app supports the personal persona only. Use the web app for enterprise planning and operations analytics.</p>
         <article>
-          <i>{commuter?.name.slice(0, 1) ?? "个"}</i>
-          <div><strong>{commuter?.name ?? "正在载入身份…"}</strong><small>{commuter?.organization_name ?? "个人空间"}</small></div>
-          <b>个人</b>
+          <i>{commuter?.name.slice(0, 1) ?? "P"}</i>
+          <div><strong>{commuter?.name ?? "Loading persona…"}</strong><small>{commuter?.organization_name ?? "Personal workspace"}</small></div>
+          <b>Personal</b>
         </article>
-        <button onClick={enter} disabled={!commuter}>进入移动端系统 <span>→</span></button>
-        <a href="/">先查看网页版口岸态势</a>
-        <small>课堂 Demo · 本地身份 · 不连接真实 OAuth</small>
+        <button onClick={enter} disabled={!commuter}>Enter mobile app <span>→</span></button>
+        <a href="/">View the web Border Situation first</a>
+        <small>Classroom Demo · Local persona · No real OAuth connection</small>
       </section>
     </main>
   );

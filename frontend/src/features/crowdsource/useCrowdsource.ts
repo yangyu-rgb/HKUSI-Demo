@@ -20,11 +20,11 @@ export function useCrowdsource() {
     onSuccess: async (result) => {
       const feedbackMessage = result.forecast_feedback
         ? result.forecast_feedback.calibration_linked
-          ? "已关联本次课堂预测校准，不进入训练数据。"
+          ? "Linked to this classroom forecast calibration; excluded from training data."
           : result.forecast_feedback.reason
         : "";
       setMessage(
-        `+${result.points_earned} 积分 · ${result.message}`
+        `+${result.points_earned} points · ${result.message}`
         + (feedbackMessage ? ` ${feedbackMessage}` : ""),
       );
       await Promise.all([

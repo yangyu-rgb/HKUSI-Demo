@@ -13,8 +13,9 @@ import { queryKeys } from "../shared/queryKeys";
 import styles from "./ScenarioPage.module.css";
 
 
-const weatherLabels: Record<string, string> = { clear: "晴朗", rain: "降雨", heavy_rain: "暴雨", thunderstorm: "雷暴" };
+const weatherLabels: Record<string, string> = { clear: "Clear", rain: "Rain", heavy_rain: "Heavy rain", thunderstorm: "Thunderstorm" };
 const ports = ["罗湖", "福田", "皇岗", "深圳湾"];
+const portLabels: Record<string, string> = { 罗湖: "Lo Wu", 福田: "Futian", 皇岗: "Huanggang", 深圳湾: "Shenzhen Bay" };
 
 
 function editable(day: ScenarioDay): ScenarioWrite {
@@ -58,7 +59,7 @@ export function ScenarioPage() {
   }, [selectedDate, scenarios.data, context.data]);
 
   if (scenarios.isPending || locations.isPending || context.isPending) return <PageSkeleton cards={3} />;
-  if (!scenarios.data || !draft || !selected || !locations.data || !context.data) return <ErrorState title="无法载入场景实验室" detail={userFacingError(scenarios.error ?? locations.error ?? context.error)} />;
+  if (!scenarios.data || !draft || !selected || !locations.data || !context.data) return <ErrorState title="Unable to load the Scenario Lab" detail={userFacingError(scenarios.error ?? locations.error ?? context.error)} />;
   const operator = getDemoPersonaId() === "demo-user";
   const busy = save.isPending || restore.isPending || reset.isPending;
   const mutationError = save.error ?? restore.error ?? reset.error;
@@ -76,7 +77,7 @@ export function ScenarioPage() {
       weather: "heavy_rain",
       is_holiday: true,
       events: [{
-        name: "深圳湾大型活动",
+        name: "Major Shenzhen Bay event",
         preset: "classroom_demo",
         direction: "hong_kong_to_shenzhen",
         affected_ports: ["深圳湾"],
@@ -111,75 +112,75 @@ export function ScenarioPage() {
   return (
     <main className="page">
       <section className={styles.hero}>
-        <div><span className="sectionKicker">AI scenario lab</span><h1>未来场景实验室</h1><p>调节未来14天的天气、节假日和口岸事件，再让 AI V2 生成不同路线方案。</p></div>
-        <button className="button" disabled={!operator || busy} onClick={() => reset.mutate()}>重置全部场景</button>
+        <div><span className="sectionKicker">AI scenario lab</span><h1>Future Scenario Lab</h1><p>Adjust weather, holidays, and port events for the next 14 days, then let AI V2 generate alternative route plans.</p></div>
+        <button className="button" disabled={!operator || busy} onClick={() => reset.mutate()}>Reset all scenarios</button>
       </section>
-      {!operator && <p className={styles.notice}>请切换为“Demo 操作员”后修改场景；其他身份仍可查看。</p>}
+      {!operator && <p className={styles.notice}>Switch to the Demo Operator persona to edit scenarios. Other personas have read-only access.</p>}
       <section className={styles.calendar}>
         {scenarios.data.scenarios.map((day) => (
           <button key={day.date} className={day.date === selectedDate ? styles.selectedDay : styles.day} onClick={() => setSelectedDate(day.date)}>
-            <strong>{day.date.slice(5)}</strong><span>{weatherLabels[day.weather]}</span><small>{day.events.length ? `${day.events.length} 个事件` : "默认场景"}{day.is_override ? " · 已修改" : ""}</small>
+            <strong>{day.date.slice(5)}</strong><span>{weatherLabels[day.weather]}</span><small>{day.events.length ? `${day.events.length} events` : "Default scenario"}{day.is_override ? " · Modified" : ""}</small>
           </button>
         ))}
       </section>
       <section className={styles.editor}>
-        <div className={styles.editorHeading}><div><span className="sectionKicker">Selected day</span><h2>{selected.date} 场景</h2></div><Link className="button buttonPrimary" to={selected.date === scenarios.data.start ? "/planner" : `/planner?target_time=${selected.date}T09:00`}>使用此场景规划</Link></div>
+        <div className={styles.editorHeading}><div><span className="sectionKicker">Selected day</span><h2>{selected.date} scenario</h2></div><Link className="button buttonPrimary" to={selected.date === scenarios.data.start ? "/planner" : `/planner?target_time=${selected.date}T09:00`}>Plan with this scenario</Link></div>
         <div className={styles.baseFields}>
-          <label><span>天气</span><select aria-label="场景天气" disabled={!operator} value={draft.weather} onChange={(event) => setDraft({ ...draft, weather: event.target.value as ScenarioWrite["weather"] })}>{scenarios.data.weather_options.map((weather) => <option key={weather} value={weather}>{weatherLabels[weather]}</option>)}</select></label>
-          <label className={styles.checkbox}><input disabled={!operator} type="checkbox" checked={draft.is_holiday} onChange={(event) => setDraft({ ...draft, is_holiday: event.target.checked })} />节假日客流</label>
-          <label><span>事件预设</span><select aria-label="事件预设" disabled={!operator} value={preset} onChange={(event) => setPreset(event.target.value)}>{scenarios.data.event_presets.map((item) => <option key={String(item.id)} value={String(item.id)}>{String(item.name)}</option>)}</select></label>
-          <button className="button" disabled={!operator || draft.events.length >= 8} onClick={addPreset}>添加事件</button>
+          <label><span>Weather</span><select aria-label="Scenario weather" disabled={!operator} value={draft.weather} onChange={(event) => setDraft({ ...draft, weather: event.target.value as ScenarioWrite["weather"] })}>{scenarios.data.weather_options.map((weather) => <option key={weather} value={weather}>{weatherLabels[weather]}</option>)}</select></label>
+          <label className={styles.checkbox}><input disabled={!operator} type="checkbox" checked={draft.is_holiday} onChange={(event) => setDraft({ ...draft, is_holiday: event.target.checked })} />Holiday passenger flow</label>
+          <label><span>Event preset</span><select aria-label="Event preset" disabled={!operator} value={preset} onChange={(event) => setPreset(event.target.value)}>{scenarios.data.event_presets.map((item) => <option key={String(item.id)} value={String(item.id)}>{String(item.name)}</option>)}</select></label>
+          <button className="button" disabled={!operator || draft.events.length >= 8} onClick={addPreset}>Add event</button>
         </div>
         <div className={styles.events}>
-          {draft.events.length === 0 && <p className={styles.empty}>当天没有自定义事件。</p>}
+          {draft.events.length === 0 && <p className={styles.empty}>No custom events for this day.</p>}
           {draft.events.map((item, index) => (
             <article className={styles.eventCard} key={`${item.name}-${index}`}>
-              <input aria-label="事件名称" disabled={!operator} value={item.name} onChange={(event) => setDraft({ ...draft, events: draft.events.map((current, i) => i === index ? { ...current, name: event.target.value } : current) })} />
-              <select aria-label="事件方向" disabled={!operator} value={item.direction ?? ""} onChange={(event) => setDraft({ ...draft, events: draft.events.map((current, i) => i === index ? { ...current, direction: (event.target.value || null) as typeof current.direction } : current) })}><option value="">双向</option><option value="hong_kong_to_shenzhen">香港→深圳</option><option value="shenzhen_to_hong_kong">深圳→香港</option></select>
-              <input aria-label="开始时间" disabled={!operator} type="time" value={item.start_time} onChange={(event) => setDraft({ ...draft, events: draft.events.map((current, i) => i === index ? { ...current, start_time: event.target.value } : current) })} />
-              <input aria-label="结束时间" disabled={!operator} type="time" value={item.end_time} onChange={(event) => setDraft({ ...draft, events: draft.events.map((current, i) => i === index ? { ...current, end_time: event.target.value } : current) })} />
-              <select aria-label="影响强度" disabled={!operator} value={item.impact} onChange={(event) => setDraft({ ...draft, events: draft.events.map((current, i) => i === index ? { ...current, impact: event.target.value as typeof current.impact } : current) })}><option value="low">低影响</option><option value="medium">中影响</option><option value="high">高影响</option></select>
-              <div className={styles.portChecks}>{ports.map((port) => <label key={port}><input disabled={!operator} type="checkbox" checked={item.affected_ports.includes(port)} onChange={(event) => setDraft({ ...draft, events: draft.events.map((current, i) => i === index ? { ...current, affected_ports: event.target.checked ? [...current.affected_ports, port] : current.affected_ports.filter((value) => value !== port) } : current) })} />{port}</label>)}</div>
-              <button className="button" disabled={!operator} onClick={() => setDraft({ ...draft, events: draft.events.filter((_, i) => i !== index) })}>删除</button>
+              <input aria-label="Event name" disabled={!operator} value={item.name} onChange={(event) => setDraft({ ...draft, events: draft.events.map((current, i) => i === index ? { ...current, name: event.target.value } : current) })} />
+              <select aria-label="Event direction" disabled={!operator} value={item.direction ?? ""} onChange={(event) => setDraft({ ...draft, events: draft.events.map((current, i) => i === index ? { ...current, direction: (event.target.value || null) as typeof current.direction } : current) })}><option value="">Both directions</option><option value="hong_kong_to_shenzhen">Hong Kong → Shenzhen</option><option value="shenzhen_to_hong_kong">Shenzhen → Hong Kong</option></select>
+              <input aria-label="Start time" disabled={!operator} type="time" value={item.start_time} onChange={(event) => setDraft({ ...draft, events: draft.events.map((current, i) => i === index ? { ...current, start_time: event.target.value } : current) })} />
+              <input aria-label="End time" disabled={!operator} type="time" value={item.end_time} onChange={(event) => setDraft({ ...draft, events: draft.events.map((current, i) => i === index ? { ...current, end_time: event.target.value } : current) })} />
+              <select aria-label="Impact level" disabled={!operator} value={item.impact} onChange={(event) => setDraft({ ...draft, events: draft.events.map((current, i) => i === index ? { ...current, impact: event.target.value as typeof current.impact } : current) })}><option value="low">Low impact</option><option value="medium">Medium impact</option><option value="high">High impact</option></select>
+              <div className={styles.portChecks}>{ports.map((port) => <label key={port}><input disabled={!operator} type="checkbox" checked={item.affected_ports.includes(port)} onChange={(event) => setDraft({ ...draft, events: draft.events.map((current, i) => i === index ? { ...current, affected_ports: event.target.checked ? [...current.affected_ports, port] : current.affected_ports.filter((value) => value !== port) } : current) })} />{portLabels[port]}</label>)}</div>
+              <button className="button" disabled={!operator} onClick={() => setDraft({ ...draft, events: draft.events.filter((_, i) => i !== index) })}>Delete</button>
             </article>
           ))}
         </div>
         {mutationError && <p className="formError">{userFacingError(mutationError)}</p>}
-        <div className={styles.actions}><button className="button buttonPrimary" disabled={!operator || busy} onClick={() => save.mutate({ date: selected.date, payload: draft })}>保存场景</button><button className="button" disabled={!operator || busy} onClick={() => restore.mutate(selected.date)}>恢复当天默认</button></div>
+        <div className={styles.actions}><button className="button buttonPrimary" disabled={!operator || busy} onClick={() => save.mutate({ date: selected.date, payload: draft })}>Save scenario</button><button className="button" disabled={!operator || busy} onClick={() => restore.mutate(selected.date)}>Restore day default</button></div>
       </section>
       <section className={styles.comparison}>
         <div className={styles.editorHeading}>
-          <div><span className="sectionKicker">AI A/B comparison</span><h2>默认场景 vs 当前草稿</h2><p>无需保存即可比较，预览不会写入预测历史或审计。</p></div>
-          <button className="button" disabled={!operator} onClick={applyClassroomPreset}>一键课堂演示</button>
+          <div><span className="sectionKicker">AI A/B comparison</span><h2>Default scenario vs current draft</h2><p>Compare without saving. The preview does not write to forecast history or audit records.</p></div>
+          <button className="button" disabled={!operator} onClick={applyClassroomPreset}>Apply classroom Demo</button>
         </div>
         <div className={styles.compareFields}>
-          <label><span>方向</span><select aria-label="对比方向" value={comparisonQuery.direction} onChange={(event) => {
+          <label><span>Direction</span><select aria-label="Comparison direction" value={comparisonQuery.direction} onChange={(event) => {
             const direction = locations.data!.directions.find((item) => item.id === event.target.value) ?? locations.data!.directions[0];
             setComparisonQuery({ ...comparisonQuery, direction: direction.id, origin_id: direction.origin_ids[0], destination_id: direction.destination_ids[0] });
           }}>{locations.data.directions.map((item) => <option value={item.id} key={item.id}>{item.label}</option>)}</select></label>
-          <label><span>出发地</span><select aria-label="对比出发地" value={comparisonQuery.origin_id} onChange={(event) => setComparisonQuery({ ...comparisonQuery, origin_id: event.target.value })}>{comparisonOrigins.map((item) => <option value={item.id} key={item.id}>{item.name}</option>)}</select></label>
-          <label><span>目的地</span><select aria-label="对比目的地" value={comparisonQuery.destination_id} onChange={(event) => setComparisonQuery({ ...comparisonQuery, destination_id: event.target.value })}>{comparisonDestinations.map((item) => <option value={item.id} key={item.id}>{item.name}</option>)}</select></label>
-          <label><span>到达时间</span><input aria-label="对比到达时间" type="datetime-local" min={context.data.min_target_time.slice(0, 16)} max={context.data.max_target_time.slice(0, 16)} value={comparisonQuery.target_time} onChange={(event) => setComparisonQuery({ ...comparisonQuery, target_time: event.target.value })} /></label>
-          <label><span>偏好</span><select aria-label="对比偏好" value={comparisonQuery.priority} onChange={(event) => setComparisonQuery({ ...comparisonQuery, priority: event.target.value as Priority })}><option value="balanced">稳妥均衡</option><option value="fastest">时间最快</option><option value="cheapest">费用最低</option></select></label>
-          <label><span>预算</span><input aria-label="对比预算" type="number" min="0" value={comparisonQuery.max_budget ?? ""} onChange={(event) => setComparisonQuery({ ...comparisonQuery, max_budget: event.target.value === "" ? null : Number(event.target.value) })} /></label>
-          <button className="button buttonPrimary" disabled={!operator || compare.isPending || !comparisonQuery.target_time} onClick={runComparison}>{compare.isPending ? "AI 对比中…" : "对比 AI 方案"}</button>
+          <label><span>Origin</span><select aria-label="Comparison origin" value={comparisonQuery.origin_id} onChange={(event) => setComparisonQuery({ ...comparisonQuery, origin_id: event.target.value })}>{comparisonOrigins.map((item) => <option value={item.id} key={item.id}>{item.name}</option>)}</select></label>
+          <label><span>Destination</span><select aria-label="Comparison destination" value={comparisonQuery.destination_id} onChange={(event) => setComparisonQuery({ ...comparisonQuery, destination_id: event.target.value })}>{comparisonDestinations.map((item) => <option value={item.id} key={item.id}>{item.name}</option>)}</select></label>
+          <label><span>Arrival time</span><input aria-label="Comparison arrival time" type="datetime-local" min={context.data.min_target_time.slice(0, 16)} max={context.data.max_target_time.slice(0, 16)} value={comparisonQuery.target_time} onChange={(event) => setComparisonQuery({ ...comparisonQuery, target_time: event.target.value })} /></label>
+          <label><span>Preference</span><select aria-label="Comparison preference" value={comparisonQuery.priority} onChange={(event) => setComparisonQuery({ ...comparisonQuery, priority: event.target.value as Priority })}><option value="balanced">Balanced</option><option value="fastest">Fastest</option><option value="cheapest">Lowest cost</option></select></label>
+          <label><span>Budget</span><input aria-label="Comparison budget" type="number" min="0" value={comparisonQuery.max_budget ?? ""} onChange={(event) => setComparisonQuery({ ...comparisonQuery, max_budget: event.target.value === "" ? null : Number(event.target.value) })} /></label>
+          <button className="button buttonPrimary" disabled={!operator || compare.isPending || !comparisonQuery.target_time} onClick={runComparison}>{compare.isPending ? "Comparing…" : "Compare AI plans"}</button>
         </div>
         {compare.error && <p className="formError">{userFacingError(compare.error)}</p>}
         {compare.data && (
           <div className={styles.compareResults}>
             <div className={styles.recommendationChange}>
-              <div><span>默认场景</span><strong>{compare.data.baseline.recommended}口岸</strong></div>
-              <b>{compare.data.recommended_changed ? "推荐已切换 →" : "推荐未切换 →"}</b>
-              <div><span>当前草稿</span><strong>{compare.data.candidate.recommended}口岸</strong></div>
+              <div><span>Default scenario</span><strong>{compare.data.baseline.recommended} Port</strong></div>
+              <b>{compare.data.recommended_changed ? "Recommendation changed →" : "Recommendation unchanged →"}</b>
+              <div><span>Current draft</span><strong>{compare.data.candidate.recommended} Port</strong></div>
             </div>
             <p className={styles.compareReason}>{compare.data.candidate.reason}</p>
             <div className={styles.portComparison}>
               {compare.data.ports.map((port) => (
                 <article key={port.port_id}>
                   <h3>{port.port_name}</h3>
-                  <div><span>默认</span><strong>{port.baseline_wait_minutes} 分钟</strong></div>
-                  <div><span>草稿</span><strong>{port.candidate_wait_minutes} 分钟</strong></div>
-                  <em className={port.wait_delta_minutes > 0 ? styles.increase : styles.decrease}>{port.wait_delta_minutes > 0 ? "+" : ""}{port.wait_delta_minutes} 分钟 · 风险 {port.late_risk_delta_percent > 0 ? "+" : ""}{port.late_risk_delta_percent}%</em>
+                  <div><span>Default</span><strong>{port.baseline_wait_minutes} min</strong></div>
+                  <div><span>Draft</span><strong>{port.candidate_wait_minutes} min</strong></div>
+                  <em className={port.wait_delta_minutes > 0 ? styles.increase : styles.decrease}>{port.wait_delta_minutes > 0 ? "+" : ""}{port.wait_delta_minutes} min · Risk {port.late_risk_delta_percent > 0 ? "+" : ""}{port.late_risk_delta_percent}%</em>
                 </article>
               ))}
             </div>

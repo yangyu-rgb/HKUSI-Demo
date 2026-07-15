@@ -2,7 +2,7 @@ import type { CongestionLevel, QualityLevel } from "./types";
 
 export const CONGESTION_CONFIG = {
   smooth: {
-    label: "畅通",
+    label: "Clear",
     color: "#32e6a1",
     particleDensity: 0.34,
     particleSpeed: 1,
@@ -10,7 +10,7 @@ export const CONGESTION_CONFIG = {
     routeWidth: 1,
   },
   normal: {
-    label: "一般",
+    label: "Moderate",
     color: "#f6c453",
     particleDensity: 0.55,
     particleSpeed: 0.72,
@@ -18,7 +18,7 @@ export const CONGESTION_CONFIG = {
     routeWidth: 1.08,
   },
   crowded: {
-    label: "拥挤",
+    label: "Crowded",
     color: "#ff8a3d",
     particleDensity: 0.78,
     particleSpeed: 0.45,
@@ -26,7 +26,7 @@ export const CONGESTION_CONFIG = {
     routeWidth: 1.16,
   },
   severe: {
-    label: "严重拥挤",
+    label: "Severely crowded",
     color: "#ff4d4f",
     particleDensity: 1,
     particleSpeed: 0.2,

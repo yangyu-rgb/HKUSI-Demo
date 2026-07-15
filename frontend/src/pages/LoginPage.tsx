@@ -7,11 +7,11 @@ import { setDemoSession } from "../shared/api/client";
 import styles from "./LoginPage.module.css";
 
 const roleCopy: Record<string, { tag: string; detail: string }> = {
-  operator: { tag: "Platform Operations / 平台运营", detail: "Switch role views, inspect AI decisions and review operating signals." },
-  commuter: { tag: "Personal Mobility / 个人通勤", detail: "Plan routes, submit feedback and manage personal alerts." },
-  business_admin: { tag: "Enterprise Client / 企业客户", detail: "Review enterprise dispatch and employee shuttle planning." },
-  transport_dispatcher: { tag: "Transport Dispatch / 运输调度", detail: "Predict service, fleet and delivery-window risk, then adopt a plan." },
-  port_official: { tag: "Port Coordination / 口岸协调", detail: "Review aggregate pressure and publish a Demo coordination notice." },
+  operator: { tag: "Platform Operations", detail: "Switch role views, inspect AI decisions, and review operating signals." },
+  commuter: { tag: "Personal Mobility", detail: "Plan routes, submit feedback, and manage personal alerts." },
+  business_admin: { tag: "Enterprise Client", detail: "Review enterprise dispatch and employee shuttle planning." },
+  transport_dispatcher: { tag: "Transport Dispatch", detail: "Predict service, fleet, and delivery-window risk, then adopt a plan." },
+  port_official: { tag: "Port Coordination", detail: "Review aggregate pressure and publish a Demo coordination notice." },
 };
 
 export function LoginPage() {
@@ -36,11 +36,11 @@ export function LoginPage() {
         <small className={styles.boundary}>Classroom Demo · Local persona only · No OAuth or production authentication</small>
       </section>
       <section className={styles.loginPanel}>
-        <div><span className="sectionKicker">Demo sign in</span><h2>Choose your workspace / 选择工作空间</h2><p>No password is required. Each persona only sees its permitted local Demo workflow.</p></div>
+        <div><span className="sectionKicker">Demo sign in</span><h2>Choose your workspace</h2><p>No password is required. Each persona only sees its permitted local Demo workflow.</p></div>
         <div className={styles.personas}>
           {personas.data?.personas.map((persona) => {
             const copy = roleCopy[persona.role];
-            return <button className={selected === persona.id ? styles.selected : ""} onClick={() => setSelected(persona.id)} key={persona.id}><i>{persona.name.slice(0, 1)}</i><span><b>{persona.name}</b><small>{copy?.tag} · {persona.organization_name}</small><em>{copy?.detail}</em></span><u>{selected === persona.id ? "已选择" : "选择"}</u></button>;
+            return <button className={selected === persona.id ? styles.selected : ""} onClick={() => setSelected(persona.id)} key={persona.id}><i>{persona.name.slice(0, 1)}</i><span><b>{persona.name}</b><small>{copy?.tag} · {persona.organization_name}</small><em>{copy?.detail}</em></span><u>{selected === persona.id ? "Selected" : "Select"}</u></button>;
           })}
         </div>
         <button className={styles.enter} onClick={enter} disabled={!personas.data}>Enter CrossBorder AI <span>→</span></button>

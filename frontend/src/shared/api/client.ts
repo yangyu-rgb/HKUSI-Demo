@@ -1,4 +1,5 @@
 import { clearDemoSession, getDemoSession, setDemoSession } from "../../features/auth/session";
+import { englishDisplayText, localizeDemoPayload } from "../displayText";
 
 export { clearDemoSession, getDemoSession, setDemoSession };
 
@@ -54,7 +55,7 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
     });
   } catch (error) {
     throw new ApiError(
-      error instanceof Error ? error.message : "无法连接服务器",
+      error instanceof Error ? error.message : "Unable to connect to the server",
       0,
       "NETWORK_ERROR",
     );
@@ -70,33 +71,33 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
     const requestId = payload.error?.request_id
       ?? response.headers.get("X-Request-ID");
     throw new ApiError(
-      payload.error?.message ?? `请求失败（${response.status}）`,
+      englishDisplayText(payload.error?.message ?? `Request failed (${response.status})`),
       response.status,
       payload.error?.code ?? "HTTP_ERROR",
       payload.error?.details ?? {},
       requestId,
       payload.error?.category ?? "unknown",
       payload.error?.retryable ?? response.status >= 500,
-      payload.error?.user_action ?? null,
+      payload.error?.user_action ? englishDisplayText(payload.error.user_action) : null,
     );
   }
   if (response.status === 204) {
     return undefined as T;
   }
-  return response.json() as Promise<T>;
+  return localizeDemoPayload(await response.json() as T);
 }
 
 
 export function userFacingError(error: unknown): string {
   if (!(error instanceof ApiError)) {
-    return error instanceof Error ? error.message : "发生未知错误";
+    return error instanceof Error ? error.message : "An unknown error occurred";
   }
   if (error.code === "NETWORK_ERROR") {
-    return "无法连接服务器，请检查后端是否已启动。";
+    return "Unable to connect to the server. Check that the backend is running.";
   }
   if (error.status >= 500) {
-    const guidance = error.userAction ?? (error.retryable ? "请稍后重试" : "请联系演示操作员");
-    return `服务暂时不可用，${guidance}${error.requestId ? `（请求 ${error.requestId}）` : ""}`;
+    const guidance = error.userAction ?? (error.retryable ? "try again later" : "contact the Demo operator");
+    return `The service is temporarily unavailable; ${guidance}${error.requestId ? ` (request ${error.requestId})` : ""}.`;
   }
   return error.message;
 }

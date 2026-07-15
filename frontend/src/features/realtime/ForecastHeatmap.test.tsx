@@ -22,9 +22,9 @@ describe("ForecastHeatmap", () => {
     const ports = [port("luohu", "罗湖", [20, 24, 28, 30]), port("futian", "福田", [12, 14, 18, 19]), port("huanggang", "皇岗", [36, 42, 45, 48]), port("shenzhen-bay", "深圳湾", [16, 18, 17, 15])];
     const data = { timestamp: "2026-07-10T08:00:00+08:00", source: "test", data_sources: [], alerts: [], ports, overview: { smoothest_port_id: "futian", smoothest_port_name: "福田", smoothest_wait: 12, highest_pressure_port_id: "huanggang", highest_pressure_port_name: "皇岗", highest_pressure_wait: 36, fastest_rising_port_id: "huanggang", fastest_rising_port_name: "皇岗", fastest_rising_change: 6, active_anomaly_count: 0, crowdsource_report_count: 4 } } as unknown as RealtimeResponse;
     render(<ForecastHeatmap data={data} />);
-    expect(screen.getByText("当前最优").parentElement).toHaveTextContent("福田");
-    expect(screen.getByText("三小时后最优").parentElement).toHaveTextContent("深圳湾");
-    expect(screen.getAllByText("★ 最佳")).toHaveLength(4);
-    expect(screen.getByText("最大变化风险").parentElement).toHaveTextContent("皇岗");
+    expect(screen.getByText("Best now").parentElement).toHaveTextContent("Futian");
+    expect(screen.getByText("Best in three hours").parentElement).toHaveTextContent("Shenzhen Bay");
+    expect(screen.getAllByText("★ Best")).toHaveLength(4);
+    expect(screen.getByText("Largest change risk").parentElement).toHaveTextContent("Huanggang");
   });
 });
